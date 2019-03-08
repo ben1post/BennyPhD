@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="ce5ada0e-0aaa-49cf-ae3e-f71829dc0ba4" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/AuxFuncs.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ModelClasses.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ModelCode.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SetupParams.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ToyModels/BennyPhD_ToyModel_02_2P2Z_modelcomparison.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/../ToyModels/BennyPhD_ToyModel_02_2P2Z_modelcomparison.ipynb" afterDir="false" />
-    </list>
+    <list default="true" id="ce5ada0e-0aaa-49cf-ae3e-f71829dc0ba4" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,8 +13,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ModelCode.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="532">
-              <caret line="658" column="3" lean-forward="true" selection-start-line="658" selection-start-column="3" selection-end-line="658" selection-end-column="3" />
+            <state relative-caret-position="242">
+              <caret line="664" column="45" lean-forward="true" selection-start-line="664" selection-start-column="45" selection-end-line="664" selection-end-column="45" />
               <folding>
                 <element signature="e#48#66#0" expanded="true" />
               </folding>
@@ -172,8 +166,8 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/ModelCode.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="532">
-          <caret line="658" column="3" lean-forward="true" selection-start-line="658" selection-start-column="3" selection-end-line="658" selection-end-column="3" />
+        <state relative-caret-position="242">
+          <caret line="664" column="45" lean-forward="true" selection-start-line="664" selection-start-column="45" selection-end-line="664" selection-end-column="45" />
           <folding>
             <element signature="e#48#66#0" expanded="true" />
           </folding>
