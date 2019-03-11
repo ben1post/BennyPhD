@@ -1,24 +1,34 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import numpy as np
 
+from PhytoMFTM.AuxFuncs import sliceparams,sliceoffparams,checkreplaceparam
 
-class Phytoplankton:
+class Plankton:
     """
-    initializes the Phytoplankton community according to number of types prescribed by params
+    initializes the Plankton (both Zoo- & Phyto-) community according to number of types prescribed by params
     """
 
-    def __init__(self, modelparams):
-        self.phytonum = modelparams['pfun_num'].value
-        self.stdparams = sliceoffparams(modelparams, 'pt')
+    def __init__(self, modelparams, zptype):
+        if zptype == 'Zooplankton':
+            self.zoonum = modelparams['zoo_num'].value
+            self.stdparams = sliceoffparams(modelparams, 'zt')
+            self.pars = [ZooType(self.stdparams, sliceparams(modelparams, 'zt' + str(i + 1)))
+                        for i in range(self.zoonum)]
+        elif zptype == 'Phytoplankton':
+            self.phytonum = modelparams['pfun_num'].value
+            self.stdparams = sliceoffparams(modelparams, 'pt')
+            self.pars = [PhytoType(self.stdparams, sliceparams(modelparams, 'pt' + str(i + 1))) for i in
+                         range(self.phytonum)]
 
-        self.phy = [FuncType(self.stdparams, sliceparams(modelparams, 'pt' + str(i + 1))) for i in range(self.phytonum)]
+        else:
+            raise('wrong functional type passed to Plankton class')
 
     def init(self, ):
-        return self.phy
+        return self.pars
 
-
-class FuncType:
+class PhytoType:
     """sets up individual functional types and defines functions
     such as nutrient uptake and growth"""
 
@@ -78,29 +88,6 @@ class FuncType:
         return Mortal
 
 
-
-
-
-
-
-
-
-class Zooplankton:
-    """
-    initializes the Zooplankton groups according to number of types prescribed by params
-    """
-
-    def __init__(self, modelparams):
-        self.zoonum = modelparams['zoo_num'].value
-        self.stdparams = sliceoffparams(modelparams, 'zt')
-
-        self.zoo = [ZooType(self.stdparams, sliceparams(modelparams, 'zt' + str(i + 1)))
-                    for i in range(self.zoonum)]
-
-    def init(self, ):
-        return self.zoo
-
-
 class ZooType:
     def __init__(self, stdpars, slicedpars):
         # zooplankton
@@ -115,8 +102,8 @@ class ZooType:
         # Quadratic loss term for closure
         return self.moZ * Z ** 2
 
-    def grazing(self, P, Z):
-        Ped = P * self.gr_p  # Edible Phytoplankton
+    def grazing(self, Ptot, Z):
+        Ped = Ptot * self.gr_p  # Edible Phytoplankton
         Grazing = self.muZ * Z / (Ped + self.Kp)  # Zooplankton grazing as hyperbolic function
         return Grazing
 
