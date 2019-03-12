@@ -46,6 +46,12 @@ class PhytoType:
 
         self.ratioSi = checkreplaceparam(stdpars, slicedpars, 'ratioSi')
 
+        self.zn = stdpars['zoo_num']
+
+        self.grazepref = [1 for i in range(self.zn)]
+
+
+
     def n_uptake(self, Nitrate):
         N_Uptake = Nitrate / (Nitrate + self.U_N)  # Michaelis Menten - uptake of Nitrate
         return N_Uptake
@@ -73,6 +79,18 @@ class PhytoType:
             Gains = self.muP * min(nuptake, siuptake) * lighthrv * tempdepgro
         return Gains
 
+
+
+    def grazedphyto(self, Itot, P, R):   #NEEEWW GRAZED PHYTO FORMULATION USING GRAZEDPREF LIST
+
+        Ri = [self.grazepref[i]*P for i in range(self.zn)] # this calculates the resource density for this phyto type as grazed by all zoo types
+        # Ri[1] is the relative contribution of this phyto type to Z type 1 's diet
+        GrzLoss = sum([Itot[i] * (Ri[i] / R[i]) for i in range(self.zn)]) # the Itot relates to each Zootype, similarly the R should relate to each Zoo type
+
+        return GrzLoss
+
+
+
     def losses(self, intMLD, grzing, diffmix):
         Sinking = self.v / intMLD  # Phytoplankton sinking as a function of MLD and sinking rate
         OtherPMortalities = self.moP  # Linear Phytoplankton mortality
@@ -98,21 +116,26 @@ class ZooType:
         self.Kp = checkreplaceparam(stdpars, slicedpars, 'Kp')
         self.deltaZ = checkreplaceparam(stdpars, slicedpars, 'deltaZ')
 
+        self.pfn = stdpars['pfun_num']
+
+        self.feedpref = [1 for i in range(self.pfn)]
+
     def zoomortality(self, Z):
         # Quadratic loss term for closure
         return self.moZ * Z ** 2
 
-    def grazing(self, Ptot, Z):
-        Ped = Ptot * self.gr_p  # Edible Phytoplankton
-        Grazing = self.muZ * Z / (Ped + self.Kp)  # Zooplankton grazing as hyperbolic function
-        return Grazing
+    def zoograzing(self, P):  #NEWWWW formulation incl. feedpref list
+        R = sum([self.feedpref[i] * P[i] for i in range(self.pfn)]) # this should add together the total ressource density per zoo type
 
-    def zoogrowth(self, grzing):
-        Growth = self.deltaZ * grzing
+        Itot = (R / (self.Kp + R)) * self.muZ  # this should return the
+        return Itot, R
+
+    def zoogrowth(self, Itots):
+        Growth = self.deltaZ * Itots
         return Growth
 
-    def unassimilatedfeeding(self, grzing):
-        UnAsFeeding = (1. - self.deltaZ) * grzing
+    def unassimilatedfeeding(self, Itots):
+        UnAsFeeding = (1. - self.deltaZ) * Itots
         return UnAsFeeding
 
 # add grazing preference parameter

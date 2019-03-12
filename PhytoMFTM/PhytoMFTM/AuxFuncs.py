@@ -48,6 +48,10 @@ def feedingmatrix(P, Z, pn, zn):
     l = [[phy, zoo] for phy in range(pn) for zoo in range(zn)]
     return l
 
+def grazing_old(P, Z, pn, zn, zclass):
+    l = [[phy, zoo] for phy in range(pn) for zoo in range(zn)]
+    all_graze = [[phy, zoo, zclass[zoo].grazing(P[phy], Z[zoo])] for phy, zoo in l]
+    return all_graze
 
 def grazing(Ptot, Z, pn, zn, zclass):
     l = [[phy, zoo] for phy in range(pn) for zoo in range(zn)]

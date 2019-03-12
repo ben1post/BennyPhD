@@ -26,7 +26,7 @@ standardparams.add('pfun_num', value=2, vary=False)
 # number of zooplankton groups
 standardparams.add('zoo_num', value=2, vary=False)
 # mld - related
-standardparams.add('kappa', value=0.1, vary=False)      # Diffusive mixing across thermocline (m*d^-1)
+standardparams.add('kappa', value=0.1, min=0.09, max=0.11)      # Diffusive mixing across thermocline (m*d^-1)
 standardparams.add('deltaD_N', value=0.1, vary=False)   # Nitrate Mineralization rate (d^-1)
 standardparams.add('deltaD_Si', value=0.1, vary=False)  # Silicate Mineralization rate (d^-1)
 
@@ -157,29 +157,34 @@ def callmodelrun(pfn,zn):
 
     return out
 
+# read yearly data (for comparison to model) from Cariaco
+ChlA = pandas.read_csv('../CARIACOModelingProject/Data/DataFiles_Processed/ChlA_bottle_yearly_surface.csv')
 
-def plotoutput(outarray, pfn, zn):
-    # read yearly data (for comparison to model) from Cariaco
-    ChlA = pandas.read_csv('../CARIACOModelingProject/Data/DataFiles_Processed/ChlA_bottle_yearly_surface.csv')
+NO3NO2 = pandas.read_csv('../CARIACOModelingProject/Data/DataFiles_Processed/NO3NO2_bottle_yearly_surface.csv')
 
-    NO3NO2 = pandas.read_csv('../CARIACOModelingProject/Data/DataFiles_Processed/NO3NO2_bottle_yearly_surface.csv')
+SiOH_UDO = pandas.read_csv('../CARIACOModelingProject/Data/DataFiles_Processed/SiOH_UDO_bottle_yearly_surface.csv')
+SiOH_USF = pandas.read_csv('../CARIACOModelingProject/Data/DataFiles_Processed/SiOH_USF_bottle_yearly_surface.csv')
 
-    SiOH_UDO = pandas.read_csv('../CARIACOModelingProject/Data/DataFiles_Processed/SiOH_UDO_bottle_yearly_surface.csv')
-    SiOH_USF = pandas.read_csv('../CARIACOModelingProject/Data/DataFiles_Processed/SiOH_USF_bottle_yearly_surface.csv')
+# Zooplankton:
+ZooBM = pandas.read_csv('../CARIACOModelingProject/Data/DataFiles_Processed/ZooBM_All.csv')
+# zooplankton biomass is in [mg/m^3 dry weight]
+# for now, a 10% N content of the dry weight of all Zooplankton is assumed,
+# [Gorsky et al. 1988] "C and N composition of some northwestern Mediterranean zooplankton and micronekton species"
+# to convert the values to µM  N  ::  1 mg N/m^3 = 0.071394 μM N
 
-    # Zooplankton:
-    ZooBM = pandas.read_csv('../CARIACOModelingProject/Data/DataFiles_Processed/ZooBM_All.csv')
-    # zooplankton biomass is in [mg/m^3 dry weight]
-    # for now, a 10% N content of the dry weight of all Zooplankton is assumed,
-    # [Gorsky et al. 1988] "C and N composition of some northwestern Mediterranean zooplankton and micronekton species"
-    # to convert the values to µM  N  ::  1 mg N/m^3 = 0.071394 μM N
+###########--monthly medians---######
+ChlA = ChlA.assign(month=pandas.to_datetime(ChlA['yday'], format='%j').dt.month)
+NO3NO2 = NO3NO2.assign(month=pandas.to_datetime(NO3NO2['yday'], format='%j').dt.month)
+SiOH_USF = SiOH_USF.assign(month=pandas.to_datetime(SiOH_USF['yday'], format='%j').dt.month)
+ZooBM = ZooBM.assign(month=pandas.to_datetime(ZooBM['yday'], format='%j').dt.month)
 
-    ###########--monthly medians---######
-    ChlA = ChlA.assign(month=pandas.to_datetime(ChlA['yday'], format='%j').dt.month)
-    NO3NO2 = NO3NO2.assign(month=pandas.to_datetime(NO3NO2['yday'], format='%j').dt.month)
-    SiOH_USF = SiOH_USF.assign(month=pandas.to_datetime(SiOH_USF['yday'], format='%j').dt.month)
-    ZooBM = ZooBM.assign(month=pandas.to_datetime(ZooBM['yday'], format='%j').dt.month)
+ChlA_monthly_median = ChlA.groupby('month').median()
+NO3NO2_monthly_median = NO3NO2.groupby('month').median()
+SiOH_USF_monthly_median = SiOH_USF.groupby('month').median()
+ZooBM_monthly_median = ZooBM.groupby('month').median()
 
+
+def plotoutput(outarray, pfn, zn, i_plot, maintitle):
 
     # PLOTTING
     timedays = timedays_model[1:366]
@@ -187,7 +192,8 @@ def plotoutput(outarray, pfn, zn):
     outarray_ly = outarray[1460:1825]
 
     # color vectors
-    colors = ['#00C90D', '#01939A', '#d16f00', '#d13700', '#d10000']
+    #colors = ['#edc951', '#dddddd', '#00a0b0', '#343436', '#cc2a36']
+    colors = ['#808080','#d55e00', '#cc79a7', '#0072b2', '#009e73', '#009e73']
     alphas = [1., 0.8, 0.6, 0.4]
     lws = [1, 2.5, 4, 5.5]
 
@@ -195,74 +201,170 @@ def plotoutput(outarray, pfn, zn):
     FullArtist = plt.Line2D((0, 1), (0, 0), c=colors[4], alpha=alphas[1], lw=lws[0])
 
     # Figure 1
-    f1, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 1, sharex='col', sharey='row')
     # N
-    ax1.plot(timedays, outarray_ly[:, 0], c=colors[4], lw=lws[0], alpha=alphas[0], label='Model')
-    ax1.set_ylabel('Nitrate \n' '[µM]', multialignment='center', fontsize=10)
-    ax1.set_ylim(-0.1, 5)
+    ax1[i_plot].plot(timedays, outarray_ly[:, 0], c=colors[1], lw=lws[0], alpha=alphas[0], label='Model')
+    if i_plot == 0:
+        ax1[i_plot].set_ylabel('Nitrate \n' '[µM]', multialignment='center', fontsize=10)
+    ax1[i_plot].set_ylim(-0.1, 5)
 
     # N Data
-    ax1.scatter(NO3NO2['yday'].values, NO3NO2['NO3NO2'].values, c=colors[1], s=4.3, label='Data')
-    ax1.set_title('Nitrate & NO3 + NO2')
-    ax1.legend(loc=1)
+    ax1[i_plot].scatter(NO3NO2['yday'].values, NO3NO2['NO3NO2'].values, c=colors[0], s=4.3, label='Data')
+    ax1[i_plot].set_title(maintitle + '\n'+'Nitrate & NO3 + NO2')
+    ax1[i_plot].legend(loc=1)
 
     # Si
-    ax2.plot(timedays, outarray_ly[:, 1], c=colors[4], lw=lws[0], alpha=alphas[0])
-    ax2.set_ylabel('Silicate \n' '[µM]', multialignment='center', fontsize=10)
-    ax2.set_ylim(-0.1, 12)
+    ax2[i_plot].plot(timedays, outarray_ly[:, 1], c=colors[1], lw=lws[0], alpha=alphas[0])
+    if i_plot == 0:
+        ax2[i_plot].set_ylabel('Silicate \n' '[µM]', multialignment='center', fontsize=10)
+    ax2[i_plot].set_ylim(-0.1, 12)
     # Si Data
-    ax2.scatter(SiOH_USF['yday'].values, SiOH_USF['SiOH'].values, c=colors[1], s=4.3)
-    ax2.set_title('Silicate & SiOH')
+    ax2[i_plot].scatter(SiOH_USF['yday'].values, SiOH_USF['SiOH'].values, c=colors[0], s=4.3)
+    ax2[i_plot].set_title('Silicate & SiOH')
 
-    # Phyto
-    ax3.plot(timedays, sum([outarray_ly[:, 3 + zn + i] for i in range(pfn)]), c=colors[1], lw=lws[1])
-    [ax3.plot(timedays, outarray_ly[:, 3 + zn + i], c=colors[i + 2]) for i in range(pfn)]
-    ax3.set_ylabel('Phyto \n' '[µM N]', multialignment='center', fontsize=10)
-    ax3.set_ylim(-0.1, 0.8)
     # Phyto Data
-    ax3_tx = ax3.twinx()
+    ax3_tx = ax3[i_plot].twinx()
     ax3_tx.scatter(ChlA['yday'].values, ChlA['ChlA'].values, c=colors[0], s=4.3)
-    ax3_tx.set_ylabel('ChlA \n [mg/m3]')
+    if i_plot == 2:
+        ax3_tx.set_ylabel('ChlA \n [mg/m3]')
 
-    ax3.set_title('Phy Biomass & ChlA Data')
+    ax3[i_plot].set_zorder(ax3_tx.get_zorder() + 1)  # put ax in front of ax2
+    ax3[i_plot].patch.set_visible(False)
+
+    #model
+    ax3[i_plot].plot(timedays, sum([outarray_ly[:, 3 + zn + i] for i in range(pfn)]), c=colors[4], lw=lws[1])
+    [ax3[i_plot].plot(timedays, outarray_ly[:, 3 + zn + i], c=colors[i + 1]) for i in range(pfn)]
+    if i_plot == 0:
+        ax3[i_plot].set_ylabel('Phyto \n' '[µM N]', multialignment='center', fontsize=10)
+    ax3[i_plot].set_ylim(-0.1, 0.8)
+
+    ax3[i_plot].set_title('Phy Biomass & ChlA Data')
 
     # Z
-    ax4.plot(timedays, sum([outarray_ly[:, 3 + i] for i in range(zn)]), c=colors[1], lw=lws[1])
-    [ax4.plot(timedays, outarray_ly[:, 3 + i], c=colors[i + 3], lw=lws[0], alpha=alphas[0]) for i in range(zn)]
-    ax4.set_ylabel('Zooplankton \n' '[µM N]', multialignment='center', fontsize=9)
-    ax4.tick_params('y', labelsize=10)
-
-    ax4.scatter(ZooBM['yday'].values, ZooBM['ZooBM'].values * 0.1 * 0.071394, c=colors[1], s=4.3)
+    ax4[i_plot].scatter(ZooBM['yday'].values, ZooBM['ZooBM'].values * 0.1 * 0.071394, c=colors[0], s=4.3)
     # 10% N of dry weight assumed, converted to µM
+    ax4[i_plot].plot(timedays, sum([outarray_ly[:, 3 + i] for i in range(zn)]), c=colors[4], lw=lws[1])
+    [ax4[i_plot].plot(timedays, outarray_ly[:, 3 + i], c=colors[i + 1], lw=lws[0], alpha=alphas[0]) for i in range(zn)]
+    if i_plot == 0:
+        ax4[i_plot].set_ylabel('Zooplankton \n' '[µM N]', multialignment='center', fontsize=9)
+    ax4[i_plot].tick_params('y', labelsize=10)
 
-    ax4.set_title('Zooplankton')
-    ax4.set_ylim(0, 0.62)
+    ax4[i_plot].set_title('Zooplankton')
+    ax4[i_plot].set_ylim(0, 0.62)
 
     # D
-    ax5.plot(timedays, outarray_ly[:, 3], c=colors[1], lw=lws[0], alpha=alphas[0])
-    ax5.set_ylabel('Detritus \n' '[µM N]', multialignment='center', fontsize=9)
+    ax5[i_plot].plot(timedays, outarray_ly[:, 3], c=colors[1], lw=lws[0], alpha=alphas[0])
+    if i_plot == 0:
+        ax5[i_plot].set_ylabel('Detritus \n' '[µM N]', multialignment='center', fontsize=9)
 
-    ax5.set_title('Detritus')
-    ax5.set_ylim(bottom=0)
+    ax5[i_plot].set_title('Detritus')
+    ax5[i_plot].set_ylim(0,0.15)
 
-    ax5.set_xlabel('Day in year', fontsize=14)
+    ax5[i_plot].set_xlabel('Day in year', fontsize=14)
     # Legend
 
+
+
+def test():
+    timedays_model = np.arange(0., 5 * 365., 1.0)
+
+
+    out1P1Z = callmodelrun(1,1)
+    out2P1Z = callmodelrun(2,1)
+    out2P2Z = callmodelrun(2,2)
+
     # plt.subplots_adjust(hspace=0.01)
-    f1.set_figheight(15)
-    plt.tight_layout()
+    f1, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 3, sharex='col', sharey='row')
+
+    plotoutput(out1P1Z,1,1,0,'1P1Z')
+    plotoutput(out2P1Z,2,1,1,'2P1Z')
+    plotoutput(out2P2Z,2,2,2,'2P2Z')
+
+
+
+    #f1.set_figheight(15)
+    #plt.tight_layout()
     plt.show()
 
+    #f1.savefig("foo.pdf", bbox_inches='tight')
 
 
 
-timedays_model = np.arange(0., 5 * 365., 1.0)
 
 
-out1P1Z = callmodelrun(1,1)
-out2P1Z = callmodelrun(2,1)
-out2P2Z = callmodelrun(2,2)
+def residual2P2Z(paras):
+    """
+    compute the residual between actual data and fitted data
+    """
+    initcond = setupinitcond(paras['pfun_num'].value, paras['zoo_num'].value)
 
-plotoutput(out1P1Z,1,1)
+
+
+    model = g2P2Z(initcond, timedays_model, paras)
+
+    # to implement fitting algorithm make sure to calculate residual only for the last year!
+
+    # will have to 1. : simplify the data (i.e. median per month)
+    # will have to put data into structure to calculate efficiently (i.e. pandas dataframe like df[1] = N, df[2] = Si, etc.)
+    model_ly = model[1460:1825]
+
+    # aggregate model output in the same way as validation data (monthly mean)
+    # create month vector to add to model output dataframe for analysis
+    oneyearmodel = pandas.DataFrame()
+    oneyearmodel = oneyearmodel.assign(day=pandas.Series(np.linspace(1, 365, 365)))
+
+    # combine two columns
+    phyto_model = pandas.DataFrame(
+        {'data': model_ly[:, 4], 'month': pandas.to_datetime(oneyearmodel['day'], format='%j').dt.month})
+    phyto_monthly_median = phyto_model.groupby('month').median()
+    phyto_resid = (phyto_monthly_median['data'].values - ChlA_monthly_median['ChlA'].values * 0.1)
+
+    nitrate_model = pandas.DataFrame(
+        {'data': model_ly[:, 0], 'month': pandas.to_datetime(oneyearmodel['day'], format='%j').dt.month})
+    nitrate_monthly_median = nitrate_model.groupby('month').median()
+    nitrate_resid = (nitrate_monthly_median['data'].values - NO3NO2_monthly_median['NO3NO2'].values * 0.1)
+
+    silicate_model = pandas.DataFrame(
+        {'data': model_ly[:, 1], 'month': pandas.to_datetime(oneyearmodel['day'], format='%j').dt.month})
+    silicate_monthly_median = silicate_model.groupby('month').median()
+    silicate_resid = (silicate_monthly_median['data'].values - SiOH_USF_monthly_median['SiOH'].values * 0.1)
+
+    zoo_model = pandas.DataFrame(
+        {'data': model_ly[:, 3], 'month': pandas.to_datetime(oneyearmodel['day'], format='%j').dt.month})
+    zoo_monthly_median = zoo_model.groupby('month').median()
+    zoo_resid = (zoo_monthly_median['data'].values - ZooBM_monthly_median['ZooBM'].values * 0.1)
+
+    ss = np.concatenate((phyto_resid, nitrate_resid, silicate_resid, zoo_resid))
+    return ss
+
+
+def g2P2Z(x0, t, paras):
+    """
+    Solution to the ODE x'(t) = f(t,x,k) with initial condition x(0) = x0
+    """
+    z = Plankton(paras, 'Zooplankton').init()
+    p = Plankton(paras, 'Phytoplankton').init()
+
+    x = odeint(mc.simpleN2P2ZD, x0, t, args=(paras,p,z))
+    return x
+
+
+
+def fitting(pfn,zn):
+    # fit model
+    # number of phytoplankton func types
+    standardparams.add('pfun_num', value=pfn, vary=False)
+    # number of zooplankton groups
+    standardparams.add('zoo_num', value=zn, vary=False)
+
+    parameters = setupparadict(pfn,zn)
+
+    result = minimize(residual2P2Z, parameters, args=(), method='least_squares')  # leastsq nelder
+    # check results of the fit
+    #outarray = g(initcond, timedays_model, result.params)
+    print(pfn,zn)
+    print(result.aic)
+
+    #report_fit(result)
+    #print(result.residual)
 
 
