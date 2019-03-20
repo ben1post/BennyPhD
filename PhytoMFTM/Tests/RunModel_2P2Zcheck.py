@@ -86,8 +86,8 @@ ztype1.add('zt1_muZ', value=0.05, vary=False)    # Zooplankton maximum grazing r
 
 # set up zooplankton type 2 (e.g. larger zooplankton)
 ztype2 = Parameters()
-ztype2.add('zt2_gr_p', value=0.3, vary=False)   # Portion of Phytoplankton being grazed by Zooplankton
-ztype2.add('zt2_muZ', value=0.1, vary=False)    # Zooplankton maximum grazing rate (d^-1)
+ztype2.add('zt2_gr_p', value=0.6, vary=False)   # Portion of Phytoplankton being grazed by Zooplankton
+ztype2.add('zt2_muZ', value=0.05, vary=False)    # Zooplankton maximum grazing rate (d^-1)
 
 #ztype2.add('zt2_moZ', value=0.1, vary=False)        # Zooplankton mortality (d^-1)
 #ztype2.add('zt2_deltaZ', value=0.31, vary=False)    # Zooplankton Grazing assimilation coefficient (-)
@@ -108,9 +108,9 @@ def setupinitcond(pfn,zn):
     initnut = [N0, Si0, D0]
     initzoo = [Z0 for i in range(zn)]
     initphy = [P0 for i in range(pfn)]
-    outputlist = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    initcond = initnut + initzoo + initphy + outputlist
-
+    outputl = [0 for i in range(19)]
+    initcond = np.concatenate([initnut, initzoo, initphy, outputl])
+    #print(type(initcond))
     return initcond
 
 
@@ -136,9 +136,26 @@ def callmodelrun(pfn,zn):
     # number of zooplankton groups
     standardparams.add('zoo_num', value=zn, vary=False)
 
-    parameters = (standardparams)
-    initialcond = setupinitcond(pfn,zn)
+    if pfn == 3 and zn == 2:
+         print('3P2Z')
+         all_params = (standardparams + ztype1 + ztype2)
+    elif pfn == 2 and zn == 2:
+         print('2P2Z')
+         all_params = (standardparams + ztype1 + ztype2)
+    elif pfn == 2 and zn == 1:
+         print('2P1Z')
+         all_params = (standardparams )
+    elif pfn == 1 and zn == 1:
+         print('1P1Z')
+         all_params = (standardparams)
+    else:
+        print('just standard params')
+        all_params = (standardparams)
 
+
+    parameters = all_params
+    initialcond = setupinitcond(pfn,zn)
+    print(initialcond)
     out = runmodel(parameters,initialcond)
 
     return out
@@ -233,13 +250,16 @@ def test():
     #f1.savefig("foo2.pdf", bbox_inches='tight')
 
 out1P1Z = callmodelrun(1,1)
-#out2P2Z = callmodelrun(2,2)
+out2P1Z = callmodelrun(2,1)
 #out3P3Z = callmodelrun(3,3)
 #out4P4Z = callmodelrun(4,4)
-out5P5Z = callmodelrun(5,5)
 
-f1, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 2, sharex='col', sharey='row')
+#out5P5Z = callmodelrun(5,5)
+out2P2Z = callmodelrun(2,2)
+
+f1, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 3, sharex='col', sharey='row')
 
 plotoutput(out1P1Z,1,1,0)
+plotoutput(out2P1Z,2,1,1)
+plotoutput(out2P2Z,2,2,2)
 
-plotoutput(out5P5Z,5,5,1)

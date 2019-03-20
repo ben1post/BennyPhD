@@ -124,10 +124,10 @@ class ZooType:
         # Quadratic loss term for closure
         return self.moZ * Z ** 2
 
-    def zoograzing(self, P):  #NEWWWW formulation incl. feedpref list
+    def zoograzing(self, P, Z):  #NEWWWW formulation incl. feedpref list
         R = sum([self.feedpref[i] * P[i] for i in range(self.pfn)]) # this should add together the total ressource density per zoo type
 
-        Itot = (R / (self.Kp + R)) * self.muZ  # this should return the
+        Itot = (R / (self.Kp + R)) * self.muZ * Z # this should return the
         return Itot, R
 
     def zoogrowth(self, Itots):

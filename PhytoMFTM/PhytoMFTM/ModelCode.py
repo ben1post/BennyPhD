@@ -240,25 +240,27 @@ def simpleN2P2ZD_extendedoutput(x, t, paras, pClass, zClass):
                   sum(LightHarvesting), TemperatureDepGrowth, sum(Gains), sum(PhytoGrazed), sum(ZooGrazeGrowth),
                   sum(Losses), sum(ZooMixing), sum(ZooGrowth), sum(UnassimilatedProduction)]
 
-    out = [y0, y1, y2] + zoo + phy + outputlist
+    out1 = [y0, y1, y2] + zoo + phy + outputlist
     return out
 
 
 
 def simpleN2P2ZD_extendedoutput_constantinput(x, t, paras, pClass, zClass):
-    N = x[0] # Nitrate
-    Si = x[1] # Silicate
-    D = 0 #x[2] # Detritus
+    N = x[0]  # Nitrate
+    Si = x[1]  # Silicate
+    D = x[2]  # Detritus
 
     zn = paras['zoo_num'].value
-    Z = [x[3 +i] for i in range(zn)] # Zooplankton
+    Z = [x[3 +i] for i in range(zn)]  # Zooplankton
 
     z = zClass
 
     pfn = paras['pfun_num'].value
-    P = [x[3 +zn +i] for i in range(pfn)] # Phytoplankton
+    P = [x[3 + zn + i] for i in range(pfn)]  # Phytoplankton
 
     p = pClass
+
+    outputlist = [x[3+zn+pfn+i] for i in range(19)]
 
     # Interpolations of Forcings
     int_MLD = dailyinterp(MLD, t, kind=kindmld, k=kmld, s=smld)
@@ -271,10 +273,10 @@ def simpleN2P2ZD_extendedoutput_constantinput(x, t, paras, pClass, zClass):
     # Derivatives of Forcings
     deriv_MLD = firstderivspl(MLD, t, k=kmld, s=smld)
 
-    ## Non-Phytoplankton related processes
+    # Non-Phytoplankton related processes
     # Mixing Processes
-    DiffusiveMixing = (paras['kappa'].value + max(deriv_MLD, 0)) / int_MLD # i.e. there is constant mixing & increased loss with MLD shallowing
-    ActiveMixing = deriv_MLD / int_MLD # i.e. concentration varies with the MLD depth
+    DiffusiveMixing = (paras['kappa'].value + max(deriv_MLD, 0)) / int_MLD  # i.e. there is constant mixing & increased loss with MLD shallowing
+    ActiveMixing = deriv_MLD / int_MLD  # i.e. concentration varies with the MLD depth
 
     # Remineralisation
     NRemineralization = paras['deltaD_N'].value * D
@@ -291,101 +293,63 @@ def simpleN2P2ZD_extendedoutput_constantinput(x, t, paras, pClass, zClass):
     ZooMortality = [z[i].zoomortality(Z[i]) for i in range(zn)]
 
     y0 = NRemineralization + NMixing   # Nitrate upwelling and remineralisation
-    y1 = SiRemineralization + SiMixing # Silicate upwelling and remineralisation
-    y2 = 0 #sum(ZooMortality) - NRemineralization - SiRemineralization - DetritusMixing
+    y1 = SiRemineralization + SiMixing  # Silicate upwelling and remineralisation
+    y2 = sum(ZooMortality) - NRemineralization - SiRemineralization - DetritusMixing
 
-
-
-    ## Phytoplankton related processes
+    # Phytoplankton related processes
     # Nutrient uptake
     N_Uptake = [p[i].n_uptake(N) for i in range(pfn)]
     Si_Uptake = [p[i].si_uptake(Si) for i in range(pfn)]
 
     # Light and Temperature
-    LightHarvesting = [1 for i in range(pfn)]
-    TemperatureDepGrowth = 1 #np.exp(0.063 * int_SST)
+    LightHarvesting = [p[i].lightharvesting(int_MLD ,int_PAR) for i in range(pfn)]
+    TemperatureDepGrowth = np.exp(0.063 * int_SST)
 
     # Phytoplankton Growth
 
     Gains = [p[i].gains(N_Uptake[i], Si_Uptake[i], LightHarvesting[i], TemperatureDepGrowth)
              for i in range(pfn)]
 
-    #Zooplankton Grazing:
-    GrazeZoo = [z[i].zoograzing(P=P) for i in range(zn)]
+    # Zooplankton Grazing:
+    GrazeZoo = [z[i].zoograzing(P=P, Z=Z[i]) for i in range(zn)]
     ZooItots = [x[0] for x in GrazeZoo]
-
     RperZ = [x[1] for x in GrazeZoo]
 
-
-    #Phytoplankon being grazed
+    # Phytoplankon being grazed
     PhytoGrazed = [p[i].grazedphyto(Itot=ZooItots, P=P[i], R=RperZ) for i in range(pfn)]
-    print(ZooItots)
-    print(PhytoGrazed)
-
     Losses = [p[i].losses(int_MLD, PhytoGrazed[i], DiffusiveMixing) for i in range(pfn)]
 
-
     # Zooplankton Growth & Grazing
-    ZooMixing = [Z[i] * ActiveMixing for i in range(zn)] # Zooplankton actively stay within the MLD
-
-
+    ZooMixing = [Z[i] * ActiveMixing for i in range(zn)]  # Zooplankton actively stay within the MLD
     ZooGrowth = [z[i].zoogrowth(ZooItots[i]) for i in range(zn)]
-
     UnassimilatedProduction = [z[i].unassimilatedfeeding(ZooItots[i]) for i in range(zn)]
 
+    y0 = y0 - sum([P[i ] * Gains[i] for i in range(pfn)])  # Nitrate drawdown
+    y1 = y1 - sum([p[i].silicatedrawdown(P[i], Gains[i]) for i in range(pfn)])  # Silicate drawdown
+    y2 = y2 + sum(UnassimilatedProduction) + sum([p[i].mortality(P[i]) for i in range(pfn)]) # Detritus
 
-    y0 = y0 - sum([P[i ] *Gains[i] for i in range(pfn)]) # Nitrate drawdown
-
-    y1 = y1 - sum([p[i].silicatedrawdown(P[i] ,Gains[i]) for i in range(pfn)]) # Silicate drawdown
-
-    y2 = 0 #y2 + sum(UnassimilatedProduction) + sum([p[i].mortality(P[i]) for i in range(pfn)]) # Detritus
-
-
-    zoo = [ZooGrowth[i] -ZooMortality[i] -ZooMixing[i] for i in range(zn)]    # Zooplankton losses due to mortality and mixing
-
+    zoo = [ZooGrowth[i] - ZooMortality[i] - ZooMixing[i] for i in range(zn)]    # Zooplankton losses due to mortality and mixing
     phy = [P[i] * (Gains[i] - Losses[i]) for i in range(pfn)]  # Phytoplankton growth
 
-    outputlist = [DiffusiveMixing, ActiveMixing, NRemineralization, SiRemineralization,
-                  DetritusMixing, NMixing, SiMixing, sum(ZooMortality), sum(N_Uptake), sum(Si_Uptake),
-                  sum(LightHarvesting), TemperatureDepGrowth, sum(Gains), sum(PhytoGrazed), sum(ZooItots),
-                  sum(Losses), sum(ZooMixing), sum(ZooGrowth), sum(UnassimilatedProduction)]
-
+    outputlist[0] = N         - outputlist[0]
+    outputlist[1] = ActiveMixing            - outputlist[1]
+    outputlist[2] = NRemineralization     - outputlist[2]
+    outputlist[3] = Si*SiRemineralization   - outputlist[3]
+    outputlist[4] = NMixing                 - outputlist[4]
+    outputlist[5] = SiMixing                - outputlist[5]
+    outputlist[6] = sum(ZooMortality)       - outputlist[6]
+    outputlist[7] = sum(N_Uptake)           - outputlist[7]
+    outputlist[8] = sum(Si_Uptake)          - outputlist[8]
+    outputlist[9] = sum(LightHarvesting)    - outputlist[9]
+    outputlist[10] = TemperatureDepGrowth   - outputlist[10]
+    outputlist[11] = sum([P[i ] *Gains[i] for i in range(pfn)])             - outputlist[11]
+    outputlist[12] = sum(PhytoGrazed)       - outputlist[12]
+    outputlist[13] = sum(ZooItots)          - outputlist[13]
+    outputlist[14] = sum(Losses)            - outputlist[14]
+    outputlist[15] = sum(ZooMixing)         - outputlist[15]
+    outputlist[16] = sum(ZooGrowth)         - outputlist[16]
+    outputlist[17] = sum(UnassimilatedProduction) - outputlist[17]
+    outputlist[18] = sum(ZooMortality)      - outputlist[18]
     out = [y0, y1, y2] + zoo + phy + outputlist
-    return out
+    return np.array(out)
 
-"""
-PgrowthN = [p[i].growth(PNQi[i], Pcci[i], Qmin_PN[i]) for i in range(numphyto)]
-PgrowthP = [p[i].growth(PPQi[i], Pcci[i], Qmin_PP[i]) for i in range(numphyto)]
-
-PGrowthLim = [min(PgrowthN[i], PgrowthP[i]) for i in range(numphyto)]
-
-f0 = [PGrowthLim[i] * Pcci[i] - m * Pcci[i] for i in range(numphyto)]  # Pico cell density
-
-
-def PGrowthN = 
-
-def PGrowthSi=
-
-    def n_uptake(self, Nitrate):
-        N_Uptake = Nitrate / (Nitrate + self.U_N)  # Michaelis Menten - uptake of Nitrate
-        return N_Uptake
-
-    def si_uptake(self, Silicate):
-        if self.U_Si == 0:
-            # non-diatoms
-            return 0
-        else:
-            # diatoms
-            Si_Uptake = Silicate / (Silicate + self.U_Si)  # Michaelis Menten - uptake of Nitrate
-            return Si_Uptake
-            
-
-    def gains(self, nuptake, siuptake, lighthrv, tempdepgro):
-        if self.U_Si == 0:
-            # non-diatoms
-            Gains = self.muP * nuptake * lighthrv * tempdepgro
-        else:
-            # diatoms
-            Gains = self.muP * min(nuptake, siuptake) * lighthrv * tempdepgro
-        return Gains
-"""
