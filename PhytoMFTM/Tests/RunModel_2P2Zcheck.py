@@ -26,16 +26,16 @@ standardparams.add('pfun_num', value=2, vary=False)
 # number of zooplankton groups
 standardparams.add('zoo_num', value=2, vary=False)
 # mld - related
-standardparams.add('kappa', value=0.1, min=0.09, max=0.11)      # Diffusive mixing across thermocline (m*d^-1)
-standardparams.add('deltaD_N', value=0.1, vary=False)   # Nitrate Mineralization rate (d^-1)
-standardparams.add('deltaD_Si', value=0.1, vary=False)  # Silicate Mineralization rate (d^-1)
+standardparams.add('kappa', value=0.1, vary=False)#min=0.09, max=0.11)      # Diffusive mixing across thermocline (m*d^-1)
+standardparams.add('deltaD_N', value=0.0, vary=False)   # Nitrate Mineralization rate (d^-1)
+standardparams.add('deltaD_Si', value=0.0, vary=False)  # Silicate Mineralization rate (d^-1)
 
 # z - related
 standardparams.add('moZ', value=0.1, vary=False)        # Zooplankton mortality (d^-1)
 standardparams.add('deltaZ', value=0.31, vary=False)    # Zooplankton Grazing assimilation coefficient (-)
 #z grazing related
 standardparams.add('gr_p', value=0.6, vary=False)   # Portion of Phytoplankton being grazed by Zooplankton
-standardparams.add('muZ', value=0.1, vary=False)    # Zooplankton maximum grazing rate (d^-1)
+standardparams.add('muZ', value=0.3, vary=False)    # Zooplankton maximum grazing rate (d^-1)
 
 # p - related
 standardparams.add('kw', value=0.1, vary=False)     # Light attenuation constant (m^-1)
@@ -48,16 +48,22 @@ standardparams.add('v', value=0.11, vary=False)      # Sinking of Phytoplankton 
 
 standardparams.add('muP', value=1.6, vary=False)    # Phytoplankton maximum growth rate (d^-1)
 standardparams.add('moP', value=0.1, vary=False)    # Phytoplankton mortality (d^-1)
-standardparams.add('Kp', value=0.1, vary=False)     # Zooplankton Grazing assimilation coefficient (-)
+standardparams.add('Kp', value=0.5, vary=False)     # Zooplankton Grazing saturation constant (-)
 
-standardparams.add('ratioSi', value=1.2, vary=False)  # Silicate ratio
-
+standardparams.add('ratioSi', value=1.1, vary=False)  # Silicate ratio
+"""
+add feeding pref params!
+Z1P1
+Z1P2
+Z2P1
+Z2P2
+"""
 
 # set up phytoplankton type 1 (e.g. diatoms)
-ptype1 = Parameters()
-ptype1.add('pt1_U_Si', value=5.0, vary=False)   # Silicate Half Saturation Constant
-ptype1.add('pt1_muP', value=1.4, vary=False)    # Phytoplankton maximum growth rate (d^-1)
-ptype1.add('pt1_ratioSi', value=1.25, vary=False)  # Silicate ratio
+#ptype1 = Parameters()
+#ptype1.add('pt1_U_Si', value=5.0, vary=False)   # Silicate Half Saturation Constant
+#ptype1.add('pt1_muP', value=1.4, vary=False)    # Phytoplankton maximum growth rate (d^-1)
+#ptype1.add('pt1_ratioSi', value=1.25, vary=False)  # Silicate ratio
 
 
 # set up phytoplankton type 2 (e.g. other)
@@ -76,9 +82,9 @@ ptype3.add('pt3_ratioSi', value=0., vary=False)  # Silicate ratio
 
 
 # set up zooplankton type 1 (e.g. small zooplankton)
-ztype1 = Parameters()
-ztype1.add('zt1_gr_p', value=0.6, vary=False)   # Portion of Phytoplankton being grazed by Zooplankton
-ztype1.add('zt1_muZ', value=0.05, vary=False)    # Zooplankton maximum grazing rate (d^-1)
+#ztype1 = Parameters()
+#ztype1.add('zt1_gr_p', value=0.6, vary=False)   # Portion of Phytoplankton being grazed by Zooplankton
+#ztype1.add('zt1_muZ', value=0.05, vary=False)    # Zooplankton maximum grazing rate (d^-1)
 
 #ztype1.add('zt1_moZ', value=0.1, vary=False)        # Zooplankton mortality (d^-1)
 #ztype1.add('zt1_deltaZ', value=0.31, vary=False)    # Zooplankton Grazing assimilation coefficient (-)
@@ -108,8 +114,24 @@ def setupinitcond(pfn,zn):
     initnut = [N0, Si0, D0]
     initzoo = [Z0 for i in range(zn)]
     initphy = [P0 for i in range(pfn)]
-    outputl = [0 for i in range(19)]
+    outputl = [0 for i in range(17)]
     initcond = np.concatenate([initnut, initzoo, initphy, outputl])
+    #print(type(initcond))
+    return initcond
+
+def setupinitcond_for(pfn,zn):
+    # initialize parameters:
+    N0 = np.mean(mc.NOX)  # Initial Nitrate concentration (mmol*m^-3)
+    Si0 = np.mean(mc.SiOX)  # Initial Silicate concentration (mmol*m^-3)
+    Z0 = 0.1 / zn  # Initial Zooplankton concentration (mmol*m^-3)
+    D0 = 0.01  # Initial Detritus concentration (mmol*m^-3)
+    P0 = 0.01 / pfn  # Initial Phytoplankton concentration (mmol*m^-3)
+
+    initnut = [N0, Si0, D0]
+    initzoo = [Z0 for i in range(zn)]
+    initphy = [P0 for i in range(pfn)]
+    outputl = [0 for i in range(17)]
+    initcond = np.concatenate([initnut, initzoo, initphy])
     #print(type(initcond))
     return initcond
 
@@ -123,7 +145,7 @@ def runmodel(all_params, initcond):
     # INTEGRATE:
     tos = time.time()
     print('starting integration')
-    outarray = odeint(mc.simpleN2P2ZD_extendedoutput_constantinput, initcond, timedays_model, args=(all_params, p, z))
+    outarray = odeint(mc.phytomftm_extendedoutput, initcond, timedays_model, args=(all_params, p, z))
     tos1 = time.time()
     print('finished after %4.3f sec' % (tos1 - tos))
 
@@ -135,7 +157,7 @@ def callmodelrun(pfn,zn):
     standardparams.add('pfun_num', value=pfn, vary=False)
     # number of zooplankton groups
     standardparams.add('zoo_num', value=zn, vary=False)
-
+    """
     if pfn == 3 and zn == 2:
          print('3P2Z')
          all_params = (standardparams + ztype1 + ztype2)
@@ -151,8 +173,8 @@ def callmodelrun(pfn,zn):
     else:
         print('just standard params')
         all_params = (standardparams)
-
-
+    """
+    all_params = (standardparams)
     parameters = all_params
     initialcond = setupinitcond(pfn,zn)
     print(initialcond)
@@ -160,7 +182,7 @@ def callmodelrun(pfn,zn):
 
     return out
 
-def plotoutput(outarray, pfn, zn, i_plot):
+def plotoutput(outarray, pfn, zn, i_plot, title):
 
     # PLOTTING
     timedays = timedays_model#[1:366]
@@ -175,6 +197,9 @@ def plotoutput(outarray, pfn, zn, i_plot):
 
     # artist for legends
     FullArtist = plt.Line2D((0, 1), (0, 0), c=colors[4], alpha=alphas[1], lw=lws[0])
+
+
+    ax1[i_plot].set_title(title)
 
     # Figure 1
     # N
@@ -197,7 +222,7 @@ def plotoutput(outarray, pfn, zn, i_plot):
         ax3[i_plot].set_ylabel('Phyto \n' '[µM N]', multialignment='center', fontsize=10)
     #ax3[i_plot].set_ylim(-0.1, 0.8)
 
-    ax3[i_plot].set_title('Phy Biomass & ChlA Data')
+    #ax3[i_plot].set_title('Phy Biomass & ChlA Data')
 
     # Z
     ax4[i_plot].plot(timedays, sum([outarray_ly[:, 3 + i] for i in range(zn)]), c=colors[4], lw=lws[1])
@@ -206,24 +231,19 @@ def plotoutput(outarray, pfn, zn, i_plot):
         ax4[i_plot].set_ylabel('Zooplankton \n' '[µM N]', multialignment='center', fontsize=9)
     ax4[i_plot].tick_params('y', labelsize=10)
 
-    ax4[i_plot].set_title('Zooplankton')
+    #ax4[i_plot].set_title('Zooplankton')
     #ax4[i_plot].set_ylim(0, 0.62)
 
     # D
-    ax5[i_plot].plot(timedays, outarray_ly[:, 3], c=colors[1], lw=lws[0], alpha=alphas[0])
+    ax5[i_plot].plot(timedays, outarray_ly[:, 2], c=colors[1], lw=lws[0], alpha=alphas[0])
     if i_plot == 0:
         ax5[i_plot].set_ylabel('Detritus \n' '[µM N]', multialignment='center', fontsize=9)
 
-    ax5[i_plot].set_title('Detritus')
+    #ax5[i_plot].set_title('Detritus')
     #ax5[i_plot].set_ylim(0,0.15)
 
-    ax5[i_plot].set_xlabel('Day in year', fontsize=14)
+    ax5[i_plot].set_xlabel('Day in year')
     # Legend
-
-
-
-timedays_model = np.arange(0., 5 * 365., 1.0)
-
 
 def test():
     out1P1Z = callmodelrun(1,1)
@@ -249,17 +269,21 @@ def test():
 
     #f1.savefig("foo2.pdf", bbox_inches='tight')
 
+timedays_model = np.arange(0., 5 * 365., 1.0)
+
+
 out1P1Z = callmodelrun(1,1)
 out2P1Z = callmodelrun(2,1)
-#out3P3Z = callmodelrun(3,3)
+out2P3Z = callmodelrun(2,3)
 #out4P4Z = callmodelrun(4,4)
 
 #out5P5Z = callmodelrun(5,5)
 out2P2Z = callmodelrun(2,2)
 
-f1, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 3, sharex='col', sharey='row')
+f1, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 4, sharex='col', sharey='row')
 
-plotoutput(out1P1Z,1,1,0)
-plotoutput(out2P1Z,2,1,1)
-plotoutput(out2P2Z,2,2,2)
+plotoutput(out1P1Z,1,1,0, '1P1Z')
+plotoutput(out2P1Z,2,1,1, '2P1Z')
+plotoutput(out2P2Z,2,2,2, '2P2Z')
+plotoutput(out2P3Z,2,3,3, '2P3Z')
 

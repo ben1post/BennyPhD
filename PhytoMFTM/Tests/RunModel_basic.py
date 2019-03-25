@@ -59,7 +59,6 @@ ptype1.add('pt1_U_Si', value=5.0, vary=False)   # Silicate Half Saturation Const
 ptype1.add('pt1_muP', value=1.4, vary=False)    # Phytoplankton maximum growth rate (d^-1)
 ptype1.add('pt1_ratioSi', value=1.25, vary=False)  # Silicate ratio
 
-
 # set up phytoplankton type 2 (e.g. other)
 ptype2 = Parameters()
 ptype2.add('pt2_U_Si', value=0., vary=False)     # Silicate Half Saturation Constant
@@ -73,22 +72,17 @@ ptype3.add('pt3_U_N', value=1.94, vary=False)    # Nitrate Half Saturation Const
 ptype3.add('pt3_muP', value=0.5, vary=False)    # Phytoplankton maximum growth rate (d^-1)
 ptype3.add('pt3_ratioSi', value=0., vary=False)  # Silicate ratio
 
-
-
 # set up zooplankton type 1 (e.g. small zooplankton)
 ztype1 = Parameters()
-ztype1.add('zt1_gr_p', value=0.6, vary=False)   # Portion of Phytoplankton being grazed by Zooplankton
+ztype1.add('zt1_gr_p', value=0.3, vary=False)   # Portion of Phytoplankton being grazed by Zooplankton
 ztype1.add('zt1_muZ', value=0.05, vary=False)    # Zooplankton maximum grazing rate (d^-1)
-
-#ztype1.add('zt1_moZ', value=0.1, vary=False)        # Zooplankton mortality (d^-1)
-#ztype1.add('zt1_deltaZ', value=0.31, vary=False)    # Zooplankton Grazing assimilation coefficient (-)
-
+# ztype1.add('zt1_moZ', value=0.05, vary=False)        # Zooplankton mortality (d^-1)
+# ztype1.add('zt1_deltaZ', value=0.15, vary=False)    # Zooplankton Grazing assimilation coefficient (-)
 
 # set up zooplankton type 2 (e.g. larger zooplankton)
 ztype2 = Parameters()
 ztype2.add('zt2_gr_p', value=0.3, vary=False)   # Portion of Phytoplankton being grazed by Zooplankton
-ztype2.add('zt2_muZ', value=0.1, vary=False)    # Zooplankton maximum grazing rate (d^-1)
-
+ztype2.add('zt2_muZ', value=0.05, vary=False)    # Zooplankton maximum grazing rate (d^-1)
 #ztype2.add('zt2_moZ', value=0.1, vary=False)        # Zooplankton mortality (d^-1)
 #ztype2.add('zt2_deltaZ', value=0.31, vary=False)    # Zooplankton Grazing assimilation coefficient (-)
 
@@ -113,7 +107,7 @@ def setupparadict(pfn,zn):
 
     return all_params
 
-def setupinitcond(pfn,zn):
+def setupinitcond_old(pfn,zn):
     # initialize parameters:
     N0 = np.mean(mc.NOX)  # Initial Nitrate concentration (mmol*m^-3)
     Si0 = np.mean(mc.SiOX)  # Initial Silicate concentration (mmol*m^-3)
@@ -128,6 +122,22 @@ def setupinitcond(pfn,zn):
 
     return initcond
 
+def setupinitcond(pfn,zn):
+    # initialize parameters:
+    N0 = np.mean(mc.NOX)  # Initial Nitrate concentration (mmol*m^-3)
+    Si0 = np.mean(mc.SiOX)  # Initial Silicate concentration (mmol*m^-3)
+    Z0 = 0.1 / zn  # Initial Zooplankton concentration (mmol*m^-3)
+    D0 = 0.01  # Initial Detritus concentration (mmol*m^-3)
+    P0 = 0.01 / pfn  # Initial Phytoplankton concentration (mmol*m^-3)
+
+    initnut = [N0, Si0, D0]
+    initzoo = [Z0 for i in range(zn)]
+    initphy = [P0 for i in range(pfn)]
+    outputl = [0 for i in range(17)]
+    initcond = np.concatenate([initnut, initzoo, initphy, outputl])
+    #print(type(initcond))
+    return initcond
+
 def runmodel(all_params, initcond):
     print(list(all_params)[:])
 
@@ -137,7 +147,7 @@ def runmodel(all_params, initcond):
     # INTEGRATE:
     tos = time.time()
     print('starting integration')
-    outarray = odeint(mc.simpleN2P2ZD, initcond, timedays_model, args=(all_params, p, z))
+    outarray = odeint(mc.simpleN2P2ZD_extendedoutput_constantinput, initcond, timedays_model, args=(all_params, p, z))
     tos1 = time.time()
     print('finished after %4.3f sec' % (tos1 - tos))
 
@@ -368,3 +378,24 @@ def fitting(pfn,zn):
     #print(result.residual)
 
 
+timedays_model = np.arange(0., 5 * 365., 1.0)
+
+
+out1P1Z = callmodelrun(1,1)
+out2P1Z = callmodelrun(2,1)
+out2P2Z = callmodelrun(2,2)
+
+# plt.subplots_adjust(hspace=0.01)
+f1, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 3, sharex='col', sharey='row')
+
+plotoutput(out1P1Z,1,1,0,'1P1Z')
+plotoutput(out2P1Z,2,1,1,'2P1Z')
+plotoutput(out2P2Z,2,2,2,'2P2Z')
+
+
+
+#f1.set_figheight(15)
+#plt.tight_layout()
+plt.show()
+
+#f1.savefig("foo.pdf", bbox_inches='tight')

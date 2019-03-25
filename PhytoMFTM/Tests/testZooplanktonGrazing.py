@@ -1,6 +1,6 @@
 
 from PhytoMFTM.ModelClasses import Plankton
-from Tests.RunModel_2P2Zcheck import all_params
+from Tests.runModel_2P2Zcheck import all_params
 
 def rungrazecalc(pfn,zn):
     # number of phytoplankton func types
@@ -11,34 +11,72 @@ def rungrazecalc(pfn,zn):
     pfn = all_params['pfun_num'].value
     zn = all_params['zoo_num'].value
 
-    P = [1+i for i in range(pfn)]
+    P = [2 for i in range(pfn)]
     Z = [2/zn for i in range(zn)]
+    N = 1
+    Si = 1
 
     z = Plankton(all_params, 'Zooplankton').init()
     p = Plankton(all_params, 'Phytoplankton').init()
 
+    # Phytoplankton related processes
+    # Nutrient uptake
+    N_Uptake = [p[i].n_uptake(N) for i in range(pfn)]
+    Si_Uptake = [p[i].si_uptake(Si) for i in range(pfn)]
 
-    GrazeZoo = [z[i].zoograzing(P=P, Z=Z[i]) for i in range(zn)]  # pass all phytoplankton
+    # Light and Temperature
+    LightHarvesting = [1 for i in range(pfn)]
+    TemperatureDepGrowth = [1 for i in range(pfn)]
+    # Phytoplankton Growth
+    Gains = [p[i].gains(N_Uptake[i], Si_Uptake[i], LightHarvesting[i], TemperatureDepGrowth[i], P[i]) for i in range(pfn)]
+    SilicateDrawdown = [p[i].silicatedrawdown(Gains[i]) for i in range(pfn)]
 
-    ZooItots = [x[0] for x in GrazeZoo]
-    RperZ = [x[1] for x in GrazeZoo]
+    # Phytoplankton related processes
+    # Nutrient uptake
+    N_Uptake = [p[i].n_uptake(N) for i in range(pfn)]
+    Si_Uptake = [p[i].si_uptake(Si) for i in range(pfn)]
 
-    ZooItots1 = [sum(ZooItots) for x in GrazeZoo]
-    RperZ1 = [sum(RperZ) for x in GrazeZoo]  ## <<- this could work, also check edit made to ZOOGRAZE formulation, can multiply by num of func types
+    # Zooplankton Grazing:
+    Rj = [z[i].ressourcedensity(P) for i in range(zn)] # total available ressource density for Zooplankton 1
+    #Rj = [sum(Rji) for i in range(zn)]
+    Itot = [z[i].itot(Rj[i]) for i in range(zn)]
+
+    PhytoGrazed = [p[i].zoograzing(Itot, Rj, P[i], Z) for i in range(pfn)] #returns phyto grazed per type
+    # p1 [grazed by z1, z2], p2 [grazed by z1,z2]
+
+    AssimilatedGrazing = [z[i].assimgrazing(Itot[i], Z[i]) for i in range(zn)]
+    UnassimilatedGrazing = [z[i].unassimilatedgrazing(Itot[i], Z[i]) for i in range(zn)]
+
+
+    ZooMixing = [Z[i] * 0 for i in range(zn)]
+    ZooMortality = [z[i].zoomortality(Z[i]) for i in range(zn)]
+
+
+    # Phytoplankton losses
+    PhytoMortality = [p[i].mortality(P[i]) for i in range(pfn)]
+    PhytoSinking = [p[i].sinking(20, P[i]) for i in range(pfn)]
+    PhytoMixing = [P[i] * 0 for i in range(pfn)]
+
+    zoo = [AssimilatedGrazing[i] - ZooMortality[i] - ZooMixing[i] for i in range(zn)]    # Zooplankton losses due to mortality and mixing
+    phy = [Gains[i] - PhytoGrazed[i] - PhytoMortality[i] - PhytoMixing[i] - PhytoSinking[i] for i in range(pfn)]  # Phytoplankton growth
+    print('Zoo',sum(zoo),'Phy',sum(phy),'AssimGraz',sum(AssimilatedGrazing), 'ZooMortality',sum(ZooMortality),'ZooMixing',sum(ZooMixing))
 
 
 
-    PhytoGrazed = [p[i].grazedphyto(Itot=ZooItots, P=P[i], R=RperZ) for i in range(pfn)]  # pass all Itots + bm of the specific P
-
-
+    P = [P[i]+phy[i] for i in range(pfn)]
+    Z = [Z[i]+zoo[i] for i in range(zn)]
     print(pfn,zn)
-    print("ZooItots",ZooItots, sum(ZooItots))
-    print("PhytoGraze",PhytoGrazed, sum(PhytoGrazed))
+    print('Rj',Rj,'Itot',Itot)
+    print("AssimilatedGrazing", AssimilatedGrazing, sum(AssimilatedGrazing))
+    print("PhytoGraze", PhytoGrazed, sum(PhytoGrazed))
+    print('P',sum(P),'grz',sum(PhytoGrazed),'Z',sum(Z),'ZG,UP',sum(AssimilatedGrazing+UnassimilatedGrazing))
+
+    #print("PhytoGrazing", PhytoGrazing, sum(PhytoGrazing))
 
 
 rungrazecalc(1,1)
-rungrazecalc(2,1)
-rungrazecalc(2,2)
-rungrazecalc(2,3)
-rungrazecalc(3,3)
-rungrazecalc(30,30)
+rungrazecalc(1,2)
+rungrazecalc(1,3)
+rungrazecalc(1,4)
+rungrazecalc(1,5)
+rungrazecalc(1,6)
