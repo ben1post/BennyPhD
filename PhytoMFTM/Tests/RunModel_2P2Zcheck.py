@@ -27,15 +27,15 @@ standardparams.add('pfun_num', value=2, vary=False)
 standardparams.add('zoo_num', value=2, vary=False)
 # mld - related
 standardparams.add('kappa', value=0.1, vary=False)#min=0.09, max=0.11)      # Diffusive mixing across thermocline (m*d^-1)
-standardparams.add('deltaD_N', value=0.0, vary=False)   # Nitrate Mineralization rate (d^-1)
-standardparams.add('deltaD_Si', value=0.0, vary=False)  # Silicate Mineralization rate (d^-1)
+standardparams.add('deltaD_N', value=0.05, vary=False)   # Nitrate Mineralization rate (d^-1)
+standardparams.add('deltaD_Si', value=0.05, vary=False)  # Silicate Mineralization rate (d^-1)
 
 # z - related
 standardparams.add('moZ', value=0.1, vary=False)        # Zooplankton mortality (d^-1)
 standardparams.add('deltaZ', value=0.31, vary=False)    # Zooplankton Grazing assimilation coefficient (-)
 #z grazing related
 standardparams.add('gr_p', value=0.6, vary=False)   # Portion of Phytoplankton being grazed by Zooplankton
-standardparams.add('muZ', value=0.3, vary=False)    # Zooplankton maximum grazing rate (d^-1)
+standardparams.add('muZ', value=0.4, vary=False)    # Zooplankton maximum grazing rate (d^-1)
 
 # p - related
 standardparams.add('kw', value=0.1, vary=False)     # Light attenuation constant (m^-1)
@@ -48,7 +48,8 @@ standardparams.add('v', value=0.11, vary=False)      # Sinking of Phytoplankton 
 
 standardparams.add('muP', value=1.6, vary=False)    # Phytoplankton maximum growth rate (d^-1)
 standardparams.add('moP', value=0.1, vary=False)    # Phytoplankton mortality (d^-1)
-standardparams.add('Kp', value=0.5, vary=False)     # Zooplankton Grazing saturation constant (-)
+
+standardparams.add('Kp', value=0.3, vary=False)     # Zooplankton Grazing saturation constant (-)
 
 standardparams.add('ratioSi', value=1.1, vary=False)  # Silicate ratio
 """
@@ -269,21 +270,24 @@ def test():
 
     #f1.savefig("foo2.pdf", bbox_inches='tight')
 
+    timedays_model = np.arange(0., 5 * 365., 1.0)
+
+
+    out1P1Z = callmodelrun(1,1)
+    out2P1Z = callmodelrun(2,1)
+    out2P3Z = callmodelrun(2,3)
+    #out4P4Z = callmodelrun(4,4)
+
+    #out5P5Z = callmodelrun(5,5)
+    out2P2Z = callmodelrun(2,2)
+
+    f1, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 4, sharex='col', sharey='row')
+
+    plotoutput(out1P1Z,1,1,0, '1P1Z')
+    plotoutput(out2P1Z,2,1,1, '2P1Z')
+    plotoutput(out2P2Z,2,2,2, '2P2Z')
+    plotoutput(out2P3Z,2,3,3, '2P3Z')
+
+
 timedays_model = np.arange(0., 5 * 365., 1.0)
-
-
 out1P1Z = callmodelrun(1,1)
-out2P1Z = callmodelrun(2,1)
-out2P3Z = callmodelrun(2,3)
-#out4P4Z = callmodelrun(4,4)
-
-#out5P5Z = callmodelrun(5,5)
-out2P2Z = callmodelrun(2,2)
-
-f1, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 4, sharex='col', sharey='row')
-
-plotoutput(out1P1Z,1,1,0, '1P1Z')
-plotoutput(out2P1Z,2,1,1, '2P1Z')
-plotoutput(out2P2Z,2,2,2, '2P2Z')
-plotoutput(out2P3Z,2,3,3, '2P3Z')
-
