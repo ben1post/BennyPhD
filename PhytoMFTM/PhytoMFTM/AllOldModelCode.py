@@ -595,11 +595,11 @@ def fitting():
     # fit model
     result = minimize(residual, all_params, args=(), method='differential_evolution')  # leastsq nelder
     # check results of the fit
-    outarray = g(initcond, timedays_model, result.params)
+    #outarray = g(initcond, timedays_model, result.params)
     print(result.aic)
 
     report_fit(result)
-    print(result.residual)
+    #print(result.residual)
 
 
 
