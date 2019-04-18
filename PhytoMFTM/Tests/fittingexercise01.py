@@ -27,7 +27,7 @@ standardparams.add('pfun_num', value=1, vary=False) #, min=1,max=2,brute_step=1)
 standardparams.add('zoo_num', value=1, vary=False) #, min=1,max=2,brute_step=1)
 # mld - related
 standardparams.add('kappa', value=0.1, vary=False) #min=0.09, max=0.11)      # Diffusive mixing across thermocline (m*d^-1)
-standardparams.add('deltaD_N', value=0.05, vary=False)   # Nitrate Mineralization rate (d^-1)
+standardparams.add('deltaD_N', value=0.05, min=0, max=0.2)   # Nitrate Mineralization rate (d^-1)
 standardparams.add('deltaD_Si', value=0.05, vary=False)  # Silicate Mineralization rate (d^-1)
 
 # z - related
@@ -51,7 +51,7 @@ standardparams.add('moP', value=0.1, vary=False)    # Phytoplankton mortality (d
 
 standardparams.add('Kp', value=0.3, vary=False)     # Zooplankton Grazing saturation constant (-)
 
-standardparams.add('ratioSi', value=1.1, vary=False)  # Silicate ratio
+standardparams.add('ratioSi', value=1.1, min=1, max=2)  # Silicate ratio
 """
 add feeding pref params!
 Z1P1
@@ -62,9 +62,9 @@ Z2P2
 
 # set up phytoplankton type 1 (e.g. diatoms)
 ptype1 = Parameters()
-ptype1.add('pt1_U_N', value=5.0, vary=False)    # , min=1, max=6)#, vary=False)   # Silicate Half Saturation Constant
+ptype1.add('pt1_U_N', value=5.0, min=1,max=7)    # , min=1, max=6)#, vary=False)   # Silicate Half Saturation Constant
 ptype1.add('pt1_muP', value=1.4, vary=False)    # Phytoplankton maximum growth rate (d^-1)
-ptype1.add('pt1_ratioSi', value=0, vary=False)  # Silicate ratio
+ptype1.add('pt1_ratioSi', value=0., vary=False)  # Silicate ratio
 
 
 # set up phytoplankton type 2 (e.g. other)
@@ -84,7 +84,7 @@ ptype3.add('pt3_ratioSi', value=0., vary=False)  # Silicate ratio
 
 # set up zooplankton type 1 (e.g. small zooplankton)
 ztype1 = Parameters()
-ztype1.add('zt1_gr_p', value=0.6, vary=False)    # , min=0.4, max=1.)#False)   # Portion of Phytoplankton being grazed by Zooplankton
+ztype1.add('zt1_gr_p', value=0.6, min= 0.4,max=1)    # , min=0.4, max=1.)#False)   # Portion of Phytoplankton being grazed by Zooplankton
 ztype1.add('zt1_muZ', value=0.1, vary=False)    # Zooplankton maximum grazing rate (d^-1)
 
 #ztype1.add('zt1_moZ', value=0.1, vary=False)        # Zooplankton mortality (d^-1)
@@ -214,12 +214,15 @@ ZooBM_monthly_median = ZooBM.groupby('month').median()
 
 
 
-def residual(paras):
+def residual(paras, *initialcond):
     """
     compute the residual between actual data and fitted data
     """
+    pfn = paras['pfun_num'].value
+    zn = paras['zoo_num'].value
 
-    model = callmodelrun(timedays_model, paras)
+    model = g(initialcond, timedays_model, paras)
+
 
     # to implement fitting algorithm make sure to calculate residual only for the last year!
 
@@ -234,7 +237,7 @@ def residual(paras):
 
     # combine two columns
     phyto_model = pandas.DataFrame(
-        {'data': model_ly[:, 4], 'month': pandas.to_datetime(oneyearmodel['day'], format='%j').dt.month})
+        {'data':sum([model_ly[:,3+zn+i] for i in range(pfn)]), 'month': pandas.to_datetime(oneyearmodel['day'], format='%j').dt.month})
     phyto_monthly_median = phyto_model.groupby('month').median()
     phyto_resid = (phyto_monthly_median['data'].values - ChlA_monthly_median['ChlA'].values * 0.1)
 
@@ -249,19 +252,59 @@ def residual(paras):
     silicate_resid = (silicate_monthly_median['data'].values - SiOH_USF_monthly_median['SiOH'].values * 0.1)
 
     zoo_model = pandas.DataFrame(
-        {'data': model_ly[:, 3], 'month': pandas.to_datetime(oneyearmodel['day'], format='%j').dt.month})
+        {'data': sum([model_ly[:, 3 + i] for i in range(zn)]), 'month': pandas.to_datetime(oneyearmodel['day'], format='%j').dt.month})
     zoo_monthly_median = zoo_model.groupby('month').median()
     zoo_resid = (zoo_monthly_median['data'].values - ZooBM_monthly_median['ZooBM'].values * 0.1)
 
     ss = np.concatenate((phyto_resid, nitrate_resid, silicate_resid, zoo_resid))
     return ss
 
+def g(x0, t, paras):
+    """
+    Solution to the ODE x'(t) = f(t,x,k) with initial condition x(0) = x0
+    """
+    z = Plankton(paras, 'Zooplankton').init()
+    p = Plankton(paras, 'Phytoplankton').init()
+
+    x = odeint(mc.phytomftm_extendedoutput, x0, t, args=(paras,p,z))
+    return x
+
+
+def do_fit(pfn,zn):
+    standardparams.add('pfun_num', value=pfn, vary=False)  # , min=1,max=2,brute_step=1)
+    # number of zooplankton groups
+    standardparams.add('zoo_num', value=zn, vary=False)  # , min=1,max=2,brute_step=1)
+    if pfn == 2 and zn == 2:
+        print('2P2Z')
+        all_params = (standardparams + ptype1 + ptype2 + ztype1 + ztype2)
+    elif pfn == 2 and zn == 1:
+        print('2P1Z')
+        all_params = (standardparams + ptype1 + ptype2)
+    elif pfn == 1 and zn == 1:
+        print('1P1Z')
+        all_params = (standardparams)
+    else:
+        print('just standard params')
+        all_params = (standardparams)
+
+    #all_params = (standardparams)
+    print(pfn,zn)
+    initialcond = setupinitcond(pfn, zn)
+
+    print(initialcond)
+
+    result = minimize(residual, all_params, args=initialcond, method='least_sq')  # leastsq nelder
+    # check results of the fit
+    #outarray = g(initcond, timedays_model, result.params)
+    print(result.aic)
+
+    report_fit(result)
+    return result, initialcond
+
 
 timedays_model = np.arange(0., 5 * 365., 1.0)
 
-result = minimize(residual, standardparams, args=(), method='differential_evolution')  # leastsq nelder
-# check results of the fit
-#outarray = g(initcond, timedays_model, result.params)
-print(result.aic)
 
-report_fit(result)
+result1 = do_fit(1,1)
+result2 = do_fit(2,1)
+result3 = do_fit(2,2)
