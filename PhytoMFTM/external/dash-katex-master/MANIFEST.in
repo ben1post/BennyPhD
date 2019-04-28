@@ -1,5 +1,0 @@
-include dash_katex/dash_katex.min.js
-include dash_katex/dash_katex.dev.js
-include dash_katex/metadata.json
-include dash_katex/package.json
-include README.md
