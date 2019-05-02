@@ -27,7 +27,7 @@ standardparams.add('pfun_num', value=1, vary=False) #, min=1,max=2,brute_step=1)
 standardparams.add('zoo_num', value=1, vary=False) #, min=1,max=2,brute_step=1)
 # mld - related
 standardparams.add('kappa', value=0.1, vary=False) #min=0.09, max=0.11)      # Diffusive mixing across thermocline (m*d^-1)
-standardparams.add('deltaD_N', value=0.05, min=0, max=0.2)   # Nitrate Mineralization rate (d^-1)
+standardparams.add('deltaD_N', value=0.05, vary=False)   # Nitrate Mineralization rate (d^-1)
 standardparams.add('deltaD_Si', value=0.05, vary=False)  # Silicate Mineralization rate (d^-1)
 
 # z - related
@@ -51,7 +51,7 @@ standardparams.add('moP', value=0.1, vary=False)    # Phytoplankton mortality (d
 
 standardparams.add('Kp', value=0.3, vary=False)     # Zooplankton Grazing saturation constant (-)
 
-standardparams.add('ratioSi', value=1.1, min=1, max=2)  # Silicate ratio
+standardparams.add('ratioSi', value=1.1, vary=False)  # Silicate ratio
 """
 add feeding pref params!
 Z1P1
@@ -62,7 +62,7 @@ Z2P2
 
 # set up phytoplankton type 1 (e.g. diatoms)
 ptype1 = Parameters()
-ptype1.add('pt1_U_N', value=5.0, min=1,max=7)    # , min=1, max=6)#, vary=False)   # Silicate Half Saturation Constant
+ptype1.add('pt1_U_N', value=5.0, vary=False)    # , min=1, max=6)#, vary=False)   # Silicate Half Saturation Constant
 ptype1.add('pt1_muP', value=1.4, vary=False)    # Phytoplankton maximum growth rate (d^-1)
 ptype1.add('pt1_ratioSi', value=0., vary=False)  # Silicate ratio
 
@@ -84,7 +84,7 @@ ptype3.add('pt3_ratioSi', value=0., vary=False)  # Silicate ratio
 
 # set up zooplankton type 1 (e.g. small zooplankton)
 ztype1 = Parameters()
-ztype1.add('zt1_gr_p', value=0.6, min= 0.4,max=1)    # , min=0.4, max=1.)#False)   # Portion of Phytoplankton being grazed by Zooplankton
+ztype1.add('zt1_gr_p', value=0.6, vary=False)    # , min=0.4, max=1.)#False)   # Portion of Phytoplankton being grazed by Zooplankton
 ztype1.add('zt1_muZ', value=0.1, vary=False)    # Zooplankton maximum grazing rate (d^-1)
 
 #ztype1.add('zt1_moZ', value=0.1, vary=False)        # Zooplankton mortality (d^-1)
@@ -306,5 +306,5 @@ timedays_model = np.arange(0., 5 * 365., 1.0)
 
 
 result1 = do_fit(1,1)
-result2 = do_fit(2,1)
-result3 = do_fit(2,2)
+# result2 = do_fit(2,1)
+# result3 = do_fit(2,2)

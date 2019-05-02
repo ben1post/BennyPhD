@@ -117,7 +117,7 @@ def dailyinterp(Forcing, time, kind='spline', k=3, s=None):
     """
     outForcing = Forcing  # spatialave(Forcing)
 
-    tmonth = np.linspace(0., 12., 13) #HERE again, deprecation warning
+    tmonth = np.linspace(0.5, 12.5, 13) #HERE again, deprecation warning
     newt = np.mod(time, 365.) * 12. / 365.
     if kind == 'spline':
         outintp = intrp.UnivariateSpline(tmonth, outForcing, k=k, s=s)

@@ -49,7 +49,7 @@ class PhytoType:
         self.pfn = stdpars['pfun_num']
         self.zn = stdpars['zoo_num']
 
-        self.grazepref = [1 for i in range(self.zn)]
+        self.grazepref = [checkreplaceparam(stdpars, slicedpars, string) for string in ['Z1','Z2']]
         #self.grazepref = [1 /(self.pfn*self.zn) for i in range(self.zn)]
         #self.grazepref = [1 /(self.zn) for i in range(self.zn)]
         print('grazepref', self.grazepref)
@@ -129,16 +129,18 @@ class ZooType:
         self.pfn = stdpars['pfun_num']
         self.zn = stdpars['zoo_num']
         #self.muZ = self.muZ / self.zn
-        self.feedpref = [1 for i in range(self.pfn)]
-        #self.feedpref = [1/(self.pfn) for i in range(self.pfn)]
-        #self.feedpref = [1/(self.zn) for i in range(self.pfn)]
+
+
+        self.feedpref = [checkreplaceparam(stdpars, slicedpars, string) for string in ['P1','P2','P3','P4']]
+        #self.feedpref = [1 for i in range(self.pfn)]
+
         print('feedpref',self.feedpref, self.muZ)
 
     def zoomortality(self, Z):
-        # Quadratic loss term for closure
+        # Quadratic loss term for closure --> now linear, quadratic loss via higher order pred (below)
         # The problem was here! now calc as aggregate mortality and split up between types
-        total_moZ = self.moZ * sum(Z) ** 2
-        return total_moZ/self.zn
+        total_moZ = self.moZ/10 * Z #** 2  # sum(Z)
+        return total_moZ#/self.zn
 
     def ressourcedensity(self, P):
         R = sum([self.feedpref[i] * P[i] for i in range(self.pfn)])  # add up total phy available for this ztype
@@ -155,3 +157,16 @@ class ZooType:
     def unassimilatedgrazing(self, Itots, Z):
         UnAsGraze = (1. - self.deltaZ) * Itots * Z
         return UnAsGraze
+
+    def interzoograze(self,i, Z):
+        totalgraze= Z[0] * 0.1 * Z[1]
+        if i == 0:
+            return -totalgraze
+        if i == 1:
+            return totalgraze
+        else:
+            return 0
+
+    def higherorderpred(self,Zi):
+        total_moZ = self.moZ * Zi ** 2  # sum(Z)
+        return total_moZ / self.zn

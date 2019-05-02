@@ -43,53 +43,78 @@
 The ecosystem model equations are similar to those used in Acevedo-Trejos et al. (2016).
 Most significant changes are that multiple phytoplankton and zooplankton functional types have been added, and that the grazing formulation was expanded to include preferential feeding on certain functional types.
 
-Nitrogen $N$ (and Silicate $Si$ for Diatoms) is assimilated by the phytoplankton types $P_i$, which are grazed by several zooplankton types $Z_j$. Mortality of and excretion from plankton, and sloppy feeding by zooplankton contribute to a Detritus $D$. The phytoplankton types include Nanoflagellates $P_{Nano}$, Diatoms $P_{Dia}$, Coccolithophorse, $P_{Cocco}$ and Dinoflagellates $P_{Dino}$. There are two Zooplankton types split by size class, names Mikrozooplankton $Z_{mikro}$ and Mesozooplankton $Z_{meso}$.
+Nitrogen $N$ (and Silicate $Si$ for Diatoms) is assimilated by the phytoplankton types $P_i$, which are grazed by several zooplankton types $Z_j$. Mortality of and excretion from plankton, and sloppy feeding by zooplankton contribute to a Detritus $D$. The phytoplankton types include Nanoflagellates $P_{n}$, Diatoms $P_{dt}$, Coccolithophorse, $P_{c}$ and Dinoflagellates $P_{dn}$. There are two Zooplankton types split by size class, named Mikrozooplankton $Z_{\mu}$ and Mesozooplankton $Z_{\lambda}$.
+
+ToDo:  
+Highlight in the equations how grazing works, selective feeding, explain difference in $R_j$ between zooplankton types
 
 \begin{eqnarray}
 \frac{\partial N}{\partial t} & = & 
-K \cdot \left(N_{0} - N\right) + D \cdot \delta^{N}_{D} -\sum_{i=1}^{i_{max}} [Gains_{i} \cdot P_{i}] 
+K \cdot \left(N_{0} - N\right) + D \cdot \delta^{N}_{D} -\sum_{i=1}^{n_p} [\mu_i \cdot U_{i}(N_0,Si_0)\cdot L_i(PAR)\cdot T_i(SST) \cdot P_{i}] 
 \nonumber  \\
 \frac{\partial Si}{\partial t} & = & 
-K \cdot \left(Si_{0} - Si\right) - Gains_{Dia} \cdot P_{Dia}
+K \cdot \left(Si_{0} - Si\right) 
+- \mu_{dt} \cdot U_{dt}(N_0,Si_0) \cdot L_{dt}(PAR)\cdot T_{dt}(SST) \cdot P_{dt}
 \nonumber \\
-\frac{\partial P_{Dia}}{\partial t} & = & 
-Gains_{Dia} \cdot P_{Dia} - \sum_{j=1}^{j_{max}} [I^{tot}_j⋅\frac{p_{Dia j}⋅P_{Dia}}{R_{j}}⋅Z_{j}]
+\frac{\partial P_{i}}{\partial t} & = & 
+\mu_{dt} \cdot U_{dt}(N_0,Si_0)\cdot L_{dt}(PAR)\cdot T_{dt}(SST) \cdot P_{dt}
+- m_{dt} \cdot P_{dt}
+- \sum_{j} [I^{tot}_j \frac{p_{dt,j} \cdot P_{dt}} {R_{j}} Z_{j}]
 \nonumber \\
-\frac{\partial P_{Nano}}{\partial t} & = & 
-1
 \nonumber \\
-\frac{\partial Z_{mikro}}{\partial t} & = & 
-1
+\frac{\partial Z_{\mu}}{\partial t} & = & 
+\delta_Z \cdot I^{tot}_{\mu} \cdot Z_{\mu}-
+K_{Z} \cdot Z_{\mu} -
+m_{\mu} \cdot Z_{\mu} - 
+g_{\mu} \cdot Z_{\mu}^{2}
+\nonumber \\
+\frac{\partial Z_{\lambda}}{\partial t} & = & 
+\delta_Z \cdot I^{tot}_{\lambda} \cdot Z_{\lambda}+
+I^{\mu}_{\lambda}*Z_{\mu}-
+K_{Z} \cdot Z_{\lambda} -
+m_{\lambda} \cdot Z_{\lambda} - 
+g_{\lambda} \cdot Z_{\lambda}^{2}
 \nonumber \\
 \frac{\partial D}{\partial t} & = & 
-1
+\sum_{j} [(1-\delta_Z) I^{tot}_j \cdot Z_{j}] +
+\sum_{j} [m_j \cdot Z_{j}] +
+\sum_{i} [m_i \cdot P_{i}] -
+K \cdot D -
+D \cdot \delta^{N}_{D}
 \nonumber
 \end{eqnarray}
 
 where:\\
-\mbox{} \hspace{.5cm} $\textbf{u}=(u,v,w),$ velocity in physical model, \\
-\mbox{} \hspace{.5cm} $\kappa=$Mixing coefficients used in physical model,\\
-\mbox{} \hspace{.5cm} $\mu_j=$Growth rate of phytoplankton $j$ (see below),\\
-\mbox{} \hspace{.5cm} $M_{ij}=$Matrix of Redfield ratio of element $i$ to P
-for phytoplankton $j$\\
-\mbox{} \hspace{.5cm} $\zeta_{jk}=$ Grazing efficiency of zooplankton $k$ on phytoplankton $j$ (represents sloppy feeding), \\
-\mbox{} \hspace{.5cm} $g_{jk}=$Grazing of zooplankton $k$ on phytoplankton $j$ (see below),\\
-\mbox{} \hspace{.5cm} $m_j^P=$Mortality/Excretion rate for phytoplankton $j$,\\
-\mbox{} \hspace{.5cm} $m_k^Z=$Mortality/Excretion rate for zooplankton $k$,\\
-\mbox{} \hspace{.5cm} $w_j^P=$Sinking rate for phytoplankton $j$,\\
-\mbox{} \hspace{.5cm} $w_{POi}=$Sinking rate for POM $i$,\\
-\mbox{} \hspace{.5cm} $r_{DOM_i}=$Remineralization rate of DOM for element
-$i$,\\
-\mbox{} \hspace{.5cm} $r_{POM_i}=$Remineralization rate of POM for element
-$i$,\\
-\mbox{} \hspace{.5cm} $S_{N_i}=$Additional source or sink for nutrient $i$
-(see below),\\
-\mbox{} \hspace{.5cm} $S_{DOM_i}=$ Source of DOM $i$,
-for element $i$ (see below),\\
-\mbox{} \hspace{.5cm} $S_{POM_i}=$ Source of POM $i$,
-for element $i$ (see below),\\
+\mbox{} \hspace{.5cm} $N_0=$ Nitrogen concentration below below mixed layer [$\mu M$],\\
+\mbox{} \hspace{.5cm} $N=$ Integrated nitrogen concentration above mixed layer [$\mu M$],\\
+\mbox{} \hspace{.5cm} $K = \frac{1}{M(t)} \cdot \left(h^{+}(t) + \kappa\right)$ Constant that parameterizes diffusive mixing across the thermocline, \\
+\mbox{} \hspace{.5cm} $h^{+}(t) = \max\left(0, \frac{d}{d t} M(t)\right)$ Function that describes entrainment and detrainment of material,\\
+\mbox{} \hspace{.5cm} $\delta^N_D=$ Remineralization rate of nitrogen component of detritus $D$ [$\mu M d^{-1}$],\\
+\mbox{} \hspace{.5cm} $\mu_i=$Growth rate of phytoplankton type $i$ [$d^{-1}$],\\
 
 
+\mbox{} \hspace{.5cm} $U_i=\begin{cases}\min\left(\frac{N}{N + U^{N}_i}, \frac{Si}{Si + U^{Si}_i}\right),& \text{if P-type is Diatom}\\\frac{N}{N + U^{N}_i}, & \text{otherwise}\end{cases}$ Nutrient uptake of phytoplankton $i$,\\
+
+\mbox{} \hspace{.5cm} $L_i=\frac{1}{M(t) \cdot k_{w}} \cdot \left(e^{1 - \frac{PAR(t)}{Opt^{I}_i}} + e^{1 - \frac{PAR(t)}{Opt^{I}_i} \cdot e^{- M(t) \cdot k_{w}}}\right)$ Light dependence of  phytoplankton $i$,\\
+\mbox{} \hspace{.5cm} $T_i= e^{0.063 \cdot SST}$ Temperature dependence of phytoplankton $i$,\\
+
+\mbox{} \hspace{.5cm} $P_i=$ Biomass of phytoplankton type $i$ [$\mu M N$],\\
+\mbox{} \hspace{.5cm} $m_i=$ Mortality/Excretion rate for phytoplankton type $i$,\\
+
+\mbox{} \hspace{.5cm} $I^{tot}_j= \mu^{Z}_j⋅\frac{R_{j}}{R_{j} + k_{Z}}$ Total intake XXX $i$,\\
+\mbox{} \hspace{.5cm} $R_{j}= \sum_{i} (p_{i j}⋅P_{i})$ Total intake XXX $i$,\\
+
+\mbox{} \hspace{.5cm} $Z_j=$ Biomass of zooplankton type $j$ [$\mu M N$],\\
+\mbox{} \hspace{.5cm} $\delta_{Z}=$ Grazing efficiency of zooplankton on phytoplankton (represents sloppy feeding), \\
+\mbox{} \hspace{.5cm} $K_{Z}=\frac{1}{M(t)} \cdot \frac{d}{d t} M(t)$ Mixing term of zooplankton, \\
+\mbox{} \hspace{.5cm} $g_{i}=$ Higher order predation on zooplankton (quadratic), \\
+\mbox{} \hspace{.5cm} $m_{j}=$ Mortality/Excretion rate for zooplankton type $j$,\\
+
+
+
+
+
+\iffalse % HERE BEGINNING OF COMMENT
 
 \vspace{.2cm}
 
@@ -310,5 +335,5 @@ Total phytoplankton biomass:
  \texttt{Diver4  } & Number of species with $P_j > 10^{-5} \cdot \max\limits_j P_j$ & where $\Ptot>10^{-12}$ \\
 \end{tabular}
 
-
+\fi %HERE END OF COMMENT
 \end{document} 

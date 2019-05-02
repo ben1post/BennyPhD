@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import odeint
@@ -14,7 +13,6 @@ from lmfit import minimize, Parameters, Parameter, report_fit
 # loading Modules
 from PhytoMFTM.ModelClasses import Plankton
 import PhytoMFTM.ModelCode as mc
-
 
 #params.add('xvar', value=0.50, min=0, max=1)
 #params.add('yvar', expr='1.0 - xvar')
@@ -52,7 +50,6 @@ standardparams.add('Kp', value=0.1, vary=False)     # Zooplankton Grazing assimi
 
 standardparams.add('ratioSi', value=1.2, vary=False)  # Silicate ratio
 
-
 # set up phytoplankton type 1 (e.g. diatoms)
 ptype1 = Parameters()
 ptype1.add('pt1_U_Si', value=5.0, vary=False)   # Silicate Half Saturation Constant
@@ -85,8 +82,6 @@ ztype2.add('zt2_gr_p', value=0.3, vary=False)   # Portion of Phytoplankton being
 ztype2.add('zt2_muZ', value=0.05, vary=False)    # Zooplankton maximum grazing rate (d^-1)
 #ztype2.add('zt2_moZ', value=0.1, vary=False)        # Zooplankton mortality (d^-1)
 #ztype2.add('zt2_deltaZ', value=0.31, vary=False)    # Zooplankton Grazing assimilation coefficient (-)
-
-
 
 def setupparadict(pfn,zn):
     if pfn == 3 and zn == 2:
@@ -152,7 +147,6 @@ def runmodel(all_params, initcond):
     print('finished after %4.3f sec' % (tos1 - tos))
 
     return outarray
-
 
 def callmodelrun(pfn,zn):
     # number of phytoplankton func types
@@ -273,7 +267,6 @@ def plotoutput(outarray, pfn, zn, i_plot, maintitle):
     # Legend
 
 
-
 def test():
     timedays_model = np.arange(0., 5 * 365., 1.0)
 
@@ -296,9 +289,6 @@ def test():
     plt.show()
 
     #f1.savefig("foo.pdf", bbox_inches='tight')
-
-
-
 
 
 def residual2P2Z(paras):

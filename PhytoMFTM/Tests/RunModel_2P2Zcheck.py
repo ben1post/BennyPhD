@@ -291,3 +291,7 @@ def test():
 
 timedays_model = np.arange(0., 5 * 365., 1.0)
 out1P1Z = callmodelrun(1,1)
+
+f1, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 4, sharex='col', sharey='row')
+
+plotoutput(out1P1Z,1,1,0, '1P1Z')
