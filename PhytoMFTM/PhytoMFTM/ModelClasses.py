@@ -125,6 +125,9 @@ class ZooType:
         self.gr_p = checkreplaceparam(stdpars, slicedpars, 'gr_p')
         self.Kp = checkreplaceparam(stdpars, slicedpars, 'Kp')
         self.deltaZ = checkreplaceparam(stdpars, slicedpars, 'deltaZ')
+        self.intergraze = checkreplaceparam(stdpars, slicedpars, 'intergraze')
+        self.pred = checkreplaceparam(stdpars, slicedpars, 'pred')
+
 
         self.pfn = stdpars['pfun_num']
         self.zn = stdpars['zoo_num']
@@ -159,7 +162,7 @@ class ZooType:
         return UnAsGraze
 
     def interzoograze(self,i, Z):
-        totalgraze= Z[0] * 0.1 * Z[1]
+        totalgraze= Z[0] * self.intergraze * Z[1]
         if i == 0:
             return -totalgraze
         if i == 1:
@@ -167,6 +170,6 @@ class ZooType:
         else:
             return 0
 
-    def higherorderpred(self,Zi):
-        total_moZ = self.moZ * Zi ** 2  # sum(Z)
+    def higherorderpred(self, Zi):
+        total_moZ = self.pred * Zi ** 2  # sum(Z)
         return total_moZ / self.zn

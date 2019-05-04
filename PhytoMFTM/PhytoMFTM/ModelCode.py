@@ -131,7 +131,7 @@ def phytomftm_extendedoutput(x, t, paras, pClass, zClass):
     y1 = SiMixing - sum(SilicateDrawdown)  # Silicate drawdown
     y2 = sum(UnassimilatedGrazing) + sum(ZooMortality) + sum(PhytoMortality) - NRemineralization - DetritusMixing   # Detritus
 
-    zoo = [AssimilatedGrazing[i] - ZooMortality[i] - ZooMixing[i] for i in range(zn)]    # Zooplankton losses due to mortality and mixing
+    zoo = [AssimilatedGrazing[i] + InterZooPredation[i] - ZooMixing[i] - ZooMortality[i] - HigherOrderPredation[i] for i in range(zn)]   # Zooplankton losses due to mortality and mixing
     phy = [Gains[i] - PhytoGrazed[i] - PhytoMortality[i] - PhytoMixing[i] - PhytoSinking[i] for i in range(pfn)]  # Phytoplankton growth
 
     outputlist[0] = NRemineralization       - outputlist[0]
