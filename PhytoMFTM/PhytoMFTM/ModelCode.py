@@ -64,7 +64,7 @@ def phytomftm_extendedoutput(x, t, paras, pClass, zClass):
 
     p = pClass
 
-    outputlist = [x[3+zn+pfn+i] for i in range(17)]
+    outputlist = [x[3+zn+pfn+i] for i in range(20)]
 
     # Interpolations of Forcings
     int_MLD = dailyinterp(MLD, t, kind=kindmld, k=kmld, s=smld)
@@ -120,6 +120,7 @@ def phytomftm_extendedoutput(x, t, paras, pClass, zClass):
     UnassimilatedGrazing = [z[i].unassimilatedgrazing(Itot[i], Z[i]) for i in range(zn)]
 
     InterZooPredation = [z[i].interzoograze(i, Z) for i in range(zn)]
+    UnassimInterZooPr = [z[i].unassiminterzoogr(i, Z) for i in range(zn)]
     HigherOrderPredation = [z[i].higherorderpred(Z[i]) for i in range(zn)]
 
     # Phytoplankton losses
@@ -129,7 +130,7 @@ def phytomftm_extendedoutput(x, t, paras, pClass, zClass):
 
     y0 = NRemineralization + NMixing - sum(Gains)  # Nitrate drawdown
     y1 = SiMixing - sum(SilicateDrawdown)  # Silicate drawdown
-    y2 = sum(UnassimilatedGrazing) + sum(ZooMortality) + sum(PhytoMortality) - NRemineralization - DetritusMixing   # Detritus
+    y2 = sum(UnassimilatedGrazing) + sum(UnassimInterZooPr) + sum(ZooMortality) + sum(PhytoMortality) - NRemineralization - DetritusMixing   # Detritus
 
     zoo = [AssimilatedGrazing[i] + InterZooPredation[i] - ZooMixing[i] - ZooMortality[i] - HigherOrderPredation[i] for i in range(zn)]   # Zooplankton losses due to mortality and mixing
     phy = [Gains[i] - PhytoGrazed[i] - PhytoMortality[i] - PhytoMixing[i] - PhytoSinking[i] for i in range(pfn)]  # Phytoplankton growth
@@ -154,6 +155,9 @@ def phytomftm_extendedoutput(x, t, paras, pClass, zClass):
     outputlist[14] = sum(ZooMortality)      - outputlist[14]
     outputlist[15] = sum(ZooMixing)         - outputlist[15]
     outputlist[16] = sum(UnassimilatedGrazing)   - outputlist[16]
+    outputlist[17] = sum(InterZooPredation) - outputlist[17]
+    outputlist[18] = sum(UnassimInterZooPr) - outputlist[18]
+    outputlist[19] = sum(HigherOrderPredation) - outputlist[19]
 
     out = [y0, y1, y2] + zoo + phy + outputlist
     return np.array(out)

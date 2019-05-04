@@ -34,11 +34,14 @@ standardparams.add('deltaD_Si', value=0.05, vary=False)  # Silicate Mineralizati
 
 # z - related
 standardparams.add('deltaZ', value=0.31, vary=False)    # Zooplankton Grazing assimilation coefficient (-)
+standardparams.add('deltaLambda', value=0.31, vary=False)    # Zooplankton Inter-Grazing assimilation coefficient (-)
 #z grazing related
 standardparams.add('gr_p', value=0.6, vary=False)   # Portion of Phytoplankton being grazed by Zooplankton
 standardparams.add('muZ', value=0.4, vary=False)    # Zooplankton maximum grazing rate (d^-1)
 
-standardparams.add('intergraze', value=0.1, vary=False)  # Silicate ratio
+standardparams.add('muIntGraze', value=0.1, vary=False)  # InterZooGrazing maximum grazing rate
+standardparams.add('kIntGraze', value=0.5, vary=False)  # InterZooGrazing saturation constant
+
 standardparams.add('pred', value=0.1, vary=False)  # Silicate ratio
 standardparams.add('moZ', value=0.01, vary=False)        # Zooplankton mortality (d^-1)
 
@@ -142,7 +145,7 @@ def setupinitcond(pfn,zn):
     initnut = [N0, Si0, D0]
     initzoo = [Z0 for i in range(zn)]
     initphy = [P0 for i in range(pfn)]
-    outputl = [0 for i in range(17)]
+    outputl = [0 for i in range(20)]
     initcond = np.concatenate([initnut, initzoo, initphy, outputl])
     #print(type(initcond))
     return initcond

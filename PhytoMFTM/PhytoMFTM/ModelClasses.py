@@ -125,9 +125,12 @@ class ZooType:
         self.gr_p = checkreplaceparam(stdpars, slicedpars, 'gr_p')
         self.Kp = checkreplaceparam(stdpars, slicedpars, 'Kp')
         self.deltaZ = checkreplaceparam(stdpars, slicedpars, 'deltaZ')
-        self.intergraze = checkreplaceparam(stdpars, slicedpars, 'intergraze')
-        self.pred = checkreplaceparam(stdpars, slicedpars, 'pred')
 
+        self.muIntGraze = checkreplaceparam(stdpars, slicedpars, 'muIntGraze')
+        self.kIntGraze = checkreplaceparam(stdpars, slicedpars, 'kIntGraze')
+
+        self.pred = checkreplaceparam(stdpars, slicedpars, 'pred')
+        self.deltaLambda = checkreplaceparam(stdpars, slicedpars, 'deltaLambda')
 
         self.pfn = stdpars['pfun_num']
         self.zn = stdpars['zoo_num']
@@ -162,11 +165,20 @@ class ZooType:
         return UnAsGraze
 
     def interzoograze(self,i, Z):
-        totalgraze= Z[0] * self.intergraze * Z[1]
+        totalgraze = self.muIntGraze * Z[0] / (Z[0] + self.kIntGraze) * Z[1]
         if i == 0:
             return -totalgraze
         if i == 1:
-            return totalgraze
+            return self.deltaLambda * totalgraze
+        else:
+            return 0
+
+    def unassiminterzoogr(self,i,Z):
+        totalgraze = self.muIntGraze * Z[0] / (Z[0] + self.kIntGraze) * Z[1]
+        if i == 0:
+            return 0
+        if i == 1:
+            return (1 - self.deltaLambda) * totalgraze
         else:
             return 0
 
