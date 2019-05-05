@@ -50,8 +50,7 @@ class PhytoType:
         self.zn = stdpars['zoo_num']
 
         self.grazepref = [checkreplaceparam(stdpars, slicedpars, string) for string in ['Z1','Z2']]
-        #self.grazepref = [1 /(self.pfn*self.zn) for i in range(self.zn)]
-        #self.grazepref = [1 /(self.zn) for i in range(self.zn)]
+
         print('grazepref', self.grazepref)
 
 
@@ -90,14 +89,6 @@ class PhytoType:
         Sink = self.v / intMLD * P  # Phytoplankton sinking as a function of MLD and sinking rate
         return Sink
 
-    def grazed(self, grzing, P):
-        Grazed = grzing #* P
-        return Grazed
-
-    def mixing(self, diffmix, P):
-        PMix = P * diffmix
-        return PMix
-
     def silicatedrawdown(self, Gainz):
         if self.U_Si == 0:
             # non-diatoms
@@ -122,7 +113,6 @@ class ZooType:
         self.moZ = checkreplaceparam(stdpars, slicedpars, 'moZ')
         self.muZ = checkreplaceparam(stdpars, slicedpars, 'muZ')
         # grazing params
-        self.gr_p = checkreplaceparam(stdpars, slicedpars, 'gr_p')
         self.Kp = checkreplaceparam(stdpars, slicedpars, 'Kp')
         self.deltaZ = checkreplaceparam(stdpars, slicedpars, 'deltaZ')
 

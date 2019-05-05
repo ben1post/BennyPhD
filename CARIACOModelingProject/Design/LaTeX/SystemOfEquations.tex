@@ -50,30 +50,32 @@ Highlight in the equations how grazing works, selective feeding, explain differe
 
 \begin{eqnarray}
 \frac{\partial N}{\partial t} & = & 
-K \cdot \left(N_{0} - N\right) + 
+\kappa \cdot \left(N_{0} - N\right) + 
 \delta^{N}_{D} \cdot D -
 \sum_{i=1}^{n_P} [\mu_i \cdot U_{i}(N_0,Si_0)\cdot L_i(PAR)\cdot T_i(SST) \cdot P_{i}] 
 \nonumber  \\
 \frac{\partial Si}{\partial t} & = & 
-K \cdot \left(Si_{0} - Si\right) 
+\kappa \cdot \left(Si_{0} - Si\right) 
 - \mu_{dt} \cdot U_{dt}(N_0,Si_0) \cdot L_{dt}(PAR)\cdot T_{dt}(SST) \cdot P_{dt}
 \nonumber \\
 \frac{\partial P_{i}}{\partial t} & = & 
 \mu_{i} \cdot U_{i}(N_0,Si_0)\cdot L_{i}(PAR)\cdot T_{i}(SST) \cdot P_{i}
 - m_{i} \cdot P_{i}
-- \sum_{j=1}^{n_Z} [I^{tot}_j \frac{p^i_{j} \cdot P_{i}} {R_{j}} Z_{j}]
+- \sum_{j=1}^{n_Z} [I^{tot}_j \frac{p^i_{j} \cdot P_{i}} {R_{j}} Z_{j}] -
+Phytomixing -
+Phytosinking
 \nonumber \\
 \frac{\partial Z_{\mu}}{\partial t} & = & 
 \delta_Z \cdot I^{tot}_{\mu} \cdot Z_{\mu}-
 \mu^{}_{\lambda} \frac{Z_{\mu}}{Z_{\mu}+k_{\lambda}} Z_{\lambda}-
-K_{Z} \cdot Z_{\mu} -
+\kappa_{Z} \cdot Z_{\mu} -
 m_{\mu} \cdot Z_{\mu} - 
 g_{\mu} \cdot Z_{\mu}^{2}
 \nonumber \\
 \frac{\partial Z_{\lambda}}{\partial t} & = & 
 \delta_Z \cdot I^{tot}_{\lambda} \cdot Z_{\lambda}+
 \delta_{\lambda} \cdot \mu^{}_{\lambda} \frac{Z_{\mu}}{Z_{\mu}+k_{\lambda}} Z_{\lambda}-
-K_{Z} \cdot Z_{\lambda} -
+\kappa_{Z} \cdot Z_{\lambda} -
 m_{\lambda} \cdot Z_{\lambda} - 
 g_{\lambda} \cdot Z_{\lambda}^{2}
 \nonumber \\
@@ -82,7 +84,7 @@ g_{\lambda} \cdot Z_{\lambda}^{2}
 (1-\delta_{\lambda}) \cdot \mu^{}_{\lambda} \frac{Z_{\mu}}{Z_{\mu}+k_{\lambda}} Z_{\lambda}-
 \sum_{j=1}^{n_Z} [m_j \cdot Z_{j}] +
 \sum_{i=1}^{n_P} [m_i \cdot P_{i}] -
-K \cdot D -
+\kappa \cdot D -
 \delta^{N}_{D} \cdot D
 \nonumber
 \end{eqnarray}
@@ -90,7 +92,7 @@ K \cdot D -
 where:\\
 \mbox{} \hspace{.5cm} $N_0=$ Nitrogen concentration right below mixed layer [$\mu M$],\\
 \mbox{} \hspace{.5cm} $N=$ Nitrogen concentration above mixed layer [$\mu M$],\\
-\mbox{} \hspace{.5cm} $K = \frac{1}{M(t)} \cdot \left(h^{+}(t) + \kappa\right)$ Constant that parameterizes diffusive mixing across the thermocline, \\
+\mbox{} \hspace{.5cm} $\kappa = \frac{1}{M(t)} \cdot \left(h^{+}(t) + \kappa\right)$ Constant that parameterizes diffusive mixing across the thermocline, \\
 \mbox{} \hspace{.5cm} $h^{+}(t) = \max\left(0, \frac{d}{d t} M(t)\right)$ Function that describes entrainment and detrainment of material,\\
 \mbox{} \hspace{.5cm} $\delta^N_D=$ Remineralization rate of nitrogen component of detritus $D$ [$\mu M d^{-1}$],\\
 \mbox{} \hspace{.5cm} $\mu_i=$Growth rate of phytoplankton type $i$ [$d^{-1}$],\\

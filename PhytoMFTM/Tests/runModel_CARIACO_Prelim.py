@@ -30,78 +30,67 @@ standardparams = Parameters()
 # mld - related
 standardparams.add('kappa', value=0.1, vary=False) # min=0.09, max=0.11) # Diffusive mixing across thermocline (m*d^-1)
 standardparams.add('deltaD_N', value=0.05, vary=False)   # Nitrate Mineralization rate (d^-1)
-standardparams.add('deltaD_Si', value=0.05, vary=False)  # Silicate Mineralization rate (d^-1)
 
-# z - related
-standardparams.add('deltaZ', value=0.31, vary=False)    # Zooplankton Grazing assimilation coefficient (-)
-standardparams.add('deltaLambda', value=0.31, vary=False)    # Zooplankton Inter-Grazing assimilation coefficient (-)
-#z grazing related
-standardparams.add('gr_p', value=0.6, vary=False)   # Portion of Phytoplankton being grazed by Zooplankton
-standardparams.add('muZ', value=0.4, vary=False)    # Zooplankton maximum grazing rate (d^-1)
-
-standardparams.add('muIntGraze', value=0.1, vary=False)  # InterZooGrazing maximum grazing rate
-standardparams.add('kIntGraze', value=0.5, vary=False)  # InterZooGrazing saturation constant
-
-standardparams.add('pred', value=0.1, vary=False)  # Silicate ratio
-standardparams.add('moZ', value=0.01, vary=False)        # Zooplankton mortality (d^-1)
-
-# p - related
 standardparams.add('kw', value=0.1, vary=False)     # Light attenuation constant (m^-1)
-standardparams.add('OptI', value=30, vary=False)    # Optimum irradiance (einstein*m^-2*d^-1)
-
-standardparams.add('U_N', value=5.0, vary=False)    # Nitrate Half Saturation Constant
-standardparams.add('U_Si', value=5.0, vary=False)   # Silicate Half Saturation Constant
 
 standardparams.add('v', value=0.11, vary=False)      # Sinking of Phytoplankton from Mixed Layer
+standardparams.add('OptI', value=30, vary=False)    # Optimum irradiance (einstein*m^-2*d^-1)
 
-standardparams.add('muP', value=1.6, vary=False)    # Phytoplankton maximum growth rate (d^-1)
+# p - related
 standardparams.add('moP', value=0.1, vary=False)    # Phytoplankton mortality (d^-1)
 
-standardparams.add('Kp', value=0.3, vary=False)     # Zooplankton Grazing saturation constant (-)
-standardparams.add('ratioSi', value=1.1, vary=False)  # Silicate ratio
+standardparams.add('ratioSi', value=0, vary=False)  # Silicate ratio ## FALLBACK PARAM FOR OTHER PFTs
+standardparams.add('U_N', value=0, vary=False)    # Nitrate Half Saturation Constant
+standardparams.add('U_Si', value=0, vary=False)   # Silicate Half Saturation Constant
+standardparams.add('muP', value=0, vary=False)    # Phytoplankton maximum growth rate (d^-1)
 
 # set up phytoplankton type 1 (e.g. DIATOMS)
 ptype1 = Parameters()
-ptype1.add('pt1_U_Si', value=5.0, vary=False)   # Silicate Half Saturation Constant
-ptype1.add('pt1_muP', value=1.4, vary=False)    # Phytoplankton maximum growth rate (d^-1)
-ptype1.add('pt1_ratioSi', value=1.25, vary=False)  # Silicate ratio
+ptype1.add('pt1_ratioSi', value=0, vary=False)  # Silicate ratio
+ptype1.add('pt1_U_Si', value=2.0, vary=False)   # Silicate Half Saturation Constant
+ptype1.add('pt1_U_N', value=0.446, vary=False)    # Nitrate Half Saturation Constant
+ptype1.add('pt1_muP', value=1.5, vary=False)    # Phytoplankton maximum growth rate (d^-1)
 
-# set up phytoplankton type 2 (e.g. Nanos)
+# set up phytoplankton type 2 (e.g. Coccos)
 ptype2 = Parameters()
-ptype2.add('pt2_U_Si', value=0., vary=False)     # Silicate Half Saturation Constant
+ptype2.add('pt2_U_N', value=0.265, vary=False)    # Nitrate Half Saturation Constant
 ptype2.add('pt2_muP', value=1.1, vary=False)    # Phytoplankton maximum growth rate (d^-1)
-ptype2.add('pt2_ratioSi', value=0., vary=False)  # Silicate ratio
-
-# set up phytoplankton type 3 (e.g. Coccos)
-ptype3 = Parameters()
-ptype3.add('pt3_U_Si', value=0., vary=False)     # Silicate Half Saturation Constant
-ptype3.add('pt3_U_N', value=1.94, vary=False)    # Nitrate Half Saturation Constant
-ptype3.add('pt3_muP', value=0.5, vary=False)    # Phytoplankton maximum growth rate (d^-1)
-ptype3.add('pt3_ratioSi', value=0., vary=False)  # Silicate ratio
 
 # set up phytoplankton type 3 (e.g. Dinos)
-ptype4 = Parameters()
-ptype4.add('pt3_U_Si', value=0., vary=False)     # Silicate Half Saturation Constant
-ptype4.add('pt3_U_N', value=1.94, vary=False)    # Nitrate Half Saturation Constant
-ptype4.add('pt3_muP', value=0.5, vary=False)    # Phytoplankton maximum growth rate (d^-1)
-ptype4.add('pt3_ratioSi', value=0., vary=False)  # Silicate ratio
+ptype3 = Parameters()
+ptype3.add('pt3_U_N', value=0.009, vary=False)    # Nitrate Half Saturation Constant
+ptype3.add('pt3_muP', value=0.5, vary=False)    # Phytoplankton maximum growth rate (d^-1)
 
+# set up phytoplankton type 3 (e.g. Nanos)
+ptype4 = Parameters()
+ptype4.add('pt4_U_N', value=0.045, vary=False)    # Nitrate Half Saturation Constant
+ptype4.add('pt4_muP', value=1.7, vary=False)    # Phytoplankton maximum growth rate (d^-1)
+
+# z - related
+#z grazing related
+standardparams.add('moZ', value=0.01, vary=False)        # Zooplankton mortality (d^-1)
+standardparams.add('deltaZ', value=0.75, vary=False)    # Zooplankton Grazing assimilation coefficient (-)
+standardparams.add('deltaLambda', value=0.75, vary=False)    # Zooplankton Inter-Grazing assimilation coefficient (-)
+standardparams.add('muIntGraze', value=0.01, vary=False)  # InterZooGrazing maximum grazing rate
+standardparams.add('kIntGraze', value=0.5, vary=False)  # InterZooGrazing saturation constant
+
+standardparams.add('Kp', value=0, vary=False)     # Zooplankton Grazing saturation constant (-)
+standardparams.add('pred', value=0, vary=False)  # quadratic higher order predation rate on zooplankton
+standardparams.add('muZ', value=0, vary=False)    # Zooplankton maximum grazing rate (d^-1)
 
 # set up zooplankton type 1 (e.g. MIKRO zooplankton)
 ztype1 = Parameters()
-ztype1.add('zt1_gr_p', value=0.6, vary=False)   # Portion of Phytoplankton being grazed by Zooplankton
-ztype1.add('zt1_muZ', value=0.4, vary=False)    # Zooplankton maximum grazing rate (d^-1)
+ztype1.add('zt1_muZ', value=0.1, vary=False)    # Zooplankton maximum grazing rate (d^-1)
 
-ztype1.add('zt1_moZ', value=0.1, vary=False)        # Zooplankton mortality (d^-1)
-ztype1.add('zt1_deltaZ', value=0.31, vary=False)    # Zooplankton Grazing assimilation coefficient (-)
+ztype1.add('zt1_Kp', value=0.5, vary=False)       # Zooplankton Grazing saturation constant (-)
+ztype1.add('zt1_pred', value=0.01, vary=False)    # quadratic higher order predation rate on zooplankton
 
 # set up zooplankton type 2 (e.g. MESO zooplankton)
 ztype2 = Parameters()
-ztype2.add('zt2_gr_p', value=0.6, vary=False)   # Portion of Phytoplankton being grazed by Zooplankton
-ztype2.add('zt2_muZ', value=0.4, vary=False)    # Zooplankton maximum grazing rate (d^-1)
+ztype2.add('zt2_muZ', value=0.1, vary=False)    # Zooplankton maximum grazing rate (d^-1)
 
-ztype2.add('zt2_moZ', value=0.1, vary=False)        # Zooplankton mortality (d^-1)
-ztype2.add('zt2_deltaZ', value=0.31, vary=False)    # Zooplankton Grazing assimilation coefficient (-)
+ztype2.add('zt2_Kp', value=0.5, vary=False)       # Zooplankton Grazing saturation constant (-)
+ztype2.add('zt2_pred', value=0.01, vary=False)    # quadratic higher order predation rate on zooplankton
 
 """
 add feeding pref params!
@@ -112,14 +101,14 @@ Z2P2
 """
 # MIKRO
 ztype1.add('zt1_P1', value=0, vary=False)  # Diatoms
-ztype1.add('zt1_P2', value=1, vary=False)  # Nanos
-ztype1.add('zt1_P3', value=1, vary=False)  # Coccos
-ztype1.add('zt1_P4', value=1, vary=False)  # Dinos
+ztype1.add('zt1_P2', value=1, vary=False)  # Coccos
+ztype1.add('zt1_P3', value=1, vary=False)  # Dinos
+ztype1.add('zt1_P4', value=1, vary=False)  # Nano
 # MESO
 ztype2.add('zt2_P1', value=1, vary=False)
-ztype2.add('zt2_P2', value=0, vary=False)
+ztype2.add('zt2_P2', value=1, vary=False)
 ztype2.add('zt2_P3', value=1, vary=False)
-ztype2.add('zt2_P4', value=1, vary=False)
+ztype2.add('zt2_P4', value=0, vary=False)
 
 ptype1.add('pt1_Z1', value=ztype1['zt1_P1'].value, vary=False)
 ptype1.add('pt1_Z2', value=ztype2['zt2_P1'].value, vary=False)
@@ -160,7 +149,7 @@ def runmodel(all_params, initcond):
     # INTEGRATE:
     tos = time.time()
     print('starting integration')
-    outarray = odeint(mc.phytomftm_extendedoutput, initcond, timedays_model, args=(all_params, p, z))
+    outarray = odeint(mc.phytomftm_extendedoutput, initcond, timedays_model, args=(all_params, p, z))#, rtol=1e-12, atol=1e-12)
     tos1 = time.time()
     print('finished after %4.3f sec' % (tos1 - tos))
 
@@ -259,6 +248,7 @@ def plotoutput(outarray, pfn, zn, i_plot, title):
     # Legend
 
 def plot1output(outarray, pfn, zn, i_plot, title):
+    f1, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 1, sharex='col', sharey='row')
 
     # PLOTTING
     timedays = timedays_model#[1:366]
@@ -318,10 +308,89 @@ def plot1output(outarray, pfn, zn, i_plot, title):
     ax5.set_xlabel('Day in year')
     # Legend
 
+def plotYEARoutput(outarray, pfn, zn, i_plot, title):
+    f1, (ax1, ax2, ax3, ax4, ax5, ax6, ax7, ax8, ax9) = plt.subplots(9, 1, sharex='col', sharey='row')
+    # N / Si / Pdt / Pc / Pdn / Pn / Zmu / Zlambda / D
+    # PLOTTING
+    timedays = timedays_model[1:366]
+    # truncate outarraySiNO to last year of 5:
+    outarray_ly = outarray[1460:1825]
+    i_plot=0
+    # color vectors
+    colors = ['#808080','#d55e00', '#cc79a7', '#0072b2', '#009e73', '#009e73']
+    alphas = [1., 0.8, 0.6, 0.4]
+    lws = [1, 2.5, 4, 5.5]
+
+    # artist for legends
+    FullArtist = plt.Line2D((0, 1), (0, 0), c=colors[4], alpha=alphas[1], lw=lws[0])
+
+    ax1.set_title(title)
+
+    # Figure 1
+    # N
+    ax1.plot(timedays, outarray_ly[:, 0], c=colors[1], lw=lws[0], alpha=alphas[0], label='Model')
+    if i_plot == 0:
+        ax1.set_ylabel('Nitrate \n' '[µM]', multialignment='center', fontsize=10)
+    #ax1[i_plot].set_ylim(-0.1, 5)
+
+    # Si
+    ax2.plot(timedays, outarray_ly[:, 1], c=colors[1], lw=lws[0], alpha=alphas[0])
+    if i_plot == 0:
+        ax2.set_ylabel('Silicate \n' '[µM]', multialignment='center', fontsize=10)
+    #ax2[i_plot].set_ylim(-0.1, 12)
+
+    # Phyto
+    i=2
+    #ax3.plot(timedays, sum([outarray_ly[:, 3 + zn + i] for i in range(pfn)]), c=colors[4], lw=lws[1])
+    ax3.plot(timedays, outarray_ly[:, 3 + zn + 0], c=colors[i + 1])
+    ax4.plot(timedays, outarray_ly[:, 3 + zn + 1], c=colors[i + 1])
+    ax5.plot(timedays, outarray_ly[:, 3 + zn + 2], c=colors[i + 1])
+    ax6.plot(timedays, outarray_ly[:, 3 + zn + 3], c=colors[i + 1])
+
+    if i_plot == 0:
+        ax3.set_ylabel('Diatom \n' '[µM N]', multialignment='center', fontsize=10)
+    if i_plot == 0:
+        ax4.set_ylabel('Coccs \n' '[µM N]', multialignment='center', fontsize=10)
+    if i_plot == 0:
+        ax5.set_ylabel('Dinos \n' '[µM N]', multialignment='center', fontsize=10)
+    if i_plot == 0:
+        ax6.set_ylabel('Nano \n' '[µM N]', multialignment='center', fontsize=10)
+    ax3.set_ylim(-0.1, 0.8)
+    ax4.set_ylim(-0.1, 0.8)
+    ax5.set_ylim(-0.1, 0.8)
+    ax6.set_ylim(-0.1, 0.8)
+
+    #ax3[i_plot].set_title('Phy Biomass & ChlA Data')
+
+    # Z
+    i=3
+    #ax4.plot(timedays, sum([outarray_ly[:, 3 + i] for i in range(zn)]), c=colors[4], lw=lws[1])
+    #[ax4.plot(timedays, outarray_ly[:, 3 + i], c=colors[i + 1], lw=lws[0], alpha=alphas[0]) for i in range(zn)]
+    ax7.plot(timedays, outarray_ly[:, 3 + 0], c=colors[i + 1], lw=lws[0], alpha=alphas[0])
+    ax8.plot(timedays, outarray_ly[:, 3 + 1], c=colors[i + 1], lw=lws[0], alpha=alphas[0])
+    if i_plot == 0:
+        ax7.set_ylabel('Mikro Z \n' '[µM N]', multialignment='center', fontsize=9)
+    if i_plot == 0:
+        ax8.set_ylabel('Meso Z \n' '[µM N]', multialignment='center', fontsize=9)
+    ax7.tick_params('y', labelsize=10)
+
+    #ax4[i_plot].set_title('Zooplankton')
+    #ax4[i_plot].set_ylim(0, 0.62)
+
+    # D
+    ax9.plot(timedays, outarray_ly[:, 2], c=colors[1], lw=lws[0], alpha=alphas[0])
+    if i_plot == 0:
+        ax9.set_ylabel('Detritus \n' '[µM N]', multialignment='center', fontsize=9)
+
+    #ax5[i_plot].set_title('Detritus')
+    #ax5[i_plot].set_ylim(0,0.15)
+
+    ax9.set_xlabel('Day in year')
+    # Legend
+
 timedays_model = np.arange(0., 5 * 365., 1.0)
 
 out4P2Z = callmodelrun(4,2)
 
-f1, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 1, sharex='col', sharey='row')
 
-plot1output(out4P2Z, 4, 2, 1, '4P2Z')
+plotYEARoutput(out4P2Z, 4, 2, 1, '4P2Z')

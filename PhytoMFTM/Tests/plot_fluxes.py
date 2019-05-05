@@ -1,4 +1,4 @@
-from Tests.runModel_2P2Zcheck import out1P1Z, out2P1Z, out2P2Z, timedays_model
+from Tests.runModel_CARIACO_Prelim import PLOTout4P2Z, timedays_model
 
 import matplotlib.pyplot as plt
 
@@ -253,11 +253,9 @@ def plotZoofluxes(outarray, pfn, zn, i_plot, title):
 
 
 # NITRATE     /// or Nitrogen????
-f1, (ax1, ax2) = plt.subplots(2, 3, gridspec_kw = {'height_ratios':[1, 3]}, sharex='col', sharey='row')
+f1, (ax1, ax2) = plt.subplots(2, 2, gridspec_kw = {'height_ratios':[1, 3]}, sharex='col', sharey='row')
 
-plotNfluxes(out1P1Z, 1, 1, 0, '1P1Z')
-plotNfluxes(out2P1Z, 2, 1, 1, '2P1Z')
-plotNfluxes(out2P2Z, 2, 2, 2, '2P2Z')
+plotNfluxes(PLOTout4P2Z, 4, 2, 0, '4P2Z')
 
 f1.align_ylabels()
 plt.tight_layout()
@@ -267,11 +265,10 @@ plt.show()
 # f1.savefig("foo2.pdf", bbox_inches='tight')
 
 # SILICATE
-f2, (ax1, ax2) = plt.subplots(2, 3, gridspec_kw = {'height_ratios':[1, 3]}, sharex='col', sharey='row')
+f2, (ax1, ax2) = plt.subplots(2, 2, gridspec_kw = {'height_ratios':[1, 3]}, sharex='col', sharey='row')
 
-plotSifluxes(out1P1Z, 1, 1, 0, '1P1Z')
-plotSifluxes(out2P1Z, 2, 1, 1, '2P1Z')
-plotSifluxes(out2P2Z, 2, 2, 2, '2P2Z')
+
+plotSifluxes(PLOTout4P2Z, 4, 2, 0, '4P2Z')
 
 f2.align_ylabels()
 plt.tight_layout()
@@ -281,11 +278,9 @@ plt.show()
 # f1.savefig("foo2.pdf", bbox_inches='tight')
 
 # DETRITUS
-f3, (ax1, ax2) = plt.subplots(2, 3, gridspec_kw = {'height_ratios':[1, 3]}, sharex='col', sharey='row')
+f3, (ax1, ax2) = plt.subplots(2, 2, gridspec_kw = {'height_ratios':[1, 3]}, sharex='col', sharey='row')
 
-plotDetritusfluxes(out1P1Z, 1, 1, 0, '1P1Z')
-plotDetritusfluxes(out2P1Z, 2, 1, 1, '2P1Z')
-plotDetritusfluxes(out2P2Z, 2, 2, 2, '2P2Z')
+plotDetritusfluxes(PLOTout4P2Z, 4, 2, 0, '4P2Z')
 
 f3.align_ylabels()
 plt.tight_layout()
@@ -295,11 +290,10 @@ plt.show()
 # f1.savefig("foo2.pdf", bbox_inches='tight')
 
 # PHYTOPLANKTON
-f4, (ax1, ax2) = plt.subplots(2, 3, gridspec_kw = {'height_ratios':[1, 3]}, sharex='col', sharey='row')
+f4, (ax1, ax2) = plt.subplots(2, 2, gridspec_kw = {'height_ratios':[1, 3]}, sharex='col', sharey='row')
 
-plotPhyfluxes(out1P1Z, 1, 1, 0, '1P1Z')
-plotPhyfluxes(out2P1Z, 2, 1, 1, '2P1Z')
-plotPhyfluxes(out2P2Z, 2, 2, 2, '2P2Z')
+
+plotPhyfluxes(PLOTout4P2Z, 4, 2, 0, '4P2Z')
 
 f4.align_ylabels()
 plt.tight_layout()
@@ -309,11 +303,10 @@ plt.show()
 # f1.savefig("foo2.pdf", bbox_inches='tight')
 
 # ZOOPLANKTON
-f5, (ax1, ax2) = plt.subplots(2, 3, gridspec_kw = {'height_ratios':[1, 3]}, sharex='col', sharey='row')
+f5, (ax1, ax2) = plt.subplots(2, 2, gridspec_kw = {'height_ratios':[1, 3]}, sharex='col', sharey='row')
 
-plotZoofluxes(out1P1Z, 1, 1, 0, '1P1Z')
-plotZoofluxes(out2P1Z, 2, 1, 1, '2P1Z')
-plotZoofluxes(out2P2Z, 2, 2, 2, '2P2Z')
+
+plotZoofluxes(PLOTout4P2Z, 4, 2, 0, '4P2Z')
 
 f5.align_ylabels()
 plt.tight_layout()
