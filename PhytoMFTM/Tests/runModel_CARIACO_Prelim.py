@@ -425,6 +425,31 @@ NANO_monthly_median = NANO.groupby('month').median()
 Zoo200BM_monthly_median = Zoo200BM.groupby('month').median()
 Zoo500BM_monthly_median = Zoo500BM.groupby('month').median()
 
+# COLOR SCHEME
+
+# color scheme
+
+# MLD
+#FFDE00 Silicate
+#575756 Nitrate
+#009640 Phytoplankton
+#EA5B0C Mikrozooplankton
+#BE1622 Mesozooplankton
+#B17F4A Detritus
+#DEDC00 SST
+#F9B233 PAR
+
+import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
+
+colormap = pandas.DataFrame({"name" : ["MLD", "Si", "N", "Phyto", "MikroZ", "MesoZ", "D", "SST", "PAR"],
+                         "color" : ["#1D71B8", "#FFDE00", "#575756", "#009640", "#EA5B0C", "#BE1622", "#B17F4A", "#E94E1B", "#F9B233"]})
+
+colormap["name"] = colormap["name"].apply(lambda x: x.lower())
+c = dict(zip(*colormap.values.T))
+mcolors.get_named_colors_mapping().update(c)
+
+
 def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
     f1, (ax1, ax2, ax3, ax4, ax5, ax6, ax7, ax8, ax9) = plt.subplots(9, 1, sharex='col', sharey='row')
     # N / Si / Pdt / Pc / Pdn / Pn / Zmu / Zlambda / D
@@ -445,17 +470,17 @@ def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
 
     # Figure 1
     # N
-    ax1.plot(timedays, outarray_ly[:, 0], c=colors[1], lw=lws[0], alpha=alphas[0], label='Model')
+    ax1.plot(timedays, outarray_ly[:, 0], c="N", lw=lws[0], alpha=alphas[0], label='Model')
     # N Data
-    ax1.scatter(NO3NO2['yday'].values, NO3NO2['NO2NO3'].values, c=colors[1], s=4.3, label='Data')
+    ax1.scatter(NO3NO2['yday'].values, NO3NO2['NO2NO3'].values, c="N", s=4.3, label='Data')
     if i_plot == 0:
         ax1.set_ylabel('Nitrate \n' '[µM]', multialignment='center', fontsize=10)
     #ax1[i_plot].set_ylim(-0.1, 5)
 
     # Si
-    ax2.plot(timedays, outarray_ly[:, 1], c=colors[1], lw=lws[0], alpha=alphas[0])
+    ax2.plot(timedays, outarray_ly[:, 1], c="Si", lw=lws[0], alpha=alphas[0])
     # Si Data
-    ax2.scatter(SiOH['yday'].values, SiOH['SiOH'].values, c=colors[1], s=4.3)
+    ax2.scatter(SiOH['yday'].values, SiOH['SiOH'].values, c="Si", s=4.3)
     if i_plot == 0:
         ax2.set_ylabel('Silicate \n' '[µM]', multialignment='center', fontsize=10)
     #ax2[i_plot].set_ylim(-0.1, 12)
