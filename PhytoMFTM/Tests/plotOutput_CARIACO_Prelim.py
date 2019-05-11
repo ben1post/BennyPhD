@@ -13,6 +13,14 @@ from lmfit import minimize, Parameters, Parameter, report_fit
 
 from Tests.runModel_CARIACO_Prelim import out4P2Z,timedays_model
 
+
+# make all plots larger and more visible on dark background:
+plt.rcParams['figure.figsize'] = [16, 10]
+plt.rc_context({'axes.edgecolor':'black', 'xtick.color':'black', 'ytick.color':'black', 'figure.facecolor':'white'})
+
+plt.rcParams['figure.dpi']= 300
+
+
 # read yearly data (for comparison to model) from Cariaco
 NO3NO2 = pandas.read_csv('ValidationData/NO2NO3_above_R1.csv')
 SiOH = pandas.read_csv('ValidationData/SiOH_above_R1.csv')
@@ -169,7 +177,7 @@ def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
     # ax4[i_plot].set_ylim(0, 0.62)
 
     # D
-    ax9.plot(timedays, outarray_ly[:, 2], c=colors[1], lw=lws[0], alpha=alphas[0])
+    ax9.plot(timedays, outarray_ly[:, 2], c="D", lw=lws[0], alpha=alphas[0])
     if i_plot == 0:
         ax9.set_ylabel('Detritus \n' '[µM N]', multialignment='center', fontsize=9)
 
@@ -178,6 +186,11 @@ def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
 
     ax9.set_xlabel('Day in year')
     # Legend
+    f1.align_ylabels()
+    plt.margins(x=0)
+    #adjustFigAspect(fig, aspect=.5)
+    plt.tight_layout()
+    plt.savefig('FirstNaiveOutputCARIACO.png')
 
 
 

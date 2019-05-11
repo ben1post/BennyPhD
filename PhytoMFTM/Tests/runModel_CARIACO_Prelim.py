@@ -101,13 +101,13 @@ Z2P2
 """
 # MIKRO
 ztype1.add('zt1_P1', value=0, vary=False)  # Diatoms
-ztype1.add('zt1_P2', value=1, vary=False)  # Coccos
-ztype1.add('zt1_P3', value=1, vary=False)  # Dinos
-ztype1.add('zt1_P4', value=1, vary=False)  # Nano
+ztype1.add('zt1_P2', value=0.33, vary=False)  # Coccos
+ztype1.add('zt1_P3', value=0.33, vary=False)  # Dinos
+ztype1.add('zt1_P4', value=0.34, vary=False)  # Nano
 # MESO
-ztype2.add('zt2_P1', value=1, vary=False)
-ztype2.add('zt2_P2', value=1, vary=False)
-ztype2.add('zt2_P3', value=1, vary=False)
+ztype2.add('zt2_P1', value=0.33, vary=False)
+ztype2.add('zt2_P2', value=0.34, vary=False)
+ztype2.add('zt2_P3', value=0.33, vary=False)
 ztype2.add('zt2_P4', value=0, vary=False)
 
 ptype1.add('pt1_Z1', value=ztype1['zt1_P1'].value, vary=False)

@@ -10,7 +10,7 @@
 %use epsfig package for figs
 \usepackage{epsfig}
 \makeatother
-
+\usepackage{multirow}
 
 %%\usepackage[scaled=0.92]{helvet}
 \usepackage{helvet}
@@ -38,7 +38,7 @@
 \newcommand{\ux}{{\underline{x}}}
 \newcommand{\tdt}{{t}} 
 
-{\bf {\large A1. CARIACO model equations}}
+{\bf {\large A1. CARIACO model equations}} 
 
 The ecosystem model equations are similar to those used in Acevedo-Trejos et al. (2016).
 Most significant changes are that multiple phytoplankton and zooplankton functional types have been added, and that the grazing formulation was expanded to include preferential feeding on certain functional types.
@@ -53,7 +53,7 @@ Highlight in the equations how grazing works, selective feeding, explain differe
 \kappa \cdot \left(N_{0} - N\right) + 
 \delta^{N}_{D} \cdot D -
 \sum_{i=1}^{n_P} [\mu_i \cdot U_{i}(N_0,Si_0)\cdot L_i(PAR)\cdot T_i(SST) \cdot P_{i}] 
-\nonumber  \\
+\nonumber \\
 \frac{\partial Si}{\partial t} & = & 
 \kappa \cdot \left(Si_{0} - Si\right) 
 - \mu_{dt} \cdot U_{dt}(N_0,Si_0) \cdot L_{dt}(PAR)\cdot T_{dt}(SST) \cdot P_{dt}
@@ -125,9 +125,6 @@ where:\\
 
 
 
-
-
-\iffalse % HERE BEGINNING OF COMMENT
 
 \vspace{.2cm}
 
@@ -348,5 +345,96 @@ Total phytoplankton biomass:
  \texttt{Diver4  } & Number of species with $P_j > 10^{-5} \cdot \max\limits_j P_j$ & where $\Ptot>10^{-12}$ \\
 \end{tabular}
 
-\fi %HERE END OF COMMENT
+
+
+
+
+\thispagestyle{empty}
+
+\section*{PhytoMFTM model parameters (preliminary)}
+
+\noindent
+\begin{tabular}{llllllllll}
+
+  symbol               & variable   & description & units   & value      & source\\
+  \hline
+  \multicolumn{3}{l}{Physical parameters:}\\
+  \hline
+  $\kappa$ & kappa & diffusive mixing constant & [$m$ $day^{-1}$] & 0.1/0.01 & [Fasham, 1990/1993]\\
+  $\delta^{N}_{D}$ & deltaD\_N  & remineralization rate & [$day^{-1}$] & 0.05 & [Fasham, 1990]\\
+  $k_w$ & kw & light attenuation coefficient & [$m^{-1}$] & 0.2 & [Edwards \& Brindley 1996]\\                           
+  \multicolumn{3}{l}{affecting phytoplankton:} \\
+  $v$ & v &  phytoplankton sinking constant & $[m day^{-1}]$ & 0.04 & [Edwards \& Brindley 1996]\\                      
+  $I_{opt}$ & OptI & optimum irradiance & [$E$ $m^{-2}$ $day^{-1}$] & 30 & [Acevedo-Trejos, 2015]\\
+  \\
+  \hline
+  \multicolumn{3}{l}{Phytoplankton parameters:}\\
+  \hline
+  $mo_P$ & moP &  mortality/excretion constant & [$day^{-1}$] & 0.09 & [Fasham, 1990]\\
+  \\
+  \multicolumn{3}{l}{functional type specific:} \\
+  $P_{dt}$ & pt1  & Diatoms\\
+  \hline
+  $\Delta^{dt}_{Si}$ & pt1\_ratioSi & nitrogen to silicate ratio & [$\mu M Si$ $\mu M N^{-1}$] & 1.12 & [Brzezinski, 1985]  \\
+  $K^{dt}_{Si}$ & pt1\_K\_Si & half-saturation constant of Si uptake & [$\mu M Si$] & 2 & [Kristiansen et al. 2000]\\
+  $U^{dt}_N$ & pt1\_U\_N & half-saturation constant of N uptake & [$\mu M N$] &  0.446 & [Litchman et al. 2007]\\
+  $\mu^{dt}_P$ & pt1\_muP & growth rate & [$day^{-1}$] & 1.5 & [Litchman et al. 2007]\\
+  \\
+  $P_{c}$ & pt2 & Coccolithophores\\
+  \hline
+  $U^{c}_N$ & pt2\_U\_N & half-saturation constant of N uptake & [$\mu M N$]  &  0.265 & [Litchman et al. 2007]\\
+  $\mu^{c}_P$ & pt2\_muP  & growth rate & [$day^{-1}$]& 1.1 & [Litchman et al. 2007] \\
+  \\
+  $P_{dn}$ & pt3 & Dinoflagellates\\
+  \hline
+  $U^{c}_N$ & pt3\_U\_N & half-saturation constant of N uptake & [$\mu M N$]  &  0.009 & [Litchman et al. 2007]\\
+  $\mu^{c}_P$ & pt3\_muP  & growth rate & [$day^{-1}$] & 0.6 & [Litchman et al. 2007]\\
+  \\
+  $P_{n}$ & pt4 & Nanoflagellates\\
+  \hline
+  $U^{n}_N$ & pt4\_U\_N & half-saturation constant of N uptake & [$\mu M N$]  &  0.045 & [Litchman et al. 2007]\\
+  $\mu^{n}_P$ & pt4\_muP  & growth rate & [$day^{-1}$] & 1.7 & [Litchman et al. 2007]\\
+
+  \\
+  \hline
+  \multicolumn{3}{l}{Zooplankton parameters:} \\
+  \hline
+  $mo_Z$ & moZ &  mortality/excretion constant & [$day^{-1}$] & 0.0125 & [Prowe et al. 2012]\\
+  $\delta_Z$ & deltaZ & assimilation coefficient of grazing on $P_i$ & [-] & 0.75 & [Fasham, 1990]\\
+  $\delta_{\lambda}$ & deltaLambda & assimilation coefficient of $Z_{\lambda}$ grazing on $Z_{\mu}$ & [-] & 0.75 & [Fasham, 1990]\\ 
+  $\mu_{\lambda}$ & muIntGraze & maximum rate of $Z_{\lambda}$ grazing on $Z_{\mu}$ & [$day^{-1}$] & 0.05 & [?]\\
+  $k_{\lambda}$ & kIntGraze & half-saturation constant of $Z_{\lambda}$ grazing on $Z_{\mu}$ & [$\mu M N$] & 0.5 & [?]\\ 
+  \\
+  $Z_{\mu}$ & zt1 & Mikrozooplankton\\
+  \hline
+  $\mu^{\mu}_Z$ & zt1\_muZ & maximum rate of grazing on $P_i$ & [$day^{-1}$] & 0.1 & [Prowe et al. 2012]\\ 
+  $k^{\mu}_P$ & zt1\_Kp  & half-saturation constant of grazing on $P_i$ & [$\mu M N$] & 0.5 & [Prowe et al. 2012]\\
+  $g_{\mu}$ & zt1\_pred & higher order predation on $Z_{\mu}$ & [$day^{-1}$] & 0.01 & [?]\\  
+  \\
+  $Z_{\lambda}$ & zt2 & Mesozooplankton\\
+  \hline
+  $\mu^{\lambda}_Z$ & zt2\_muZ & maximum rate of grazing on $P_i$ & [$day^{-1}$] & 0.1 & [Prowe et al. 2012]\\ 
+  $k^{\lambda}_P$ & zt2\_Kp  & half-saturation constant of grazing on $P_i$ & [$\mu M N$] & 0.5 & [Prowe et al. 2012]\\
+  $g_{\lambda}$ & zt2\_pred & higher order predation on $Z_{\lambda}$ & [$day^{-1}$] & 0.01 & [?]\\
+  \\
+  
+  \hline
+  \hline
+\end{tabular}
+\\\\\\\\
+Feeding preferences: \\
+\noindent
+\begin{tabular}{l|l|l|l|l}
+ 
+  & $P_{dt}$ & $P_{c}$ & $P_{dn}$ & $P_{n}$\\
+\hline
+$Z_{\mu}$ & 0 & 1 & 1 & 1\\
+\hline
+$Z_{\lambda}$ & 1 & 1 & 1 & 0\\
+\hline
+\end{tabular}
+\\
+where number is $p^i_j$ denoting feeding preference of $Z_j$ grazing on $P_i$
+
+
 \end{document} 
