@@ -107,24 +107,28 @@ def phytomftm_extendedoutput(x, t, paras, pClass, zClass):
     Si_Uptake = [p[i].si_uptake(Si) for i in range(pfn)]
 
     # Light and Temperature
-    LightHarvesting = [p[i].lightharvesting(int_MLD, int_PAR) for i in range(pfn)]
+    #LightHarvesting = [p[i].lightharvesting(int_MLD, int_PAR) for i in range(pfn)]
+    LightHarvesting = [p[i].smithpi(int_MLD, int_PAR, P) for i in range(pfn)]
     TemperatureDepGrowth = [p[i].tempdepgrowth(int_SST) for i in range(pfn)]
     # Phytoplankton Growth
     Gains = [p[i].gains(N_Uptake[i], Si_Uptake[i], LightHarvesting[i], TemperatureDepGrowth[i], P[i]) for i in range(pfn)]
     SilicateDrawdown = [p[i].silicatedrawdown(Gains[i]) for i in range(pfn)]
 
     # Zooplankton Grazing:
-    Rj = [z[i].ressourcedensity(P) for i in range(zn)] # total available ressource density for Zooplankton i
+    Gj = [z[i].grazingprobability(P) for i in range(zn)]  # total available ressource density for Zooplankton 1
+    Itot = [z[i].zoointake(Gj[i], P) for i in range(zn)]
 
-    Itot = [z[i].itot(Rj[i]) for i in range(zn)]
+    PhytoGrazed = [p[i].zoograzing2(Gj, P[i], Z) for i in range(pfn)]  # returns phyto grazed per type
 
-    PhytoGrazed = [p[i].zoograzing(Itot, Rj, P[i], Z) for i in range(pfn)] #returns phyto grazed per type
+    # Rj = [z[i].ressourcedensity(P) for i in range(zn)] # total available ressource density for Zooplankton i
+    # Itot = [z[i].itot(Rj[i]) for i in range(zn)]
+    # PhytoGrazed = [p[i].zoograzing(Itot, Rj, P[i], Z) for i in range(pfn)] #returns phyto grazed per type
 
     ZooMixing = [Z[i] * K_Z for i in range(zn)]
     ZooMortality = [z[i].zoomortality(Z[i]) for i in range(zn)] #THIS IS IT!
 
-    AssimilatedGrazing = [z[i].assimgrazing(Itot[i], Z[i]) for i in range(zn)]
-    UnassimilatedGrazing = [z[i].unassimilatedgrazing(Itot[i], Z[i]) for i in range(zn)]
+    AssimilatedGrazing = [z[i].assimgrazing(Itot[i]) for i in range(zn)]
+    UnassimilatedGrazing = [z[i].unassimilatedgrazing(Itot[i]) for i in range(zn)]
 
     InterZooPredation = [z[i].interzoograze(i, Z) for i in range(zn)]
     UnassimInterZooPr = [z[i].unassiminterzoogr(i, Z) for i in range(zn)]

@@ -11,14 +11,14 @@ import pandas
 # Fitting
 from lmfit import minimize, Parameters, Parameter, report_fit
 
-from Tests.runModel_CARIACO_Prelim import out4P2Z,timedays_model
+from Tests.runModel_CARIACO_Prelim import out4P2Z, timedays_model
 
 
 # make all plots larger and more visible on dark background:
-plt.rcParams['figure.figsize'] = [16, 10]
-plt.rc_context({'axes.edgecolor':'black', 'xtick.color':'black', 'ytick.color':'black', 'figure.facecolor':'white'})
+#plt.rcParams['figure.figsize'] = [16, 10]
+#plt.rc_context({'axes.edgecolor':'black', 'xtick.color':'black', 'ytick.color':'black', 'figure.facecolor':'white'})
 
-plt.rcParams['figure.dpi']= 300
+#plt.rcParams['figure.dpi']= 300
 
 
 # read yearly data (for comparison to model) from Cariaco

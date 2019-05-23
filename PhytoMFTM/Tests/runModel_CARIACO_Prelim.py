@@ -31,7 +31,11 @@ standardparams = Parameters()
 standardparams.add('kappa', value=0.1, vary=False) # min=0.09, max=0.11) # Diffusive mixing across thermocline (m*d^-1)
 standardparams.add('deltaD_N', value=0.05, vary=False)   # Nitrate Mineralization rate (d^-1)
 
-standardparams.add('kw', value=0.1, vary=False)     # Light attenuation constant (m^-1)
+standardparams.add('kw', value=0.04, vary=False)     # Light attenuation constant of water (m^-1)
+
+standardparams.add('kc', value=0.03, vary=False)      # Light attenuation via phytoplankton pigment (m^-1)
+standardparams.add('alpha', value=0.15, vary=False)  # initial slope of the P-I curve
+standardparams.add('VpMax', value=1., vary=False)    # maximum photosynthetic rate
 
 standardparams.add('v', value=0.11, vary=False)      # Sinking of Phytoplankton from Mixed Layer
 standardparams.add('OptI', value=30, vary=False)    # Optimum irradiance (einstein*m^-2*d^-1)
@@ -80,16 +84,16 @@ standardparams.add('muZ', value=0, vary=False)    # Zooplankton maximum grazing 
 
 # set up zooplankton type 1 (e.g. MIKRO zooplankton)
 ztype1 = Parameters()
-ztype1.add('zt1_muZ', value=0.1, vary=False)    # Zooplankton maximum grazing rate (d^-1)
+ztype1.add('zt1_muZ', value=0.7, vary=False)    # Zooplankton maximum grazing rate (d^-1)
 
-ztype1.add('zt1_Kp', value=0.5, vary=False)       # Zooplankton Grazing saturation constant (-)
+ztype1.add('zt1_Kp', value=0.1, vary=False)       # Zooplankton Grazing saturation constant (-)
 ztype1.add('zt1_pred', value=0.01, vary=False)    # quadratic higher order predation rate on zooplankton
 
 # set up zooplankton type 2 (e.g. MESO zooplankton)
 ztype2 = Parameters()
-ztype2.add('zt2_muZ', value=0.1, vary=False)    # Zooplankton maximum grazing rate (d^-1)
+ztype2.add('zt2_muZ', value=0.6, vary=False)    # Zooplankton maximum grazing rate (d^-1)
 
-ztype2.add('zt2_Kp', value=0.5, vary=False)       # Zooplankton Grazing saturation constant (-)
+ztype2.add('zt2_Kp', value=0.1, vary=False)       # Zooplankton Grazing saturation constant (-)
 ztype2.add('zt2_pred', value=0.01, vary=False)    # quadratic higher order predation rate on zooplankton
 
 """
@@ -121,6 +125,39 @@ ptype3.add('pt3_Z2', value=ztype2['zt2_P3'].value, vary=False)
 
 ptype4.add('pt4_Z1', value=ztype1['zt1_P4'].value, vary=False)
 ptype4.add('pt4_Z2', value=ztype2['zt2_P4'].value, vary=False)
+
+def paramsout(pfn,zn):
+    # number of phytoplankton func types
+    standardparams.add('pfun_num', value=pfn, vary=False)
+    # number of zooplankton groups
+    standardparams.add('zoo_num', value=zn, vary=False)
+
+    if pfn == 4 and zn == 2:
+         print('4P2Z - prelim model')
+         all_params = (standardparams + ptype1 + ptype2 + ptype3 + ptype4 + ztype1 + ztype2)
+    elif pfn == 2 and zn == 2:
+         print('2P2Z')
+         all_params = (standardparams + ptype1 + ptype2 + ztype1 + ztype2)
+    elif pfn == 2 and zn == 1:
+         print('2P1Z')
+         all_params = (standardparams + ptype1 + ptype2 + ztype1)
+    elif pfn == 1 and zn == 2:
+         print('2P1Z')
+         all_params = (standardparams + ptype1 + ztype1 + ztype2)
+    elif pfn == 1 and zn == 1:
+         print('1P1Z')
+         all_params = (standardparams + ptype1 + ztype1)
+    else:
+        print('just standard params')
+        all_params = (standardparams)
+
+    #all_params = (standardparams)
+    parameters = all_params
+    #initialcond = setupinitcond(pfn,zn)
+    #print(initialcond)
+    #out = runmodel(parameters,initialcond)
+
+    return parameters
 
 
 def setupinitcond(pfn,zn):
@@ -400,3 +437,5 @@ out4P2Z = callmodelrun(4,2)
 #out2P2Z = callmodelrun(2,2)
 
 #plot1output(out2P2Z, 2, 2, 1, '1P1Z')
+
+#all_params = paramsout(1,1)

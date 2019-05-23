@@ -38,7 +38,7 @@
 \newcommand{\ux}{{\underline{x}}}
 \newcommand{\tdt}{{t}} 
 
-{\bf {\large A1. CARIACO model equations}} 
+{\bf {\large A1. CARIACO model methods}} 
 
 The ecosystem model equations are similar to those used in Acevedo-Trejos et al. (2016).
 Most significant changes are that multiple phytoplankton and zooplankton functional types have been added, and that the grazing formulation was expanded to include preferential feeding on certain functional types.
@@ -125,38 +125,53 @@ where:\\
 
 
 
-
 \vspace{.2cm}
 
-{\it {\bf A1.1. Phytoplankton growth:}}\\
-\[
-\mu_j = \mu_{max_{j}} \gamma_j^T \gamma_j^I \gamma_j^N
+{\it {\bf A1.1. Physical structure:}}\\
+
+It is a slab model for now, but might make sense to include depth layering, or euphotic zone depth, etc.. can take some of the cues for slab models from EMPOWER-1.0
+\vspace{.2cm}
+
+
+{\it {\bf A1.2. Phytoplankton growth:}}\\
+\[ 
+\mu_i = \mu_{max_{i}} \gamma_i^T \gamma_i^I \gamma_i^N
 \]
 where\\
-\mbox{} \hspace{.5cm} $\mu_{max_{j}}=$ maximum growth rate of phytoplankton $j$,\\
-\mbox{} \hspace{.5cm} $\gamma_j^T=$Modification of growth rate by
-temperature for phytoplankton $j$,\\
-\mbox{} \hspace{.5cm} $\gamma_j^I=$Modification of growth rate by light for
-phytoplankton $j$,\\
-\mbox{} \hspace{.5cm} $\gamma_j^N=$Modification of growth rate by nutrients
-for phytoplankton $j$.\\
+\mbox{} \hspace{.5cm} $\mu_{max_{i}}=$ maximum growth rate of phytoplankton $i$,\\
+\mbox{} \hspace{.5cm} $\gamma_i^T=$Modification of growth rate by
+temperature for phytoplankton $i$,\\
+\mbox{} \hspace{.5cm} $\gamma_i^I=$Modification of growth rate by light for
+phytoplankton $i$,\\
+\mbox{} \hspace{.5cm} $\gamma_i^N=$Modification of growth rate by nutrients
+for phytoplankton $i$.\\
 
 Temperature modification (Fig. \ref{fig-growexp1}a):\\
 \[
-\gamma_j^T= \frac{1}{\tau_1} (A^T e^{-B(T-T_o)^c} - \tau_2 )
+\gamma_i^T= \frac{1}{\tau_1} (A^T e^{-B(T-T_o)^c})
 \]
-where coefficients $\tau_1$ and $\tau_2$ normalize the maximum
-value, and $A,B,T_o$ and $C$ regulate the form of the temperature
-modification function. $T$ is the local model ocean temperature.
+where EPPLEY \\
+... \\
+...  
 
 Light modification (Fig. \ref{fig-growexp1}b):\\
+
+The average photosynthesis within a layer of depth $H$ is
 \[
-\gamma_j^I= \frac{1}{F_o} (1-e^{k_{par} I} ) e^{-k_{inhib} I}
+V'_{P(H)} = \frac{1}{H} \cdot \int_{z = 0}^{H}V_P(z)dz
 \]
-where $F_{o}$ is a factor controlling the maximum value, $k_{par}$ is the
-PAR saturation coefficient and $k_{inhib}$ is the PAR inhibition factor.
-$I$ is the local PAR, that has been attenuated through the water column
-(including the effects of self-shading).
+
+where $V_P$ is photosynthesis as a function of light intensity (specified as the P-I curve). The P-I curve is based on the Smith equation. In both cases a Beer's law attenuation with depth is assumed (parameter $k_{PAR}$), i.e. $I(z) = I(0) \cdot \exp(-k_{PAR} \cdot z)$, where $I(0)$ is the irradiance entering the layer from above. \\
+By performing a change of variables such that $x = \alpha \cdot I(z)$, the integral above becomes:
+\[
+V'_{P(H)} = \frac{-V_{P_{max}}}{H} \cdot \int_{z = 0}^{H}\frac{1}{\sqrt{(V_{P_{max}})^2 + x^2}}dx
+\]
+This integral is solved analytically using a trigonometric transformation and then integration by parts, giving:
+\begin{equation}
+V'_{P(H)} = \frac{V_{Pmax}}{k_{PAR} \cdot H} \cdot \ln \left(\frac{x_0 + \sqrt{(V_{Pmax})^2+ x_0^2}}{x_H + \sqrt{(V_{Pmax})^2+ x_H^2}}\right)
+\end{equation} 
+
+\\
 
 Nutrient limitation is determined by the most limiting nutrient:
 \[
