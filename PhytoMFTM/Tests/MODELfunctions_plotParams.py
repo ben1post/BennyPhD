@@ -113,6 +113,20 @@ ztype2.add('zt2_P1', value=1, vary=False)
 ztype2.add('zt2_P2', value=1, vary=False)
 ztype2.add('zt2_P3', value=1, vary=False)
 ztype2.add('zt2_P4', value=1, vary=False)
+# inter zoo feeding
+# MIKRO
+ztype1.add('zt1_Zint_feed1', value=0, vary=False)
+ztype1.add('zt1_Zint_feed2', value=0, vary=False)
+# MESO
+ztype2.add('zt2_Zint_feed1', value=1, vary=False)
+ztype2.add('zt2_Zint_feed2', value=0, vary=False)
+
+# CONVERT FEEDPREFS TO GRAZEPREF FOR CALCULATION OF GRAZING
+ztype1.add('zt1_Zint_grazed1', value=ztype1['zt1_Zint_feed1'].value, vary=False)
+ztype1.add('zt1_Zint_grazed2', value=ztype2['zt2_Zint_feed1'].value, vary=False)
+
+ztype2.add('zt2_Zint_grazed1', value=ztype1['zt1_Zint_feed2'].value, vary=False)
+ztype2.add('zt2_Zint_grazed2', value=ztype2['zt2_Zint_feed2'].value, vary=False)
 
 ptype1.add('pt1_Z1', value=ztype1['zt1_P1'].value, vary=False)
 ptype1.add('pt1_Z2', value=ztype2['zt2_P1'].value, vary=False)
@@ -241,3 +255,5 @@ def callmodelrun(pfn,zn):
 all_params = paramsout(1,1)
 
 all_params21 = paramsout(2,1)
+
+all_params22 = paramsout(2,2)

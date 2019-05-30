@@ -80,7 +80,7 @@ mcolors.get_named_colors_mapping().update(c)
 
 
 def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
-    f1, (ax1, ax2, ax3, ax4, ax5, ax6, ax7, ax8, ax9) = plt.subplots(9, 1, sharex='col', sharey='row')
+    f1, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 2, sharex='col')#, sharey='row')
     # N / Si / Pdt / Pc / Pdn / Pn / Zmu / Zlambda / D
     # PLOTTING
     timedays = timedays_model[1:366]
@@ -95,47 +95,47 @@ def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
     # artist for legends
     FullArtist = plt.Line2D((0, 1), (0, 0), c=colors[4], alpha=alphas[1], lw=lws[0])
 
-    ax1.set_title(title)
+    ax1[0].set_title(title)
 
     # Figure 1
     # N
-    ax1.plot(timedays, outarray_ly[:, 0], c="N", lw=lws[0], alpha=alphas[0], label='Model')
+    ax1[0].plot(timedays, outarray_ly[:, 0], c="N", lw=lws[0], alpha=alphas[0], label='Model')
     # N Data
-    ax1.scatter(NO3NO2['yday'].values, NO3NO2['NO2NO3'].values, c="N", s=4.3, label='Data')
+    ax1[0].scatter(NO3NO2['yday'].values, NO3NO2['NO2NO3'].values, c="N", s=4.3, label='Data')
     if i_plot == 0:
-        ax1.set_ylabel('Nitrate \n' '[µM]', multialignment='center', fontsize=10)
+        ax1[0].set_ylabel('Nitrate \n' '[µM]', multialignment='center', fontsize=10)
     # ax1[i_plot].set_ylim(-0.1, 5)
 
     # Si
-    ax2.plot(timedays, outarray_ly[:, 1], c="Si", lw=lws[0], alpha=alphas[0])
+    ax2[0].plot(timedays, outarray_ly[:, 1], c="Si", lw=lws[0], alpha=alphas[0])
     # Si Data
-    ax2.scatter(SiOH['yday'].values, SiOH['SiOH'].values, c="Si", s=4.3)
+    ax2[0].scatter(SiOH['yday'].values, SiOH['SiOH'].values, c="Si", s=4.3)
     if i_plot == 0:
-        ax2.set_ylabel('Silicate \n' '[µM]', multialignment='center', fontsize=10)
+        ax2[0].set_ylabel('Silicate \n' '[µM]', multialignment='center', fontsize=10)
     # ax2[i_plot].set_ylim(-0.1, 12)
 
     # Phyto i=2
     # ax3.plot(timedays, sum([outarray_ly[:, 3 + zn + i] for i in range(pfn)]), c=colors[4], lw=lws[1])
-    ax3.plot(timedays, outarray_ly[:, 3 + zn + 0], c="Phyto")
+    ax3[0].plot(timedays, outarray_ly[:, 3 + zn + 0], c="Phyto")
     #ax3_tx = ax3.twinx()
-    ax3.scatter(DIATOM['yday'].values, DIATOM['abundance'].values * 2 / 1000, c="Phyto", s=4.3)
+    ax3[0].scatter(DIATOM['yday'].values, DIATOM['abundance'].values * 2 / 1000, c="Phyto", s=4.3)
     # 2. pmol per cell [Marchetti and Harrison 2007]
     # values of abundance are organisms per ml
     # to convert pmol per cell per ml to µM = * abundance / 1000
 
-    ax4.plot(timedays, outarray_ly[:, 3 + zn + 1], c="Phyto")
+    ax4[0].plot(timedays, outarray_ly[:, 3 + zn + 1], c="Phyto")
     #ax4_tx = ax4.twinx()
-    ax4.scatter(COCCO['yday'].values, COCCO['abundance'].values * 1 / 1000, c="Phyto", s=4.3)
+    ax4[0].scatter(COCCO['yday'].values, COCCO['abundance'].values * 1 / 1000, c="Phyto", s=4.3)
     # 1 pmol per cell [Aksnes et al. 1994]
 
-    ax5.plot(timedays, outarray_ly[:, 3 + zn + 2], c="Phyto")
+    ax5[0].plot(timedays, outarray_ly[:, 3 + zn + 2], c="Phyto")
     #ax5_tx = ax5.twinx()
-    ax5.scatter(DINO['yday'].values, DINO['abundance'].values * 1.5 / 1000, c="Phyto", s=4.3)
+    ax5[0].scatter(DINO['yday'].values, DINO['abundance'].values * 1.5 / 1000, c="Phyto", s=4.3)
     # 1.5 pmol per cell [Li et al. 2016]
 
-    ax6.plot(timedays, outarray_ly[:, 3 + zn + 3], c="Phyto")
+    ax1[1].plot(timedays, outarray_ly[:, 3 + zn + 3], c="Phyto")
     #ax6_tx = ax6.twinx()
-    ax6.scatter(NANO['yday'].values, NANO['abundance'].values * 0.1 / 1000, c="Phyto", s=4.3)
+    ax1[1].scatter(NANO['yday'].values, NANO['abundance'].values * 0.1 / 1000, c="Phyto", s=4.3)
     # 30 fmol per cell > 0.03 pmol per cell [Maat et al. 2014]
 
     #ax3_tx.set_ylim(-0.1, 0.8)
@@ -144,13 +144,13 @@ def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
     #ax6_tx.set_ylim(-0.1, 0.8)
 
     if i_plot == 0:
-        ax3.set_ylabel('Diatom \n' '[µM N]', multialignment='center', fontsize=10)
+        ax3[0].set_ylabel('Diatom \n' '[µM N]', multialignment='center', fontsize=10)
     if i_plot == 0:
-        ax4.set_ylabel('Coccs \n' '[µM N]', multialignment='center', fontsize=10)
+        ax4[0].set_ylabel('Coccs \n' '[µM N]', multialignment='center', fontsize=10)
     if i_plot == 0:
-        ax5.set_ylabel('Dinos \n' '[µM N]', multialignment='center', fontsize=10)
+        ax5[0].set_ylabel('Dinos \n' '[µM N]', multialignment='center', fontsize=10)
     if i_plot == 0:
-        ax6.set_ylabel('Nano \n' '[µM N]', multialignment='center', fontsize=10)
+        ax1[1].set_ylabel('Nano \n' '[µM N]', multialignment='center', fontsize=10)
     #ax3.set_ylim(-0.1, 0.8)
     #ax4.set_ylim(-0.1, 0.8)
     #ax5.set_ylim(-0.1, 0.8)
@@ -162,29 +162,29 @@ def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
     i=3
     # ax4.plot(timedays, sum([outarray_ly[:, 3 + i] for i in range(zn)]), c=colors[4], lw=lws[1])
     # [ax4.plot(timedays, outarray_ly[:, 3 + i], c=colors[i + 1], lw=lws[0], alpha=alphas[0]) for i in range(zn)]
-    ax7.plot(timedays, outarray_ly[:, 3 + 0], c="MikroZ", lw=lws[0], alpha=alphas[0])
-    ax7.scatter(Zoo200BM['yday'].values, Zoo200BM['abundance'].values *0.1*0.071394, c="MikroZ", s=4.3)
+    ax2[1].plot(timedays, outarray_ly[:, 3 + 0], c="MikroZ", lw=lws[0], alpha=alphas[0])
+    ax2[1].scatter(Zoo200BM['yday'].values, Zoo200BM['abundance'].values *0.1*0.071394, c="MikroZ", s=4.3)
 
-    ax8.plot(timedays, outarray_ly[:, 3 + 1], c="MesoZ", lw=lws[0], alpha=alphas[0])
-    ax8.scatter(Zoo500BM['yday'].values, Zoo500BM['abundance'].values *0.1*0.071394, c="MesoZ", s=4.3)
+    ax3[1].plot(timedays, outarray_ly[:, 3 + 1], c="MesoZ", lw=lws[0], alpha=alphas[0])
+    ax3[1].scatter(Zoo500BM['yday'].values, Zoo500BM['abundance'].values *0.1*0.071394, c="MesoZ", s=4.3)
     if i_plot == 0:
-        ax7.set_ylabel('Mikro Z \n' '[µM N]', multialignment='center', fontsize=9)
+        ax2[1].set_ylabel('Mikro Z \n' '[µM N]', multialignment='center', fontsize=9)
     if i_plot == 0:
-        ax8.set_ylabel('Meso Z \n' '[µM N]', multialignment='center', fontsize=9)
-    ax7.tick_params('y', labelsize=10)
+        ax3[1].set_ylabel('Meso Z \n' '[µM N]', multialignment='center', fontsize=9)
+    ax2[1].tick_params('y', labelsize=10)
 
     # ax4[i_plot].set_title('Zooplankton')
     # ax4[i_plot].set_ylim(0, 0.62)
 
     # D
-    ax9.plot(timedays, outarray_ly[:, 2], c="D", lw=lws[0], alpha=alphas[0])
+    ax4[1].plot(timedays, outarray_ly[:, 2], c="D", lw=lws[0], alpha=alphas[0])
     if i_plot == 0:
-        ax9.set_ylabel('Detritus \n' '[µM N]', multialignment='center', fontsize=9)
+        ax4[1].set_ylabel('Detritus \n' '[µM N]', multialignment='center', fontsize=9)
 
     # ax5[i_plot].set_title('Detritus')
     # ax5[i_plot].set_ylim(0,0.15)
 
-    ax9.set_xlabel('Day in year')
+    ax4[1].set_xlabel('Day in year')
     # Legend
     f1.align_ylabels()
     plt.margins(x=0)

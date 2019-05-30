@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 from mpl_toolkits.mplot3d import Axes3D
 
-from Tests.MODELfunctions_plotParams import all_params, all_params21
+from Tests.MODELfunctions_plotParams import all_params, all_params21, all_params22
 from PhytoMFTM.ModelClasses import Plankton
 from lmfit import Parameters, Parameter
 
@@ -50,6 +50,10 @@ p = Plankton(all_params, 'Phytoplankton').init()
 
 z2 = Plankton(all_params21, 'Zooplankton').init()
 p2 = Plankton(all_params21, 'Phytoplankton').init()
+
+
+z3 = Plankton(all_params22, 'Zooplankton').init()
+p3 = Plankton(all_params22, 'Phytoplankton').init()
 
 def steelefunc(I):
     # simple definition fo steeles PI curve function
@@ -577,11 +581,11 @@ def PhytoGrazed2():
     fig3.show()
 
 
-def ZooIntake2():
+def ZooIntake2(func):
     #f1, (ax1, ax2, ax3) = plt.subplots(3, 1, sharex='col', sharey='row')
     # N / Si / Pdt / Pc / Pdn / Pn / Zmu / Zlambda / D
     Z1 = 1
-    P1 = np.linspace(0.01, 2., 50)
+    P1 = np.linspace(0.01, 1., 50)
     P2 = np.linspace(0.01, 1., 50)
 
     # z.grazinprobability, 2 Z -> loops across all 4 phy
@@ -589,8 +593,8 @@ def ZooIntake2():
     # or
     # z.intake 2 Z -> loops across all 4 phy
 
-    Gj = [[z2[0].fullgrazing(z2[0].zoofeeding([i, j], func = 'vallina'), [i,j], Z1), i, j] for i in P1 for j in P2]
-    Z1Gr = np.array([z2[0].fullgrazing(z2[0].zoofeeding([i, j], func = 'anderson'), [i,j], Z1) for i in P1 for j in P2])
+    Gj = [[z2[0].fullgrazing(z2[0].zoofeeding([i, j], [Z1], func = 'vallina'), [i,j], [Z1], Z1), i, j, Z1] for i in P1 for j in P2]
+    Z1Gr = np.array([z2[0].fullgrazing(z2[0].zoofeeding([i, j], [Z1], func = func), [i,j], [Z1], Z1) for i in P1 for j in P2])
     #P1Gr = np.array([p2[0].zoograzing2([z2[0].grazingprobability([i,j])], i, [1,1]) for i in P1 for j in P2])
 
     print(Z1Gr)
@@ -617,8 +621,60 @@ def ZooIntake2():
     cbar.set_ticks([0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1])
     ax4.set_xlabel('P1 [µM N]')
     ax4.set_ylabel('P2 [µM N]')
-    ax4.set_title('Grazing of 1 Z [µM $d^{-1}$]')
+    ax4.set_title('Grazing of 1 Z [µM $d^{-1}$]' + func)
     plt.savefig('ZooIntake1.png')
+    fig4.show()
+
+def ZooIntake3():
+    #f1, (ax1, ax2, ax3) = plt.subplots(3, 1, sharex='col', sharey='row')
+    # N / Si / Pdt / Pc / Pdn / Pn / Zmu / Zlambda / D
+    Z1 = np.linspace(0.01, 1., 50)
+    Z2 = np.linspace(0.01, 1., 50) # 1
+    P1 = 0
+    P2 = 0
+
+    # z.grazinprobability, 2 Z -> loops across all 4 phy
+    # p.zoograzing2, 4 P -> loops across all 2 zoo
+    # or
+    # z.intake 2 Z -> loops across all 4 phy
+
+    #Gj = [[z3[1].fullgrazing(z3[1].zoofeeding([i, P2], [j,Z2], func = 'vallina'), [i,P2], [j,Z2], Z2), i, j, Z2] for i in P1 for j in Z1]
+    #Z1Gr = np.array([z3[1].fullgrazing(z3[1].zoofeeding([i, P2], [j,Z2], func = 'anderson'), [i,P2], [j,Z2], Z2) for i in P1 for j in Z1])
+
+    #INTERZOOGRAZE
+    Gj = [[1, j, i, 1] for i in Z2 for j in Z1]
+
+    # THIS GIVES THE GRAZING (positive) on specific zooplankton type
+    Z1Gr = np.array([z3[0].interzoograze([z3[x].zoofeeding([P1, P2], [j, i], func = 'anderson') for x in range(2)], [j, i], j) for i in Z2 for j in Z1])
+    #P1Gr = np.array([p2[0].zoograzing2([z2[0].grazingprobability([i,j])], i, [1,1]) for i in P1 for j in P2])
+
+
+    print(Z1Gr)
+
+    Pone = [Gj[x][1] for x in range(50 * 50)]
+    Pone2 = np.array(Pone)
+    Pone3 = Pone2.reshape(50, 50)
+    Ptwo = [Gj[x][2] for x in range(50 * 50)]
+    Ptwo2 = np.array(Ptwo)
+    Ptwo3 = Ptwo2.reshape(50, 50)
+
+    # Figure 1
+    # N
+    #ax1.plot(intMLD, intPAR, c="N", lw=lws[0], alpha=alphas[0], label='Model')
+    Z = Z1Gr.reshape(50, 50)
+    # Legend
+    #f1.align_ylabels()
+    #plt.margins(x=0)
+    #plt.tight_layout()
+
+    fig4, ax4 = plt.subplots()
+    cs = ax4.contourf(Pone3, Ptwo3, Z, 50)
+    cbar = fig4.colorbar(cs)
+    #cbar.set_ticks([0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1])
+    ax4.set_xlabel('Z2 [µM N]')
+    ax4.set_ylabel('Z1 [µM N]')
+    ax4.set_title('Grazing of 1 Z [µM $d^{-1}$]')
+    #plt.savefig('ZooIntake1.png')
     fig4.show()
 
 #PIcurves()
@@ -640,6 +696,10 @@ def ZooIntake2():
 #grazingcomparison()
 #GrazingTry2()
 
-#ZooIntake2()
+ZooIntake2('fasham')
+ZooIntake2('anderson')
+ZooIntake2('vallina')
+
+#ZooIntake3()
 
 #PhytoGrazed2()

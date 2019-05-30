@@ -7,7 +7,7 @@ from PhytoMFTM.AuxFuncs import dailyinterp, firstderivspl
 
 # parameters for interpolation
 kmld = 3
-smld = 0
+smld = None
 kindmld = "spline"
 kn0x = 5
 sn0x = None
@@ -62,7 +62,7 @@ def phytomftm_extendedoutput(x, t, paras, pClass, zClass):
     D = x[2]  # Detritus
 
     zn = paras['zoo_num'].value
-    Z = [x[3 +i] for i in range(zn)]  # Zooplankton
+    Z = [x[3 + j] for j in range(zn)]  # Zooplankton
 
     z = zClass
 
@@ -107,7 +107,7 @@ def phytomftm_extendedoutput(x, t, paras, pClass, zClass):
     Si_Uptake = [p[i].si_uptake(Si) for i in range(pfn)]
 
     # Light and Temperature
-    #LightHarvesting = [p[i].lightharvesting(int_MLD, int_PAR) for i in range(pfn)]
+    # LightHarvesting = [p[i].lightharvesting(int_MLD, int_PAR) for i in range(pfn)]
     LightHarvesting = [p[i].smithpi(int_MLD, int_PAR, P) for i in range(pfn)]
     TemperatureDepGrowth = [p[i].tempdepgrowth(int_SST) for i in range(pfn)]
     # Phytoplankton Growth
@@ -115,36 +115,32 @@ def phytomftm_extendedoutput(x, t, paras, pClass, zClass):
     SilicateDrawdown = [p[i].silicatedrawdown(Gains[i]) for i in range(pfn)]
 
     # Zooplankton Grazing:
-    Gj = [z[i].grazingprobability(P) for i in range(zn)]  # total available ressource density for Zooplankton 1
-    Itot = [z[i].zoointake(Gj[i], P) for i in range(zn)]
-
-    PhytoGrazed = [p[i].zoograzing2(Gj, P[i], Z) for i in range(pfn)]  # returns phyto grazed per type
-
-    # Rj = [z[i].ressourcedensity(P) for i in range(zn)] # total available ressource density for Zooplankton i
-    # Itot = [z[i].itot(Rj[i]) for i in range(zn)]
-    # PhytoGrazed = [p[i].zoograzing(Itot, Rj, P[i], Z) for i in range(pfn)] #returns phyto grazed per type
+    Gj = [z[j].zoofeeding(P, Z, func='vallina') for j in range(zn)]  # feeding probability for all food
+    PhytoGrazed = [p[i].zoograzing(Gj, P[i], Z) for i in range(pfn)]  # returns phyto grazed per type
 
     ZooMixing = [Z[i] * K_Z for i in range(zn)]
-    ZooMortality = [z[i].zoomortality(Z[i]) for i in range(zn)] #THIS IS IT!
+    ZooMortality = [z[i].zoomortality(Z[i]) for i in range(zn)]  # THIS IS IT!
 
-    AssimilatedGrazing = [z[i].assimgrazing(Itot[i]) for i in range(zn)]
-    UnassimilatedGrazing = [z[i].unassimilatedgrazing(Itot[i]) for i in range(zn)]
+    ZooFeeding = [z[j].fullgrazing(Gj[j], P, Z, Z[j]) for j in range(zn)]
 
-    InterZooPredation = [z[i].interzoograze(i, Z) for i in range(zn)]
-    UnassimInterZooPr = [z[i].unassiminterzoogr(i, Z) for i in range(zn)]
-    HigherOrderPredation = [z[i].higherorderpred(Z[i]) for i in range(zn)]
+    AssimilatedGrazing = [z[j].assimgrazing(ZooFeeding[j]) for j in range(zn)]
+    UnassimilatedGrazing = [z[j].unassimilatedgrazing(ZooFeeding[j]) for j in range(zn)]
+
+    InterZooPredation = [z[j].interzoograze(Gj, Z, Z[j]) for j in range(zn)]
+    HigherOrderPredation = [z[j].higherorderpred(Z[j]) for j in range(zn)]
 
     # Phytoplankton losses
     PhytoMortality = [p[i].mortality(P[i]) for i in range(pfn)]
     PhytoSinking = [p[i].sinking(int_MLD, P[i]) for i in range(pfn)]
     PhytoMixing = [P[i] * K for i in range(pfn)]
 
-    y0 = NRemineralization + NMixing - sum(Gains)  # Nitrate drawdown
-    y1 = SiMixing - sum(SilicateDrawdown)  # Silicate drawdown
-    y2 = sum(UnassimilatedGrazing) + sum(UnassimInterZooPr) + sum(ZooMortality) + sum(PhytoMortality) - NRemineralization - DetritusMixing   # Detritus
+    y0 = NRemineralization + NMixing - sum(Gains)  # Nitrate draw down
+    y1 = SiMixing - sum(SilicateDrawdown)  # Silicate draw down
+    y2 = sum(UnassimilatedGrazing) + sum(ZooMortality) + sum(PhytoMortality) - NRemineralization - DetritusMixing   # Detritus
 
-    zoo = [AssimilatedGrazing[i] + InterZooPredation[i] - ZooMixing[i] - ZooMortality[i] - HigherOrderPredation[i] for i in range(zn)]   # Zooplankton losses due to mortality and mixing
     phy = [Gains[i] - PhytoGrazed[i] - PhytoMortality[i] - PhytoMixing[i] - PhytoSinking[i] for i in range(pfn)]  # Phytoplankton growth
+    zoo = [AssimilatedGrazing[j] - InterZooPredation[j] - ZooMixing[j] - ZooMortality[j] - HigherOrderPredation[j] for j in range(zn)]   # Zooplankton losses due to mortality and mixing
+
     #print(phy)
     outputlist[0] = NRemineralization       - outputlist[0]
     outputlist[1] = NMixing                 - outputlist[1]
@@ -167,7 +163,7 @@ def phytomftm_extendedoutput(x, t, paras, pClass, zClass):
     outputlist[15] = sum(ZooMixing)         - outputlist[15]
     outputlist[16] = sum(UnassimilatedGrazing)   - outputlist[16]
     outputlist[17] = sum(InterZooPredation) - outputlist[17]
-    outputlist[18] = sum(UnassimInterZooPr) - outputlist[18]
+    outputlist[18] = 0 - outputlist[18]
     outputlist[19] = sum(HigherOrderPredation) - outputlist[19]
 
     out = [y0, y1, y2] + zoo + phy + outputlist

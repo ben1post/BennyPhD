@@ -35,7 +35,11 @@ def checkreplaceparam(stdpardict, functypepardict, parsuffix):
         ftpara = next(v for k, v in functypepardict.items() if k.endswith(parsuffix))
         return ftpara
     except StopIteration:
-        return next(v for k, v in stdpardict.items() if k.endswith(parsuffix))
+        try:
+            return next(v for k, v in stdpardict.items() if k.endswith(parsuffix))
+        except StopIteration:
+            raise Exception('Parameter {} is not found in Parameters passed to Plankton class'.format(parsuffix))
+
 
 
 # FOR FORCING:
@@ -59,7 +63,7 @@ def firstderivspl(Forcing, time, k=3, s=None):
       """
     outForcing = Forcing  # spatialave(Forcing)
     tmonth = np.linspace(-15., 365.+15, 14)  # HERE deprecation warning due to 13. <- float, should be int
-    newt = np.mod(time, 365.)
+    newt = np.mod(time, 364.)
     outintp = intrp.UnivariateSpline(tmonth, outForcing, k=k, s=s)
     return outintp.derivative()(newt)
 
@@ -81,7 +85,7 @@ def dailyinterp(Forcing, time, kind='spline', k=3, s=None):
     outForcing = Forcing  # spatialave(Forcing)
 
     tmonth = np.linspace(-0.5, 12.5, 14) #HERE again, deprecation warning
-    newt = np.mod(time, 365.) * 12. / 365.
+    newt = np.mod(time, 364.) * 12. / 365.
     if kind == 'spline':
         outintp = intrp.UnivariateSpline(tmonth, outForcing, k=k, s=s)
         return outintp(newt)

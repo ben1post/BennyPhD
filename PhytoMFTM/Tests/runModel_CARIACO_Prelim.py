@@ -50,33 +50,34 @@ standardparams.add('muP', value=0, vary=False)    # Phytoplankton maximum growth
 
 # set up phytoplankton type 1 (e.g. DIATOMS)
 ptype1 = Parameters()
-ptype1.add('pt1_ratioSi', value=0, vary=False)  # Silicate ratio
-ptype1.add('pt1_U_Si', value=2.0, vary=False)   # Silicate Half Saturation Constant
-ptype1.add('pt1_U_N', value=0.446, vary=False)    # Nitrate Half Saturation Constant
-ptype1.add('pt1_muP', value=1.5, vary=False)    # Phytoplankton maximum growth rate (d^-1)
+ptype1.add('pt1_ratioSi', value=1, vary=False)  # Silicate ratio
+ptype1.add('pt1_U_Si', value=3.5, vary=False)   # Silicate Half Saturation Constant
+ptype1.add('pt1_U_N', value=1.5, vary=False)    # Nitrate Half Saturation Constant
+ptype1.add('pt1_muP', value=1.2, vary=False)    # Phytoplankton maximum growth rate (d^-1)
 
 # set up phytoplankton type 2 (e.g. Coccos)
 ptype2 = Parameters()
-ptype2.add('pt2_U_N', value=0.265, vary=False)    # Nitrate Half Saturation Constant
-ptype2.add('pt2_muP', value=1.1, vary=False)    # Phytoplankton maximum growth rate (d^-1)
+#ptype2.add('pt2_OptI', value=30, vary=False)    # Optimum irradiance (einstein*m^-2*d^-1)
+ptype2.add('pt2_U_N', value=1.5, vary=False)    # Nitrate Half Saturation Constant
+ptype2.add('pt2_muP', value=1.15, vary=False)    # Phytoplankton maximum growth rate (d^-1)
 
 # set up phytoplankton type 3 (e.g. Dinos)
 ptype3 = Parameters()
-ptype3.add('pt3_U_N', value=0.009, vary=False)    # Nitrate Half Saturation Constant
-ptype3.add('pt3_muP', value=0.5, vary=False)    # Phytoplankton maximum growth rate (d^-1)
+ptype3.add('pt3_U_N', value=1.5, vary=False)    # Nitrate Half Saturation Constant
+ptype3.add('pt3_muP', value=0.6, vary=False)    # Phytoplankton maximum growth rate (d^-1)
 
 # set up phytoplankton type 3 (e.g. Nanos)
 ptype4 = Parameters()
-ptype4.add('pt4_U_N', value=0.045, vary=False)    # Nitrate Half Saturation Constant
-ptype4.add('pt4_muP', value=1.7, vary=False)    # Phytoplankton maximum growth rate (d^-1)
+ptype4.add('pt4_U_N', value=1.5, vary=False)    # Nitrate Half Saturation Constant
+ptype4.add('pt4_muP', value=0.65, vary=False)    # Phytoplankton maximum growth rate (d^-1)
 
 # z - related
 #z grazing related
 standardparams.add('moZ', value=0.01, vary=False)        # Zooplankton mortality (d^-1)
 standardparams.add('deltaZ', value=0.75, vary=False)    # Zooplankton Grazing assimilation coefficient (-)
 standardparams.add('deltaLambda', value=0.75, vary=False)    # Zooplankton Inter-Grazing assimilation coefficient (-)
-standardparams.add('muIntGraze', value=0.01, vary=False)  # InterZooGrazing maximum grazing rate
-standardparams.add('kIntGraze', value=0.5, vary=False)  # InterZooGrazing saturation constant
+standardparams.add('muIntGraze', value=0.001, vary=False)  # InterZooGrazing maximum grazing rate
+standardparams.add('kIntGraze', value=1., vary=False)  # InterZooGrazing saturation constant
 
 standardparams.add('Kp', value=0, vary=False)     # Zooplankton Grazing saturation constant (-)
 standardparams.add('pred', value=0, vary=False)  # quadratic higher order predation rate on zooplankton
@@ -86,14 +87,14 @@ standardparams.add('muZ', value=0, vary=False)    # Zooplankton maximum grazing 
 ztype1 = Parameters()
 ztype1.add('zt1_muZ', value=0.7, vary=False)    # Zooplankton maximum grazing rate (d^-1)
 
-ztype1.add('zt1_Kp', value=0.1, vary=False)       # Zooplankton Grazing saturation constant (-)
+ztype1.add('zt1_Kp', value=.5, vary=False)       # Zooplankton Grazing saturation constant (-)
 ztype1.add('zt1_pred', value=0.01, vary=False)    # quadratic higher order predation rate on zooplankton
 
 # set up zooplankton type 2 (e.g. MESO zooplankton)
 ztype2 = Parameters()
 ztype2.add('zt2_muZ', value=0.6, vary=False)    # Zooplankton maximum grazing rate (d^-1)
 
-ztype2.add('zt2_Kp', value=0.1, vary=False)       # Zooplankton Grazing saturation constant (-)
+ztype2.add('zt2_Kp', value=.5, vary=False)       # Zooplankton Grazing saturation constant (-)
 ztype2.add('zt2_pred', value=0.01, vary=False)    # quadratic higher order predation rate on zooplankton
 
 """
@@ -105,7 +106,7 @@ Z2P2
 """
 # MIKRO
 ztype1.add('zt1_P1', value=0, vary=False)  # Diatoms
-ztype1.add('zt1_P2', value=0.33, vary=False)  # Coccos
+ztype1.add('zt1_P2', value=0.53, vary=False)  # Coccos
 ztype1.add('zt1_P3', value=0.33, vary=False)  # Dinos
 ztype1.add('zt1_P4', value=0.34, vary=False)  # Nano
 # MESO
@@ -113,6 +114,21 @@ ztype2.add('zt2_P1', value=0.33, vary=False)
 ztype2.add('zt2_P2', value=0.34, vary=False)
 ztype2.add('zt2_P3', value=0.33, vary=False)
 ztype2.add('zt2_P4', value=0, vary=False)
+
+# inter zoo feeding
+# MIKRO
+ztype1.add('zt1_Zint_feed1', value=0, vary=False)
+ztype1.add('zt1_Zint_feed2', value=0, vary=False)
+# MESO
+ztype2.add('zt2_Zint_feed1', value=0.01, vary=False)
+ztype2.add('zt2_Zint_feed2', value=0, vary=False)
+
+# CONVERT FEEDPREFS TO GRAZEPREF FOR CALCULATION OF GRAZING
+ztype1.add('zt1_Zint_grazed1', value=ztype1['zt1_Zint_feed1'].value, vary=False)
+ztype1.add('zt1_Zint_grazed2', value=ztype2['zt2_Zint_feed1'].value, vary=False)
+
+ztype2.add('zt2_Zint_grazed1', value=ztype1['zt1_Zint_feed2'].value, vary=False)
+ztype2.add('zt2_Zint_grazed2', value=ztype2['zt2_Zint_feed2'].value, vary=False)
 
 ptype1.add('pt1_Z1', value=ztype1['zt1_P1'].value, vary=False)
 ptype1.add('pt1_Z2', value=ztype2['zt2_P1'].value, vary=False)

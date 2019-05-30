@@ -48,7 +48,8 @@ class PhytoType:
 
         self.pfn = stdpars['pfun_num']
         self.zn = stdpars['zoo_num']
-        print(self.pfn, self.zn)
+
+        print('PHYTO',self.pfn, self.zn)
 
         self.kc = checkreplaceparam(stdpars, slicedpars, 'kc')
         self.alpha = checkreplaceparam(stdpars, slicedpars, 'alpha')
@@ -124,12 +125,10 @@ class PhytoType:
         Mortal = self.moP * P
         return Mortal
 
-    def zoograzing(self, Gj, Pi, Z, j):
+    def zoograzing(self, Gj, Pi, Z):
         # take the general grazing term from each zooplankton, multiply by phyto fraction and sum
         Grazing = [Gj[j] * (self.grazepref[j] * Pi ** 2) * Z[j] for j in range(self.zn)]
         GrazingPerZ = sum(Grazing)
-
-        print('p1', Pi, 'p2', j, 'Z', Z, 'Grazing', Grazing, 'GrazingPerZ', GrazingPerZ)
         return GrazingPerZ
 
 
@@ -151,104 +150,81 @@ class ZooType:
 
         self.pfn = stdpars['pfun_num']
         self.zn = stdpars['zoo_num']
+        print('ZOO', self.pfn,self.zn)
 
-        self.Vmax = self.muZ
-        self.beta = 2
+        self.beta = 2 # for Vallina KTW Grazing, beta = 1 : Holling Type II, beta = 2 : Holling Type III
         self.ksat = self.Kp
 
         self.phylist = ['P' + str(i + 1) for i in range(self.pfn)]
-        print(self.phylist)
-        self.feedpref = [checkreplaceparam(stdpars, slicedpars, string) for string in self.phylist]
+        self.zoointlistfeed = ['Zint_feed' + str(j + 1) for j in range(self.zn)] # list of feeding
+        self.zoointlistgrazed = ['Zint_grazed' + str(j + 1) for j in range(self.zn)]
+        print(self.phylist, self.zoointlistfeed, self.zoointlistgrazed)
 
-        print('feedpref',self.feedpref, self.muZ)
+        self.feedpref = [checkreplaceparam(stdpars, slicedpars, string) for string in self.phylist]
+        self.interfeedpref = [checkreplaceparam(stdpars, slicedpars, string) for string in self.zoointlistfeed]
+        self.intergrazedpref = [checkreplaceparam(stdpars, slicedpars, string) for string in self.zoointlistgrazed]
+
+        print('feedpref',self.feedpref, 'intfeedpref', self.interfeedpref, 'intrgrpref', self.intergrazedpref, 'muZ', self.muZ)
 
     def zoomortality(self, Z):
         # linear mortality of zooplankton, quadratic loss via higher order pred (below)
         total_moZ = self.moZ * Z
         return total_moZ
 
-    def zoofeeding(self, P, func='anderson'):
+    def zoofeeding(self, P, Z, func='anderson'):
         if func == 'anderson':
-            Frho = sum([self.feedpref[i] * P[i] ** 2 for i in range(self.pfn)])
+            FrhoP = sum([self.feedpref[i] * P[i] ** 2 for i in range(self.pfn)])
+            FrhoZ = sum([self.interfeedpref[j] * Z[j] ** 2 for j in range(self.zn)])
+            Frho = FrhoP + FrhoZ
             GrazingProb = self.muZ / (self.ksat ** 2 + Frho)
             return GrazingProb
 
         elif func == 'fasham':
-            Frho = sum([self.feedpref[i] * P[i] ** 2 for i in range(self.pfn)]) # active switching coefficient
-            Fp = sum([self.feedpref[i] * P[i] for i in range(self.pfn)])  # total food available
+            FrhoP = sum([self.feedpref[i] * P[i] ** 2 for i in range(self.pfn)])
+            FrhoZ = sum([self.interfeedpref[j] * Z[j] ** 2 for j in range(self.zn)])
+            Frho = FrhoP + FrhoZ  # active switching coefficient
+            FpP = sum([self.feedpref[i] * P[i] for i in range(self.pfn)])
+            FpZ = sum([self.interfeedpref[j] * Z[j] for j in range(self.zn)])
+            Fp = FpP + FpZ  # total food available
             GrazingProb = self.muZ * (1 / (self.ksat * Fp + Frho))
             return GrazingProb
 
         elif func == 'vallina':
-            Frho = sum([self.feedpref[i] * P[i] ** 2 for i in range(self.pfn)])  # active switching coefficient
-            Fp = sum([self.feedpref[i] * P[i] for i in range(self.pfn)])  # total food available
-            GrazingProb = self.Vmax * (1 / Frho) * ((Fp ** self.beta) / (self.ksat ** self.beta + Fp ** self.beta))
+            FrhoP = sum([self.feedpref[i] * P[i] ** 2 for i in range(self.pfn)])
+            FrhoZ = sum([self.interfeedpref[j] * Z[j] ** 2 for j in range(self.zn)])
+            Frho = FrhoP + FrhoZ  # active switching coefficient
+            FpP = sum([self.feedpref[i] * P[i] for i in range(self.pfn)])
+            FpZ = sum([self.interfeedpref[j] * Z[j] for j in range(self.zn)])
+            Fp = FpP + FpZ  # total food available
+            GrazingProb = self.muZ * (1 / Frho) * ((Fp ** self.beta) / (self.ksat ** self.beta + Fp ** self.beta))
             return GrazingProb
 
         else:
             print('no grazing formulation given, wrong func key')
 
-
-    def fashamGP(self, P):
-        Frho = sum([self.feedpref[i] * P[i] ** 2 for i in range(self.pfn)])
-        Fp = sum([self.feedpref[i] * P[i] for i in range(self.pfn)])  # total food available
-
-        GrazingProb = self.muZ * (1 / (self.ksat * Fp + Frho))
-        # rhoP1 * P1 ** 2 + rhoP2 * P2 ** 2)
-        # Gj = (self.muZ * rhoP1 * P1**2)/(kZ**2 + rhoP1 * P1**2 + rhoP2 * P2**2) * Zi
-        return GrazingProb
-
-    def andersonGP(self, P):
-        # rhoP1 * P1 ** 2
-        Frho = sum([self.feedpref[i] * P[i] ** 2 for i in range(self.pfn)])
-        GrazingProb = self.muZ / (self.ksat ** 2 + Frho)
-        # rhoP1 * P1 ** 2 + rhoP2 * P2 ** 2)
-        # Gj = (self.muZ * rhoP1 * P1**2)/(kZ**2 + rhoP1 * P1**2 + rhoP2 * P2**2) * Zi
-        return GrazingProb
-
-    def vallinaGP(self, P):
-        Frho = sum([self.feedpref[i] * P[i] ** 2 for i in range(self.pfn)])  # active switching coefficient
-        Fp = sum([self.feedpref[i] * P[i] for i in range(self.pfn)])  # total food available
-        # now calculate grazing probability of either Zoo-Type
-        # print('p1', P[0], 'p2', P[1], 'Frho', Frho, 'Fp', Fp, 'Fq/Frho', Fq/Frho)
-
-        Gj = self.Vmax * (1 / Frho) * ((Fp ** self.beta) / (self.ksat ** self.beta + Fp ** self.beta))
-
-        return Gj
-
-    def fullgrazing(self, GjJ, P, Zi):
-        # phytouptake per zooplankton for each phyto
-        Iprob = [GjJ * (self.feedpref[i] * P[i] ** 2) for i in range(self.pfn)]  # grazeprob per each PFT
+    def fullgrazing(self, GjJ, P, Z, Zi):
+        # phytouptake + zooplankton per zooplankton for each phyto
+        IprobP = [GjJ * (self.feedpref[i] * P[i] ** 2) for i in range(self.pfn)]  # grazeprob per each PFT
+        IprobZ = [GjJ * (self.interfeedpref[j] * Z[j] ** 2) for j in range(self.zn)]
+        Iprob = IprobP + IprobZ
         #perhaps here = multiply by Z before summing Iprobs!
-        Itots = sum([Iprob[i] for i in range(self.pfn)])
+        Itots = sum(Iprob)
         Itot = Itots * Zi
         return Itot
 
     def assimgrazing(self, Itoti):
-        AssimGrazing = self.deltaZ * Itoti #* Zi
+        AssimGrazing = self.deltaZ * Itoti
         return AssimGrazing
 
     def unassimilatedgrazing(self, Itoti):
-        UnAsGraze = (1. - self.deltaZ) * Itoti #* Zi
+        UnAsGraze = (1. - self.deltaZ) * Itoti
         return UnAsGraze
 
-    def interzoograze(self,i, Z):
-        totalgraze = self.muIntGraze * Z[0] / (Z[0] + self.kIntGraze) * Z[1]
-        if i == 0:
-            return -totalgraze
-        if i == 1:
-            return self.deltaLambda * totalgraze
-        else:
-            return 0
-
-    def unassiminterzoogr(self,i,Z):
-        totalgraze = self.muIntGraze * Z[0] / (Z[0] + self.kIntGraze) * Z[1]
-        if i == 0:
-            return 0
-        if i == 1:
-            return (1 - self.deltaLambda) * totalgraze
-        else:
-            return 0
+    def interzoograze(self, Gj, Z, Zi):
+        # returns total biomass consumed by interzoopred per zoo type (being grazed upon)
+        IntGraze = [Gj[j] * (self.intergrazedpref[j] * Zi ** 2) * Z[j] for j in range(self.zn)]
+        TotIntGraze = sum(IntGraze)
+        return TotIntGraze
 
     def higherorderpred(self, Zi):
         total_moZ = self.pred * Zi ** 2  # sum(Z)
