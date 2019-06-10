@@ -115,7 +115,7 @@ def phytomftm_extendedoutput(x, t, paras, pClass, zClass):
     SilicateDrawdown = [p[i].silicatedrawdown(Gains[i]) for i in range(pfn)]
 
     # Zooplankton Grazing:
-    Gj = [z[j].zoofeeding(P, Z, func='vallina') for j in range(zn)]  # feeding probability for all food
+    Gj = [z[j].zoofeeding(P, Z, func='anderson') for j in range(zn)]  # feeding probability for all food
     PhytoGrazed = [p[i].zoograzing(Gj, P[i], Z) for i in range(pfn)]  # returns phyto grazed per type
 
     ZooMixing = [Z[i] * K_Z for i in range(zn)]
