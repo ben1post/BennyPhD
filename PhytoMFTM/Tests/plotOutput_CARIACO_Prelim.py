@@ -190,7 +190,7 @@ def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
     plt.margins(x=0)
     #adjustFigAspect(fig, aspect=.5)
     plt.tight_layout()
-    plt.savefig('FirstNaiveOutputCARIACO.png')
+    plt.savefig('FirstNaiveOutputCARIACO.pdf')
 
 
 
