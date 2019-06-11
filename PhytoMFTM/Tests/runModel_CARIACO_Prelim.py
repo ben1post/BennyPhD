@@ -92,7 +92,7 @@ ztype1.add('zt1_pred', value=0.01, vary=False)    # quadratic higher order preda
 
 # set up zooplankton type 2 (e.g. MESO zooplankton)
 ztype2 = Parameters()
-ztype2.add('zt2_muZ', value=0.6, vary=False)    # Zooplankton maximum grazing rate (d^-1)
+ztype2.add('zt2_muZ', value=0.3, vary=False)    # Zooplankton maximum grazing rate (d^-1)
 
 ztype2.add('zt2_Kp', value=.3, vary=False)       # Zooplankton Grazing saturation constant (-)
 ztype2.add('zt2_pred', value=0.01, vary=False)    # quadratic higher order predation rate on zooplankton
