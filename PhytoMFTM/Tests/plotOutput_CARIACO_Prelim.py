@@ -11,7 +11,7 @@ import pandas
 # Fitting
 from lmfit import minimize, Parameters, Parameter, report_fit
 
-from Tests.runModel_CARIACO_Prelim import out4P2Z, timedays_model
+from Tests.runModel_CARIACO_Prelim import out5P2Z, timedays_model
 
 
 # make all plots larger and more visible on dark background:
@@ -24,10 +24,10 @@ from Tests.runModel_CARIACO_Prelim import out4P2Z, timedays_model
 # read yearly data (for comparison to model) from Cariaco
 NO3NO2 = pandas.read_csv('ValidationData/NO2NO3_above_R1.csv')
 SiOH = pandas.read_csv('ValidationData/SiOH_above_R1.csv')
-DIATOM = pandas.read_csv('ValidationData/ DIATOMS _above_R1.csv')
-COCCO = pandas.read_csv('ValidationData/ COCCOLITHOPHORIDS _above_R1.csv')
-DINO = pandas.read_csv('ValidationData/ DINOFLAGELLATES _above_R1.csv')
-NANO = pandas.read_csv('ValidationData/ NANOFLAGELLATES _above_R1.csv')
+#DIATOM = pandas.read_csv('ValidationData/ DIATOMS _above_R1.csv')
+#COCCO = pandas.read_csv('ValidationData/ COCCOLITHOPHORIDS _above_R1.csv')
+#DINO = pandas.read_csv('ValidationData/ DINOFLAGELLATES _above_R1.csv')
+#NANO = pandas.read_csv('ValidationData/ NANOFLAGELLATES _above_R1.csv')
 Zoo200BM = pandas.read_csv('ValidationData/200BIOMASS_above_R2.csv')
 Zoo500BM = pandas.read_csv('ValidationData/500BIOMASS_above_R2.csv')
 # zooplankton biomass is in [mg/m^3 dry weight]
@@ -38,19 +38,19 @@ Zoo500BM = pandas.read_csv('ValidationData/500BIOMASS_above_R2.csv')
 ###########--monthly medians---######
 NO3NO2 = NO3NO2.assign(month = pandas.to_datetime(NO3NO2['yday'], format='%j').dt.month)
 SiOH = SiOH.assign(month = pandas.to_datetime(SiOH['yday'], format='%j').dt.month)
-DIATOM = DIATOM.assign(month = pandas.to_datetime(DIATOM['yday'], format='%j').dt.month)
-COCCO = COCCO.assign(month = pandas.to_datetime(COCCO['yday'], format='%j').dt.month)
-DINO = DINO.assign(month = pandas.to_datetime(DINO['yday'], format='%j').dt.month)
-NANO = NANO.assign(month = pandas.to_datetime(NANO['yday'], format='%j').dt.month)
+#DIATOM = DIATOM.assign(month = pandas.to_datetime(DIATOM['yday'], format='%j').dt.month)
+#COCCO = COCCO.assign(month = pandas.to_datetime(COCCO['yday'], format='%j').dt.month)
+#DINO = DINO.assign(month = pandas.to_datetime(DINO['yday'], format='%j').dt.month)
+#NANO = NANO.assign(month = pandas.to_datetime(NANO['yday'], format='%j').dt.month)
 Zoo200BM = Zoo200BM.assign(month = pandas.to_datetime(Zoo200BM['yday'], format='%j').dt.month)
 Zoo500BM = Zoo500BM.assign(month = pandas.to_datetime(Zoo500BM['yday'], format='%j').dt.month)
 
 NO3NO2_monthly_median = NO3NO2.groupby('month').median()
 SiOH_monthly_median = SiOH.groupby('month').median()
-DIATOM_monthly_median = DIATOM.groupby('month').median()
-COCCO_monthly_median = COCCO.groupby('month').median()
-DINO_monthly_median = DINO.groupby('month').median()
-NANO_monthly_median = NANO.groupby('month').median()
+#DIATOM_monthly_median = DIATOM.groupby('month').median()
+#COCCO_monthly_median = COCCO.groupby('month').median()
+#DINO_monthly_median = DINO.groupby('month').median()
+#NANO_monthly_median = NANO.groupby('month').median()
 Zoo200BM_monthly_median = Zoo200BM.groupby('month').median()
 Zoo500BM_monthly_median = Zoo500BM.groupby('month').median()
 
@@ -71,7 +71,7 @@ Zoo500BM_monthly_median = Zoo500BM.groupby('month').median()
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 
-colormap = pandas.DataFrame({"name" : ["MLD", "Si", "N", "Phyto", "MikroZ", "MesoZ", "D", "SST", "PAR"],
+colormap = pandas.DataFrame({"name" : ["MLD", "Si", "Ni", "Phyto", "MikroZ", "MesoZ", "De", "SST", "PAR"],
                              "color" : ["#1D71B8", "#FFDE00", "#575756", "#009640", "#EA5B0C", "#BE1622", "#B17F4A", "#E94E1B", "#F9B233"]})
 
 colormap["name"] = colormap["name"].apply(lambda x: x.lower())
@@ -99,9 +99,9 @@ def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
 
     # Figure 1
     # N
-    ax1[1].plot(timedays, outarray_ly[:, 0], c="N", lw=lws[0], alpha=alphas[0], label='Model')
+    ax1[1].plot(timedays, outarray_ly[:, 0], c="Ni", lw=lws[0], alpha=alphas[0], label='Model')
     # N Data
-    ax1[1].scatter(NO3NO2['yday'].values, NO3NO2['NO2NO3'].values, c="N", s=4.3, label='Data')
+    ax1[1].scatter(NO3NO2['yday'].values, NO3NO2['NO2NO3'].values, c="Ni", s=4.3, label='Data')
     if i_plot == 0:
         ax1[1].set_ylabel('Nitrate \n' '[µM]', multialignment='center', fontsize=10)
     # ax1[i_plot].set_ylim(-0.1, 5)
@@ -116,41 +116,44 @@ def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
 
     # Phyto i=2
     # ax3.plot(timedays, sum([outarray_ly[:, 3 + zn + i] for i in range(pfn)]), c=colors[4], lw=lws[1])
-    ax2[0].plot(timedays, outarray_ly[:, 3 + zn + 0], c="Phyto")
+    ax1[0].plot(timedays, outarray_ly[:, 3 + zn + 0], c="Phyto")
     #ax3_tx = ax3.twinx()
-    ax2[0].scatter(DIATOM['yday'].values, DIATOM['abundance'].values * 2 / 1000, c="Phyto", s=4.3)
+    #ax2[0].scatter(DIATOM['yday'].values, DIATOM['abundance'].values * 2 / 1000, c="Phyto", s=4.3)
     # 2. pmol per cell [Marchetti and Harrison 2007]
     # values of abundance are organisms per ml
     # to convert pmol per cell per ml to µM = * abundance / 1000
 
-    ax3[0].plot(timedays, outarray_ly[:, 3 + zn + 1], c="Phyto")
+    ax2[0].plot(timedays, outarray_ly[:, 3 + zn + 1], c="Phyto")
     #ax4_tx = ax4.twinx()
-    ax3[0].scatter(COCCO['yday'].values, COCCO['abundance'].values * 1 / 1000, c="Phyto", s=4.3)
+    #ax3[0].scatter(COCCO['yday'].values, COCCO['abundance'].values * 1 / 1000, c="Phyto", s=4.3)
     # 1 pmol per cell [Aksnes et al. 1994]
 
-    ax4[0].plot(timedays, outarray_ly[:, 3 + zn + 2], c="Phyto")
+    ax3[0].plot(timedays, outarray_ly[:, 3 + zn + 2], c="Phyto")
     #ax5_tx = ax5.twinx()
-    ax4[0].scatter(DINO['yday'].values, DINO['abundance'].values * 1.5 / 1000, c="Phyto", s=4.3)
+    #ax4[0].scatter(DINO['yday'].values, DINO['abundance'].values * 1.5 / 1000, c="Phyto", s=4.3)
     # 1.5 pmol per cell [Li et al. 2016]
 
-    ax5[0].plot(timedays, outarray_ly[:, 3 + zn + 3], c="Phyto")
+    ax4[0].plot(timedays, outarray_ly[:, 3 + zn + 3], c="Phyto")
     #ax6_tx = ax6.twinx()
-    ax5[0].scatter(NANO['yday'].values, NANO['abundance'].values * 0.1 / 1000, c="Phyto", s=4.3)
+    #ax5[0].scatter(NANO['yday'].values, NANO['abundance'].values * 0.1 / 1000, c="Phyto", s=4.3)
     # 30 fmol per cell > 0.03 pmol per cell [Maat et al. 2014]
+
+
+    ax5[0].plot(timedays, outarray_ly[:, 3 + zn + 4], c="Phyto")
 
     #ax3_tx.set_ylim(-0.1, 0.8)
     #ax4_tx.set_ylim(-0.1, 0.8)
     #ax5_tx.set_ylim(-0.1, 0.8)
     #ax6_tx.set_ylim(-0.1, 0.8)
 
-    if i_plot == 0:
-        ax2[0].set_ylabel('Diatom \n' '[µM N]', multialignment='center', fontsize=10)
-    if i_plot == 0:
-        ax3[0].set_ylabel('Coccos \n' '[µM N]', multialignment='center', fontsize=10)
-    if i_plot == 0:
-        ax4[0].set_ylabel('Dinos \n' '[µM N]', multialignment='center', fontsize=10)
-    if i_plot == 0:
-        ax5[0].set_ylabel('Nano \n' '[µM N]', multialignment='center', fontsize=10)
+    #if i_plot == 0:
+    #    ax2[0].set_ylabel('Diatom \n' '[µM N]', multialignment='center', fontsize=10)
+    #if i_plot == 0:
+    #    ax3[0].set_ylabel('Coccos \n' '[µM N]', multialignment='center', fontsize=10)
+    #if i_plot == 0:
+    #    ax4[0].set_ylabel('Dinos \n' '[µM N]', multialignment='center', fontsize=10)
+    #if i_plot == 0:
+    #    ax5[0].set_ylabel('Nano \n' '[µM N]', multialignment='center', fontsize=10)
     #ax3.set_ylim(-0.1, 0.8)
     #ax4.set_ylim(-0.1, 0.8)
     #ax5.set_ylim(-0.1, 0.8)
@@ -177,7 +180,7 @@ def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
     # ax4[i_plot].set_ylim(0, 0.62)
 
     # D
-    ax5[1].plot(timedays, outarray_ly[:, 2], c="D", lw=lws[0], alpha=alphas[0])
+    ax5[1].plot(timedays, outarray_ly[:, 2], c="De", lw=lws[0], alpha=alphas[0])
     if i_plot == 0:
         ax5[1].set_ylabel('Detritus \n' '[µM N]', multialignment='center', fontsize=9)
 
@@ -195,7 +198,7 @@ def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
     ax5[1].set_xlabel('Day in year')
     # Legend
     #f1.align_ylabels()
-    f1.delaxes(ax = ax1[0])
+    #f1.delaxes(ax = ax1[0])
     #plt.margins(x=0)
     #adjustFigAspect(fig, aspect=.5)
     #plt.tight_layout()
@@ -321,4 +324,4 @@ def plotYEARoutput(outarray, pfn, zn, i_plot, title):
 # plotDATAvsYEARoutput(out4P2Z, 4, 2, 1, '4P2Z')
 
 
-plotDATAvsYEARoutput(out4P2Z, 4, 2, 1, '4P2Z')
+plotDATAvsYEARoutput(out5P2Z, 5, 2, 1, '5P2Z')

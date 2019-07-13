@@ -66,10 +66,15 @@ ptype3 = Parameters()
 ptype3.add('pt3_U_N', value=12., vary=False)    # Nitrate Half Saturation Constant
 ptype3.add('pt3_muP', value=0.96, vary=False)    # Phytoplankton maximum growth rate (d^-1)
 
-# set up phytoplankton type 3 (e.g. Nanos)
+# set up phytoplankton type 4 (e.g. Nanos)
 ptype4 = Parameters()
 ptype4.add('pt4_U_N', value=12.1, vary=False)    # Nitrate Half Saturation Constant
 ptype4.add('pt4_muP', value=0.97, vary=False)    # Phytoplankton maximum growth rate (d^-1)
+
+# set up phytoplankton type 5 (e.g. Nanos)
+ptype5 = Parameters()
+ptype5.add('pt5_U_N', value=12.1, vary=False)    # Nitrate Half Saturation Constant
+ptype5.add('pt5_muP', value=0.97, vary=False)    # Phytoplankton maximum growth rate (d^-1)
 
 # z - related
 #z grazing related
@@ -109,11 +114,13 @@ ztype1.add('zt1_P1', value=0, vary=False)  # Diatoms
 ztype1.add('zt1_P2', value=0.33, vary=False)  # Coccos
 ztype1.add('zt1_P3', value=0.33, vary=False)  # Dinos
 ztype1.add('zt1_P4', value=0.34, vary=False)  # Nano
+ztype1.add('zt1_P5', value=0.34, vary=False)  # Nano
 # MESO
 ztype2.add('zt2_P1', value=0.33, vary=False)
 ztype2.add('zt2_P2', value=0.34, vary=False)
 ztype2.add('zt2_P3', value=0.33, vary=False)
 ztype2.add('zt2_P4', value=0, vary=False)
+ztype2.add('zt2_P5', value=0, vary=False)
 
 # inter zoo feeding
 # MIKRO
@@ -141,6 +148,9 @@ ptype3.add('pt3_Z2', value=ztype2['zt2_P3'].value, vary=False)
 
 ptype4.add('pt4_Z1', value=ztype1['zt1_P4'].value, vary=False)
 ptype4.add('pt4_Z2', value=ztype2['zt2_P4'].value, vary=False)
+
+ptype5.add('pt5_Z1', value=ztype1['zt1_P5'].value, vary=False)
+ptype5.add('pt5_Z2', value=ztype2['zt2_P5'].value, vary=False)
 
 def paramsout(pfn,zn):
     # number of phytoplankton func types
@@ -218,6 +228,9 @@ def callmodelrun(pfn,zn):
     if pfn == 4 and zn == 2:
          print('4P2Z - prelim model')
          all_params = (standardparams + ptype1 + ptype2 + ptype3 + ptype4 + ztype1 + ztype2)
+    elif pfn == 5 and zn == 2:
+         print('4P2Z - prelim model')
+         all_params = (standardparams + ptype1 + ptype2 + ptype3 + ptype4 + ptype5 + ztype1 + ztype2)
     elif pfn == 2 and zn == 2:
          print('2P2Z')
          all_params = (standardparams + ptype1 + ptype2 + ztype1 + ztype2)
@@ -447,7 +460,7 @@ def plotYEARoutput(outarray, pfn, zn, i_plot, title):
 
 timedays_model = np.arange(0., 5 * 365., 1.0)
 
-out4P2Z = callmodelrun(4,2)
+out5P2Z = callmodelrun(5,2)
 
 
 #out2P2Z = callmodelrun(2,2)
