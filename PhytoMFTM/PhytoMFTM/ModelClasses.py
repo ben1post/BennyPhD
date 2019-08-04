@@ -1,9 +1,121 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import pandas
 import numpy as np
+import scipy.interpolate as intrp
+from PhytoMFTM.AuxFuncs import sliceparams, sliceoffparams, checkreplaceparam
 
-from PhytoMFTM.AuxFuncs import sliceparams,sliceoffparams,checkreplaceparam
+class IndForcing:
+    """
+    initializes and reads individual model forcings, and contains methods for daily interpolation and derivation
+
+    """
+    def __init__(self, forcvar, filepath, k=3, s=None, kind="spline", forctype=None):
+        # parameters for interpolation
+        self.k = k
+        self.s = s
+        self.kind = kind
+        self.forcingtype = forctype
+        self.forcvar = forcvar
+
+        self.forcingfile = self.readconcforc(forcvar, filepath)
+        self.interpolated = self.dailyinterp(self.forcingfile, self.kind, self.k, self.s)
+        if kind == "spline":
+            self.derivative = self.interpolated.derivative()
+
+
+        print(forcvar + ' forcing created')
+
+    def readconcforc(self, varname, filepath):
+        """ read forcing from csv file and calculate monthly means """
+        forc = pandas.read_csv(filepath)
+        forcing_monthly_median = forc.groupby('month').mean()
+        forcing_oneyear = list(forcing_monthly_median[varname])
+        forcing_list = forcing_oneyear * 3
+        return forcing_list
+
+    def dailyinterp(self, file, kind, k, s):
+        """
+        Method to interpolate from monthly to daily environmental data.
+
+        Parameters
+        -----
+        time: in days
+        kind: the type of interpolation either linear, cubic, spline or piecewise polynomial
+        k: Degree of the smoothing spline
+        s: Positive smoothing factor used to choose the number of knots
+
+        Returns
+        -------
+        The temporally interpolated environmental forcing.
+        """
+        tmonth = np.linspace(-10.5, 24.5, 12 * 3)
+
+        if kind == 'spline':
+            outintp = intrp.UnivariateSpline(tmonth, file, k=k, s=s)
+            return outintp
+        elif kind == 'PWPoly':
+            outintp = intrp.PchipInterpolator(tmonth, file)
+            return outintp
+        else:
+            raise('Wrong interpolation type passed to dailyinterp function of IndForcing class')
+
+    def return_interpvalattime(self, time):
+        """
+        Method to return interpolated value of forcing.
+
+        converts time in days to time in months
+        """
+        newt = np.mod(time, 365.)*12./365.
+        return self.interpolated(newt)
+
+    def return_derivattime(self, time):
+        """
+        Method to return derivative (slope) of interpolated value of forcing.
+
+        converts time in days to time in months, and the resulting derivative from per month to per day
+        """
+        newt = np.mod(time, 365.) * 12. / 365.
+
+        if self.forcingtype == "constantMLD" and self.forcvar == "MLD":
+            # return 0 as derivative for constant MLD, remove mathematical inaccuracy
+            return self.derivative(newt) * 0.03
+        else:
+            return self.derivative(newt) * 0.03
+
+class Forcing:
+    """
+    Class to initialze all other forcings, and read files,
+    call interpolation on subclasses
+    """
+    def __init__(self, forcingtype):
+        if forcingtype == 'variableMLD':
+            self.MLD = IndForcing('MLD', 'Forcing/MLDdriven/MLD2015_R1.csv', k=5, s=100, kind="spline", forctype=forcingtype)
+            self.NOX = IndForcing('NO2NO3', 'Forcing/MLDdriven/NO2NO3_R1.csv', k=5, s=None, kind="PWPoly", forctype=forcingtype)
+            self.SiOX = IndForcing('SiOH', 'Forcing/MLDdriven/SiOH_R1.csv', k=5, s=None, kind="PWPoly", forctype=forcingtype)
+            self.SST = IndForcing('SST', 'Forcing/MLDdriven/SST_R1.csv', k=5, s=None, kind="spline", forctype=forcingtype)
+            self.PAR = IndForcing('PAR', 'Forcing/MLDdriven/PAR_R1.csv', k=5, s=None, kind="spline", forctype=forcingtype)
+            self.type = 'MLD'
+
+        elif forcingtype == 'varMLDconstNuts':
+            self.MLD = IndForcing('MLD', 'Forcing/MLDdriven/MLD2015_R1.csv', k=5, s=100, kind="spline", forctype=forcingtype)
+            self.NOX = IndForcing('NO2NO3', 'Forcing/constantMLD/NO2NO3_R1.csv', k=5, s=None, kind="PWPoly", forctype=forcingtype)
+            self.SiOX = IndForcing('SiOH', 'Forcing/constantMLD/SiOH_R1.csv', k=5, s=None, kind="PWPoly", forctype=forcingtype)
+            self.SST = IndForcing('SST', 'Forcing/MLDdriven/SST_R1.csv', k=5, s=None, kind="spline", forctype=forcingtype)
+            self.PAR = IndForcing('PAR', 'Forcing/MLDdriven/PAR_R1.csv', k=5, s=None, kind="spline", forctype=forcingtype)
+            self.type = 'MLD'
+
+        elif forcingtype == 'constantMLD':
+            self.MLD = IndForcing('MLD', 'Forcing/MLDdriven/MLD2015_R1.csv', k=5, s=100, kind="spline", forctype=forcingtype)
+            self.NOX = IndForcing('NO2NO3', 'Forcing/constantMLD/NO2NO3_R1.csv', k=5, s=None, kind="PWPoly", forctype=forcingtype)
+            self.SiOX = IndForcing('SiOH', 'Forcing/constantMLD/SiOH_R1.csv', k=5, s=None, kind="PWPoly", forctype=forcingtype)
+            self.SST = IndForcing('SST', 'Forcing/constantMLD/SST_R1.csv', k=5, s=None, kind="spline", forctype=forcingtype)
+            self.PAR = IndForcing('PAR', 'Forcing/constantMLD/PAR_R1.csv', k=5, s=None, kind="spline", forctype=forcingtype)
+            self.type = 'box'
+
+        else:
+            raise('wrong forcingtype passed to Forcing class')
 
 class Plankton:
     """

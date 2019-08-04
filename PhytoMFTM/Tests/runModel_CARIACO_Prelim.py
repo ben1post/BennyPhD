@@ -12,7 +12,7 @@ import pandas
 from lmfit import minimize, Parameters, Parameter, report_fit
 
 # loading Modules
-from PhytoMFTM.ModelClasses import Plankton
+from PhytoMFTM.ModelClasses import Plankton, Forcing
 import PhytoMFTM.ModelCode as mc
 
 
@@ -99,7 +99,7 @@ ztype1.add('zt1_pred', value=0.01, vary=False)    # quadratic higher order preda
 ztype2 = Parameters()
 ztype2.add('zt2_muZ', value=0.3, vary=False)    # Zooplankton maximum grazing rate (d^-1)
 
-ztype2.add('zt2_Kp', value=.1, vary=False)       # Zooplankton Grazing saturation constant (-)
+ztype2.add('zt2_Kp', value=.3, vary=False)       # Zooplankton Grazing saturation constant (-)
 ztype2.add('zt2_pred', value=0.01, vary=False)    # quadratic higher order predation rate on zooplankton
 
 """
@@ -188,8 +188,8 @@ def paramsout(pfn,zn):
 
 def setupinitcond(pfn,zn):
     # initialize parameters:
-    N0 = np.mean(mc.NOX)  # Initial Nitrate concentration (mmol*m^-3)
-    Si0 = np.mean(mc.SiOX)  # Initial Silicate concentration (mmol*m^-3)
+    N0 = 2  # Initial Nitrate concentration (mmol*m^-3)
+    Si0 = 2  # Initial Silicate concentration (mmol*m^-3)
     Z0 = 0.01 / zn  # Initial Zooplankton concentration (mmol*m^-3)
     D0 = 0.01  # Initial Detritus concentration (mmol*m^-3)
     P0 = 0.01 / pfn  # Initial Phytoplankton concentration (mmol*m^-3)
@@ -203,23 +203,23 @@ def setupinitcond(pfn,zn):
     return initcond
 
 
-def runmodel(all_params, initcond):
+def runmodel(all_params, initcond, forcing):
     print(list(all_params)[:])
 
     z = Plankton(all_params, 'Zooplankton').init()
     p = Plankton(all_params, 'Phytoplankton').init()
-
+    fx = Forcing(forcing)
     # INTEGRATE:
     tos = time.time()
     print('starting integration')
-    outarray = odeint(mc.phytomftm_extendedoutput, initcond, timedays_model, args=(all_params, p, z))#, rtol=1e-12, atol=1e-12)
+    outarray = odeint(mc.phytomftm_extendedoutput_forcing, initcond, timedays_model, args=(all_params, p, z, fx))#, rtol=1e-12, atol=1e-12)
     tos1 = time.time()
     print('finished after %4.3f sec' % (tos1 - tos))
 
     return outarray
 
 
-def callmodelrun(pfn,zn):
+def callmodelrun(pfn,zn, forcing):
     # number of phytoplankton func types
     standardparams.add('pfun_num', value=pfn, vary=False)
     # number of zooplankton groups
@@ -251,220 +251,14 @@ def callmodelrun(pfn,zn):
     parameters = all_params
     initialcond = setupinitcond(pfn,zn)
     print(initialcond)
-    out = runmodel(parameters,initialcond)
+    out = runmodel(parameters,initialcond, forcing)
 
     return out
 
 
-def plotoutput(outarray, pfn, zn, i_plot, title):
-
-    # PLOTTING
-    timedays = timedays_model#[1:366]
-    # truncate outarraySiNO to last year of 5:
-    outarray_ly = outarray#[1460:1825]
-
-    # color vectors
-    colors = ['#808080','#d55e00', '#cc79a7', '#0072b2', '#009e73', '#009e73']
-    alphas = [1., 0.8, 0.6, 0.4]
-    lws = [1, 2.5, 4, 5.5]
-
-    # artist for legends
-    FullArtist = plt.Line2D((0, 1), (0, 0), c=colors[4], alpha=alphas[1], lw=lws[0])
-
-    ax1[i_plot].set_title(title)
-
-    # Figure 1
-    # N
-    ax1[i_plot].plot(timedays, outarray_ly[:, 0], c=colors[1], lw=lws[0], alpha=alphas[0], label='Model')
-    if i_plot == 0:
-        ax1[i_plot].set_ylabel('Nitrate \n' '[µM]', multialignment='center', fontsize=10)
-    #ax1[i_plot].set_ylim(-0.1, 5)
-
-    # Si
-    ax2[i_plot].plot(timedays, outarray_ly[:, 1], c=colors[1], lw=lws[0], alpha=alphas[0])
-    if i_plot == 0:
-        ax2[i_plot].set_ylabel('Silicate \n' '[µM]', multialignment='center', fontsize=10)
-    #ax2[i_plot].set_ylim(-0.1, 12)
-
-    # Phyto
-    ax3[i_plot].plot(timedays, sum([outarray_ly[:, 3 + zn + i] for i in range(pfn)]), c=colors[4], lw=lws[1])
-    [ax3[i_plot].plot(timedays, outarray_ly[:, 3 + zn + i], c=colors[i + 1]) for i in range(pfn)]
-    if i_plot == 0:
-        ax3[i_plot].set_ylabel('Phyto \n' '[µM N]', multialignment='center', fontsize=10)
-    #ax3[i_plot].set_ylim(-0.1, 0.8)
-
-    #ax3[i_plot].set_title('Phy Biomass & ChlA Data')
-
-    # Z
-    ax4[i_plot].plot(timedays, sum([outarray_ly[:, 3 + i] for i in range(zn)]), c=colors[4], lw=lws[1])
-    [ax4[i_plot].plot(timedays, outarray_ly[:, 3 + i], c=colors[i + 1], lw=lws[0], alpha=alphas[0]) for i in range(zn)]
-    if i_plot == 0:
-        ax4[i_plot].set_ylabel('Zooplankton \n' '[µM N]', multialignment='center', fontsize=9)
-    ax4[i_plot].tick_params('y', labelsize=10)
-
-    #ax4[i_plot].set_title('Zooplankton')
-    #ax4[i_plot].set_ylim(0, 0.62)
-
-    # D
-    ax5[i_plot].plot(timedays, outarray_ly[:, 2], c=colors[1], lw=lws[0], alpha=alphas[0])
-    if i_plot == 0:
-        ax5[i_plot].set_ylabel('Detritus \n' '[µM N]', multialignment='center', fontsize=9)
-
-    #ax5[i_plot].set_title('Detritus')
-    #ax5[i_plot].set_ylim(0,0.15)
-
-    ax5[i_plot].set_xlabel('Day in year')
-    # Legend
-
-def plot1output(outarray, pfn, zn, i_plot, title):
-    f1, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 1, sharex='col', sharey='row')
-
-    # PLOTTING
-    timedays = timedays_model#[1:366]
-    # truncate outarraySiNO to last year of 5:
-    outarray_ly = outarray#[1460:1825]
-
-    # color vectors
-    colors = ['#808080','#d55e00', '#cc79a7', '#0072b2', '#009e73', '#009e73']
-    alphas = [1., 0.8, 0.6, 0.4]
-    lws = [1, 2.5, 4, 5.5]
-
-    # artist for legends
-    FullArtist = plt.Line2D((0, 1), (0, 0), c=colors[4], alpha=alphas[1], lw=lws[0])
-
-    ax1.set_title(title)
-
-    # Figure 1
-    # N
-    ax1.plot(timedays, outarray_ly[:, 0], c=colors[1], lw=lws[0], alpha=alphas[0], label='Model')
-    if i_plot == 0:
-        ax1.set_ylabel('Nitrate \n' '[µM]', multialignment='center', fontsize=10)
-    #ax1[i_plot].set_ylim(-0.1, 5)
-
-    # Si
-    ax2.plot(timedays, outarray_ly[:, 1], c=colors[1], lw=lws[0], alpha=alphas[0])
-    if i_plot == 0:
-        ax2.set_ylabel('Silicate \n' '[µM]', multialignment='center', fontsize=10)
-    #ax2[i_plot].set_ylim(-0.1, 12)
-
-    # Phyto
-    ax3.plot(timedays, sum([outarray_ly[:, 3 + zn + i] for i in range(pfn)]), c=colors[4], lw=lws[1])
-    [ax3.plot(timedays, outarray_ly[:, 3 + zn + i], c=colors[i + 1]) for i in range(pfn)]
-    if i_plot == 0:
-        ax3.set_ylabel('Phyto \n' '[µM N]', multialignment='center', fontsize=10)
-    #ax3[i_plot].set_ylim(-0.1, 0.8)
-
-    #ax3[i_plot].set_title('Phy Biomass & ChlA Data')
-
-    # Z
-    ax4.plot(timedays, sum([outarray_ly[:, 3 + i] for i in range(zn)]), c=colors[4], lw=lws[1])
-    [ax4.plot(timedays, outarray_ly[:, 3 + i], c=colors[i + 1], lw=lws[0], alpha=alphas[0]) for i in range(zn)]
-    if i_plot == 0:
-        ax4.set_ylabel('Zooplankton \n' '[µM N]', multialignment='center', fontsize=9)
-    ax4.tick_params('y', labelsize=10)
-
-    #ax4[i_plot].set_title('Zooplankton')
-    #ax4[i_plot].set_ylim(0, 0.62)
-
-    # D
-    ax5.plot(timedays, outarray_ly[:, 2], c=colors[1], lw=lws[0], alpha=alphas[0])
-    if i_plot == 0:
-        ax5.set_ylabel('Detritus \n' '[µM N]', multialignment='center', fontsize=9)
-
-    #ax5[i_plot].set_title('Detritus')
-    #ax5[i_plot].set_ylim(0,0.15)
-
-    ax5.set_xlabel('Day in year')
-    # Legend
-
-def plotYEARoutput(outarray, pfn, zn, i_plot, title):
-    f1, (ax1, ax2, ax3, ax4, ax5, ax6, ax7, ax8, ax9) = plt.subplots(9, 1, sharex='col', sharey='row')
-    # N / Si / Pdt / Pc / Pdn / Pn / Zmu / Zlambda / D
-    # PLOTTING
-    timedays = timedays_model[1:366]
-    # truncate outarraySiNO to last year of 5:
-    outarray_ly = outarray[1460:1825]
-    i_plot=0
-    # color vectors
-    colors = ['#808080','#d55e00', '#cc79a7', '#0072b2', '#009e73', '#009e73']
-    alphas = [1., 0.8, 0.6, 0.4]
-    lws = [1, 2.5, 4, 5.5]
-
-    # artist for legends
-    FullArtist = plt.Line2D((0, 1), (0, 0), c=colors[4], alpha=alphas[1], lw=lws[0])
-
-    ax1.set_title(title)
-
-    # Figure 1
-    # N
-    ax1.plot(timedays, outarray_ly[:, 0], c=colors[1], lw=lws[0], alpha=alphas[0], label='Model')
-    if i_plot == 0:
-        ax1.set_ylabel('Nitrate \n' '[µM]', multialignment='center', fontsize=10)
-    #ax1[i_plot].set_ylim(-0.1, 5)
-
-    # Si
-    ax2.plot(timedays, outarray_ly[:, 1], c=colors[1], lw=lws[0], alpha=alphas[0])
-    if i_plot == 0:
-        ax2.set_ylabel('Silicate \n' '[µM]', multialignment='center', fontsize=10)
-    #ax2[i_plot].set_ylim(-0.1, 12)
-
-    # Phyto
-    i=2
-    #ax3.plot(timedays, sum([outarray_ly[:, 3 + zn + i] for i in range(pfn)]), c=colors[4], lw=lws[1])
-    ax3.plot(timedays, outarray_ly[:, 3 + zn + 0], c=colors[i + 1])
-    ax4.plot(timedays, outarray_ly[:, 3 + zn + 1], c=colors[i + 1])
-    ax5.plot(timedays, outarray_ly[:, 3 + zn + 2], c=colors[i + 1])
-    ax6.plot(timedays, outarray_ly[:, 3 + zn + 3], c=colors[i + 1])
-
-    if i_plot == 0:
-        ax3.set_ylabel('Diatom \n' '[µM N]', multialignment='center', fontsize=10)
-    if i_plot == 0:
-        ax4.set_ylabel('Coccs \n' '[µM N]', multialignment='center', fontsize=10)
-    if i_plot == 0:
-        ax5.set_ylabel('Dinos \n' '[µM N]', multialignment='center', fontsize=10)
-    if i_plot == 0:
-        ax6.set_ylabel('Nano \n' '[µM N]', multialignment='center', fontsize=10)
-    ax3.set_ylim(-0.1, 0.8)
-    ax4.set_ylim(-0.1, 0.8)
-    ax5.set_ylim(-0.1, 0.8)
-    ax6.set_ylim(-0.1, 0.8)
-
-    #ax3[i_plot].set_title('Phy Biomass & ChlA Data')
-
-    # Z
-    i=3
-    #ax4.plot(timedays, sum([outarray_ly[:, 3 + i] for i in range(zn)]), c=colors[4], lw=lws[1])
-    #[ax4.plot(timedays, outarray_ly[:, 3 + i], c=colors[i + 1], lw=lws[0], alpha=alphas[0]) for i in range(zn)]
-    ax7.plot(timedays, outarray_ly[:, 3 + 0], c=colors[i + 1], lw=lws[0], alpha=alphas[0])
-    ax8.plot(timedays, outarray_ly[:, 3 + 1], c=colors[i + 1], lw=lws[0], alpha=alphas[0])
-    if i_plot == 0:
-        ax7.set_ylabel('Mikro Z \n' '[µM N]', multialignment='center', fontsize=9)
-    if i_plot == 0:
-        ax8.set_ylabel('Meso Z \n' '[µM N]', multialignment='center', fontsize=9)
-    ax7.tick_params('y', labelsize=10)
-
-    #ax4[i_plot].set_title('Zooplankton')
-    #ax4[i_plot].set_ylim(0, 0.62)
-
-    # D
-    ax9.plot(timedays, outarray_ly[:, 2], c=colors[1], lw=lws[0], alpha=alphas[0])
-    if i_plot == 0:
-        ax9.set_ylabel('Detritus \n' '[µM N]', multialignment='center', fontsize=9)
-
-    #ax5[i_plot].set_title('Detritus')
-    #ax5[i_plot].set_ylim(0,0.15)
-
-    ax9.set_xlabel('Day in year')
-    # Legend
-
 
 timedays_model = np.arange(0., 5 * 365., 1.0)
 
-out5P2Z = callmodelrun(5,2)
+out5P2Z = callmodelrun(5,2,'variableMLD')
 
-
-#out2P2Z = callmodelrun(2,2)
-
-#plot1output(out2P2Z, 2, 2, 1, '1P1Z')
-
-#all_params = paramsout(1,1)
+out5P2Zconstant = callmodelrun(5,2,'varMLDconstNuts')
