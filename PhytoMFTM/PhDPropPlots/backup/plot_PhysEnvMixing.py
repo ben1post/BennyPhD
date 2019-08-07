@@ -4,6 +4,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.gridspec import GridSpec
 from scipy.integrate import odeint
 import time
 import pandas
@@ -11,7 +12,7 @@ import pandas
 # Fitting
 from lmfit import minimize, Parameters, Parameter, report_fit
 
-from Tests.runModel_CARIACO_Prelim import out5P2Z, timedays_model #, out5P2Zconstant
+from PhDPropPlots.runModel_PhysEnvMixing import out5P2Z, out5P2Z_2, out5P2Z_3, timedays_model #, out5P2Zconstant
 
 
 # make all plots larger and more visible on dark background:
@@ -93,10 +94,10 @@ def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
     f1, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 2, sharex='col')
     # N / Si / Pdt / Pc / Pdn / Pn / Zmu / Zlambda / D
     # PLOTTING
-    timedays = timedays_model[1:366]
+    timedays = timedays_model#[1:366]
     # truncate outarraySiNO to last year of 5:
-    outarray_ly = outarray[1460:1825]
-    i_plot =0
+    outarray_ly = outarray#[1460:1825]
+    i_plot = 0
     # color vectors
     colors = ['#808080', '#d55e00', '#cc79a7', '#0072b2', '#009e73', '#009e73']
     alphas = [1., 0.8, 0.6, 0.4]
@@ -150,10 +151,10 @@ def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
 
     i=3
     ax3[1].plot(timedays, outarray_ly[:, 3 + 0], c="MikroZ", lw=lws[0], alpha=alphas[0])
-    ax3[1].scatter(Zoo200BM['yday'].values, Zoo200BM['abundance'].values *0.1*0.071394, c="MikroZ", s=4.3)
+    ax3[1].scatter(Zoo200BM['yday'].values, Zoo200BM['abundance'].values * 0.1 * 0.071394, c="MikroZ", s=4.3)
 
     ax4[1].plot(timedays, outarray_ly[:, 3 + 1], c="MesoZ", lw=lws[0], alpha=alphas[0])
-    ax4[1].scatter(Zoo500BM['yday'].values, Zoo500BM['abundance'].values *0.1*0.071394, c="MesoZ", s=4.3)
+    ax4[1].scatter(Zoo500BM['yday'].values, Zoo500BM['abundance'].values * 0.1 * 0.071394, c="MesoZ", s=4.3)
 
     ax3[1].set_ylabel('Mikro Z \n' '[µM N]', multialignment='center', fontsize=9)
 
@@ -193,53 +194,129 @@ def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
     #plt.savefig('FirstNaiveOutputCARIACO.png')
 
 
-def plotMODELFORCINGoutput(outarray, pfn, zn):
-    f2, (ax1, ax2, ax22, ax3, ax4) = plt.subplots(5, 1, sharex='col')
+def plotMODELFORCINGoutput(outarray, outarray2, outarray3, pfn, zn):
+    f2, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 3, sharex='col')
     # N / Si / Pdt / Pc / Pdn / Pn / Zmu / Zlambda / D
     # PLOTTING
-    timedays = timedays_model[1:366]
+    timedays = timedays_model#[1:366]
     # truncate outarraySiNO to last year of 5:
-    outarray_ly = outarray[1460:1825]
+    outarray_ly = outarray#[1460:1825]
+    outarray_ly_2 = outarray2#[1460:1825]
+    outarray_ly_3 = outarray3#[1460:1825]
+
     i_plot =0
     # color vectors
     alphas = [1., 0.8, 0.6, 0.4]
     lws = [1, 2.5, 4, 5.5]
 
-    # Figure 1
-    # N
-    ax1.plot(timedays, outarray_ly[:, 3+zn+pfn], c="Ni", lw=lws[0], alpha=alphas[0], label='Model')
-    # N Data
-    ax1.set_ylim(0, 101)
-    ax1.invert_yaxis()
-    ax1.set_ylabel('MLD \n' '[m]', multialignment='center', fontsize=10)
+    # Figure 3
+    ax1[2].set_title('Constant $N_0$ + bbox = 100 m', fontsize=10)
+    ax1[2].plot(timedays, outarray_ly_3[:, 3 + zn + pfn], c="Ni", lw=lws[0], alpha=alphas[0], label='Model')  # MLD
+    ax1[2].set_ylim(0, 101)
+    ax1[2].invert_yaxis()
+    #ax1[2].set_ylabel('MLD \n' '[m]', multialignment='center', fontsize=10)
+
+    # subplot 2
+    ax2[2].plot(timedays, outarray_ly_3[:, 3 + zn + pfn + 5], c="Ni", lw=lws[0], alpha=alphas[0], label='N0')  # MLD
+    ax2[2].set_ylim(0, 10)
+    #ax2[2].set_ylabel('$N_0$ \n' '[µM]', multialignment='center', fontsize=10)
 
     # Si
-    ax2.plot(timedays, outarray_ly[:, 3+zn+pfn+2], c="Ni", lw=lws[0], alpha=alphas[0], label='K')
-    ax22.plot(timedays, outarray_ly[:, 3+zn+pfn+4], c="MLD", lw=lws[0], alpha=alphas[0], label='U')
-    # Si Data
-    ax2.set_ylabel('K \n' '[$d^{-1}$]', multialignment='center', fontsize=10)
-    ax22.set_ylabel('U \n' '[$d^{-1}$]', multialignment='center', fontsize=10)
-    ax2.legend()
+    ax3[2].plot(timedays, outarray_ly_3[:, 3 + zn + pfn + 2], c="Ni", lw=lws[0], alpha=alphas[0], label='K')  # K
+    ax323 = ax3[2].twinx()
+    ax323.plot(timedays, outarray_ly_3[:, 3 + zn + pfn + 4], c="MLD", lw=lws[0], alpha=alphas[0], label='U')  # U
+    ax323.set_ylabel('U \n' '[$d^{-1}$]', multialignment='center', fontsize=10)
+    ax3[2].set_ylim(-0.1, 1.)
+    ax323.yaxis.label.set_color('MLD')
+    ax3[2].plot(0, 0, c="MLD", lw=lws[0], alpha=alphas[0], label='U')  #
+    #ax3[2].set_ylabel('K  \n' '[$d^{-1}$]', multialignment='center', fontsize=10)
+    ax3[2].legend(loc='lower right', fontsize=6)
 
-    ax3.plot(timedays, outarray_ly[:, 3+zn+pfn+1], c="Ni", lw=lws[0], alpha=alphas[0])
-    ax3.set_ylabel('NMixing \n' '[µM $d^{-1}$]', multialignment='center', fontsize=10)
+    ax4[2].plot(timedays, outarray_ly_3[:, 3 + zn + pfn + 1], c="Ni", lw=lws[0], alpha=alphas[0])  # NMixing
+    ax4[2].set_ylim(-0.01, 0.02)
+    #ax4[2].set_ylabel('NMixing \n' '[µM $d^{-1}$]', multialignment='center', fontsize=10)
 
-    ax4.plot(timedays, outarray_ly[:, 3+zn+pfn+3], c="Phyto", lw=lws[0], alpha=alphas[0])
-    ax4.set_ylabel('Gains \n' '[µM $d^{-1}$]', multialignment='center', fontsize=10)
-    ax4.set_xlabel('Day in year')
+    ax5[2].plot(timedays, outarray_ly_3[:, 3 + zn + pfn + 6], c="Ni", lw=lws[0], alpha=alphas[0])  # Phy GAINS
+    #ax5[2].set_ylabel('N \n' '[µM]', multialignment='center', fontsize=10)
+    ax5[2].set_ylim(0, 10)
+    ax5[2].set_xlabel('Day in year', fontsize=10)
+
+    plt.margins(x=0)
+    ##############################################################################################################
+
+    # Figure 2
+    ax1[1].set_title('Constant $N_0$ + bbox = MLD', fontsize=10)
+    ax1[1].plot(timedays, outarray_ly_2[:, 3+zn+pfn], c="Ni", lw=lws[0], alpha=alphas[0], label='Model') # MLD
+    ax1[1].set_ylim(0, 101)
+    ax1[1].invert_yaxis()
+    #ax1[1].set_ylabel('MLD \n' '[m]', multialignment='center', fontsize=10)
+
+    # subplot 2
+    ax2[1].plot(timedays, outarray_ly_2[:, 3 + zn + pfn+5], c="Ni", lw=lws[0], alpha=alphas[0], label='N0')  # MLD
+    ax2[1].set_ylim(0, 10)
+    #ax2[1].set_ylabel('$N_0$ \n' '[µM]', multialignment='center', fontsize=10)
+
+    # Si
+    ax3[1].plot(timedays, outarray_ly_2[:, 3+zn+pfn+2], c="Ni", lw=lws[0], alpha=alphas[0], label='K') # K
+    ax322 = ax3[1].twinx()
+    ax322.plot(timedays, outarray_ly_2[:, 3+zn+pfn+4], c="MLD", lw=lws[0], alpha=alphas[0], label='U') # U
+    #ax322.set_ylabel('U \n' '[$d^{-1}$]', multialignment='center', fontsize=10)
+    ax322.set_ylim(-0.1, 1.)
+    ax322.yaxis.label.set_color('MLD')
+    ax3[1].plot(0, 0, c="MLD", lw=lws[0], alpha=alphas[0], label='U')  #
+    #ax3[1].set_ylabel('K  \n' '[$d^{-1}$]', multialignment='center', fontsize=10)
+    ax3[1].legend(loc='lower right', fontsize=6)
+
+    ax4[1].plot(timedays, outarray_ly_2[:, 3+zn+pfn+1], c="Ni", lw=lws[0], alpha=alphas[0]) # NMixing
+    ax4[1].set_ylim(-0.01, 0.02)
+    #ax4[1].set_ylabel('NMixing \n' '[µM $d^{-1}$]', multialignment='center', fontsize=10)
+
+    ax5[1].plot(timedays, outarray_ly_2[:, 3+zn+pfn+6], c="Ni", lw=lws[0], alpha=alphas[0]) # Phy GAINS
+    #ax5[1].set_ylabel('N \n' '[µM]', multialignment='center', fontsize=10)
+    ax5[1].set_ylim(0, 10)
+    ax5[1].set_xlabel('Day in year', fontsize=10)
+
+    plt.margins(x=0)
+    ##############################################################################################################
+
+    # Figure 1
+    ax1[0].set_title('Variable $N_0$ + bbox = MLD', fontsize=10)
+    ax1[0].plot(timedays, outarray_ly[:, 3 + zn + pfn], c="Ni", lw=lws[0], alpha=alphas[0], label='Model')  # MLD
+    ax1[0].set_ylim(0, 101)
+    ax1[0].invert_yaxis()
+    ax1[0].set_ylabel('MLD \n' '[m]', multialignment='center', fontsize=10)
+
+    # subplot 2
+    ax2[0].plot(timedays, outarray_ly[:, 3 + zn + pfn + 5], c="Ni", lw=lws[0], alpha=alphas[0], label='N0')  # MLD
+    # ax2.set_ylim(0, 7)
+    ax2[0].set_ylabel('$N_0$ \n' '[µM]', multialignment='center', fontsize=10)
+
+    # Si
+    ax3[0].plot(timedays, outarray_ly[:, 3 + zn + pfn + 2], c="Ni", lw=lws[0], alpha=alphas[0], label='K')  # K
+    ax32 = ax3[0].twinx()
+    ax32.plot(timedays, outarray_ly[:, 3 + zn + pfn + 4], c="MLD", lw=lws[0], alpha=alphas[0], label='U')  # U
+    #ax32.set_ylabel('U \n' '[$d^{-1}$]', multialignment='center', fontsize=10)
+    ax32.set_ylim(-0.1, 1.)
+    ax32.yaxis.label.set_color('MLD')
+    ax3[0].plot(0, 0, c="MLD", lw=lws[0], alpha=alphas[0], label='U')  #
+    ax3[0].set_ylabel('K  \n' '[$d^{-1}$]', multialignment='center', fontsize=10)
+    ax3[0].legend(loc='lower right', fontsize=6)
+
+    ax4[0].plot(timedays, outarray_ly[:, 3 + zn + pfn + 1], c="Ni", lw=lws[0], alpha=alphas[0])  # NMixing
+    ax4[0].set_ylabel('NMixing \n' '[µM $d^{-1}$]', multialignment='center', fontsize=10)
+
+    ax5[0].plot(timedays, outarray_ly[:, 3 + zn + pfn + 6], c="Ni", lw=lws[0], alpha=alphas[0])  # Phy GAINS
+    ax5[0].set_ylabel('N \n' '[µM]', multialignment='center', fontsize=10)
+    ax5[0].set_xlabel('Day in year', fontsize=10)
     # Legend
     f2.align_ylabels()
-    #f1.delaxes(ax = ax1[0])
-    #plt.margins(x=0)
-    #adjustFigAspect(fig, aspect=.5)
+
+    plt.margins(x=0)
+
     plt.tight_layout()
-    #plt.savefig('FirstNaiveOutputCARIACO.png')
+    #plt.savefig('PhysicalEnv_CARIACO_firstTESTS.pdf', dpi=300)
 
 
-plotDATAvsYEARoutput(out5P2Z, 5, 2, 1, '5P2Z')
+#plotDATAvsYEARoutput(out5P2Z_3, 5, 2, 1, 'hey')
 
-plotMODELFORCINGoutput(out5P2Z, 5, 2)
-
-#plotDATAvsYEARoutput(out5P2Zconstant, 5, 2, 1, '5P2Z')
-
-#plotMODELFORCINGoutput(out5P2Zconstant, 5, 2)
+plotMODELFORCINGoutput(out5P2Z, out5P2Z_2, out5P2Z_3, 5, 2)

@@ -11,7 +11,7 @@ import pandas
 # Fitting
 from lmfit import minimize, Parameters, Parameter, report_fit
 
-from Tests.runModel_CARIACO_Prelim import out5P2Z, timedays_model #, out5P2Zconstant
+from PhDPropPlots.runModel_PhysEnvMixing import out5P2Z, timedays_model #, out5P2Zconstant
 
 
 # make all plots larger and more visible on dark background:

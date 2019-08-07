@@ -37,11 +37,28 @@ def phytomftm_extendedoutput_forcing(x, t, paras, pClass, zClass, forcing):
     if forcing.type == 'MLD':
         K = (paras['kappa'].value + max(deriv_MLD, 0)) / int_MLD  # i.e. there is constant mixing & increased loss with MLD shallowing
         K_Z = deriv_MLD / int_MLD  # i.e. concentration varies with the MLD depth
-        U = 1 #i.e. there is no mixing via U, the upwelling parameter for box models
+        U = 0 #i.e. there is no mixing via U, the upwelling parameter for box models
     elif forcing.type == 'box':
-        K = 1 # i.e. there is no modification of mixing due to K
+        K = 0 # i.e. there is no modification of mixing due to K
         K_Z = 0 # since there is no change in modeled depth, no losses due to MLD changes
-        U = (paras['kappa'].value + 1)#max(deriv_MLD, 0)) / int_MLD # upwelling according to MLD
+        U = (paras['kappa'].value + max(deriv_MLD, 0)) / int_MLD #max(deriv_MLD, 0)) / int_MLD # upwelling according to MLD
+    elif forcing.type == 'box_constantKappa':
+        K = 0  # i.e. there is no modification of mixing due to K
+        K_Z = 0  # since there is no change in modeled depth, no losses due to MLD changes
+        U = 0.02 # max(deriv_MLD, 0)) / int_MLD # upwelling according to MLD
+    elif forcing.type == 'box_stochasticKappa':
+        import random
+        stochastic = random.uniform(0, 0.03)
+        K = 0  # i.e. there is no modification of mixing due to K
+        K_Z = 0  # since there is no change in modeled depth, no losses due to MLD changes
+        U = stochastic  # max(deriv_MLD, 0)) / int_MLD # upwelling according to MLD
+    elif forcing.type == 'box_MLD_stochastic':
+        import random
+        stochastic = random.uniform(-0.01, 0.01)
+        K = 0  # i.e. there is no modification of mixing due to K
+        K_Z = 0  # since there is no change in modeled depth, no losses due to MLD changes
+        U = max((paras['kappa'].value + max(deriv_MLD,
+                                        0)) / int_MLD + stochastic, 0) # max(deriv_MLD, 0)) / int_MLD # upwelling according to MLD
     else:
         raise('wrong forcing.type in forcing class, check forcing call')
 
@@ -50,11 +67,11 @@ def phytomftm_extendedoutput_forcing(x, t, paras, pClass, zClass, forcing):
     # SiRemineralization = paras['deltaD_Si'].value * D
 
     # Detritus
-    DetritusMixing = D * K * U
+    DetritusMixing = D * K
 
     # Nutrient Mixing
-    NMixing = K * U * (int_NOX - N)
-    SiMixing = K * U * (int_SIOX - Si)
+    NMixing = max(K, U) * (int_NOX - N)
+    SiMixing = max(K, U) * (int_SIOX - Si)
 
     # Phytoplankton related processes
     # Nutrient uptake
@@ -103,23 +120,23 @@ def phytomftm_extendedoutput_forcing(x, t, paras, pClass, zClass, forcing):
     outputlist[3] = sum(Gains)              - outputlist[3]
     outputlist[4] = U                       - outputlist[4]
 
-    outputlist[5] = sum(Gains)              - outputlist[5]
-    outputlist[6] = sum(SilicateDrawdown)   - outputlist[6]
-    outputlist[7] = sum(PhytoMortality)     - outputlist[7]
+    outputlist[5] = int_NOX                 - outputlist[5]
+    outputlist[6] = N                       - outputlist[6]
+    outputlist[7] = sum(P)                  - outputlist[7]
     outputlist[8] = sum(PhytoGrazed)        - outputlist[8]
     outputlist[9] = sum(PhytoMixing)        - outputlist[9]
     outputlist[10] = sum(PhytoSinking)      - outputlist[10]
 
-    outputlist[11] = sum([LightHarvesting[i] * P[i] for i in range(pfn)])           - outputlist[11]
-    outputlist[12] = sum([TemperatureDepGrowth[i] * P[i] for i in range(pfn)])      - outputlist[12]
+    outputlist[11] = sum(Z)                 - outputlist[11]
+    outputlist[12] = sum(AssimilatedGrazing)- outputlist[12]
+    outputlist[13] = sum(InterZooPredation) - outputlist[13]
+    outputlist[14] = sum(ZooMixing)         - outputlist[14]
+    outputlist[15] = sum(ZooMortality)      - outputlist[15]
+    outputlist[16] = sum(HigherOrderPredation)   - outputlist[16]
 
-    outputlist[13] = sum(AssimilatedGrazing)         - outputlist[13]
-    outputlist[14] = sum(ZooMortality)      - outputlist[14]
-    outputlist[15] = sum(ZooMixing)         - outputlist[15]
-    outputlist[16] = sum(UnassimilatedGrazing)   - outputlist[16]
-    outputlist[17] = sum(InterZooPredation) - outputlist[17]
+    outputlist[17] = sum(PhytoMortality)    - outputlist[17]
     outputlist[18] = 0 - outputlist[18]
-    outputlist[19] = sum(HigherOrderPredation) - outputlist[19]
+    outputlist[19] = 0 - outputlist[19]
 
     out = [y0, y1, y2] + zoo + phy + outputlist
     return np.array(out)
