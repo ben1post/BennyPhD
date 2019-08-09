@@ -1,4 +1,4 @@
-  % !TEX TS-program = pdflatex
+% !TEX TS-program = pdflatex
 % !TEX encoding = UTF-8 Unicode
 
 % This is a simple template for a LaTeX document using the "article" class.
@@ -49,7 +49,10 @@
 
 %%% SECTION TITLE APPEARANCE
 \usepackage{sectsty}
-\allsectionsfont{\sffamily\mdseries\upshape} % (See the fntguide.pdf for font help)
+\usepackage{titlesec}
+\titleformat{\chapter}
+ {\normalfont\LARGE\bfseries}{\thechapter.}{1em}{}
+%\allsectionsfont{\sffamily\mdseries\upshape} % (See the fntguide.pdf for font help)
 % (This matches ConTeXt defaults)
 
 %%% ToC (table of contents) APPEARANCE
@@ -80,8 +83,9 @@
 \pagenumbering{arabic}
 \input{./Chp1-Intro/Intro.tex}
 
-%\input{./Chp2-Pre/PreResults.tex}
 \input{./Chp2-Pre/PreResults2.tex}
+
+\input{./Chp22-Pre2/PreResults22.tex}
 
 \input{./Chp3-Further/Further.tex}
 
@@ -89,6 +93,9 @@
 \begin{footnotesize}
 \bibliography{proposal.bib}
 \end{footnotesize}
+
+%REMOVE THIS LATER%
+\input{RepositoryOfStructures.tex}
 
 
 \end{document}
