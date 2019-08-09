@@ -1,0 +1,21 @@
+\contentsline {chapter}{\numberline {1}General Introduction}{2}
+\contentsline {section}{\numberline {1.1}Trait-based ecology}{2}
+\contentsline {section}{\numberline {1.2}Phytoplankton trait-based community ecology}{4}
+\contentsline {subsection}{\numberline {1.2.1}Cell size as a major trait for characterising phytoplankton community structure}{4}
+\contentsline {section}{\numberline {1.3}Trait-based models of phytoplankton communities}{7}
+\contentsline {section}{\numberline {1.4}Aims of the proposed PhD project}{8}
+\contentsline {chapter}{\numberline {2}A trait-based characterization of phytoplankton communities in contrasting environmental regions of the Atlantic Ocean}{10}
+\contentsline {section}{\numberline {2.1}Introduction}{10}
+\contentsline {section}{\numberline {2.2}Methods}{12}
+\contentsline {section}{\numberline {2.3}Results}{14}
+\contentsline {section}{\numberline {2.4}Discussion}{18}
+\contentsline {section}{\numberline {2.5}Acknowledgements}{23}
+\contentsline {chapter}{\numberline {3}Further work}{24}
+\contentsline {section}{\numberline {3.1}Size-based model}{24}
+\contentsline {subsection}{\numberline {3.1.1}Background}{24}
+\contentsline {subsection}{\numberline {3.1.2}Method}{26}
+\contentsline {subsection}{\numberline {3.1.3}Relevance}{27}
+\contentsline {section}{\numberline {3.2}Multi-trait size-based model}{29}
+\contentsline {section}{\numberline {3.3}Paleo-reconstruction of planktonic communities}{29}
+\contentsline {section}{\numberline {3.4}Time table}{32}
+\contentsline {chapter}{Bibliography}{33}

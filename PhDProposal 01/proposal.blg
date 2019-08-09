@@ -1,0 +1,48 @@
+This is BibTeX, Version 0.99d (TeX Live 2010)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: proposal.aux
+The style file: meps.bst.bst
+Database file #1: proposal.bib.bib
+Warning--missing school in Bruggeman2009
+You've used 56 entries,
+            2989 wiz_defined-function locations,
+            1027 strings with 14844 characters,
+and the built_in function-call counts, 63535 in all, are:
+= -- 6076
+> -- 1564
+< -- 37
++ -- 545
+- -- 489
+* -- 5683
+:= -- 8770
+add.period$ -- 57
+call.type$ -- 56
+change.case$ -- 443
+chr.to.int$ -- 71
+cite$ -- 57
+duplicate$ -- 5562
+empty$ -- 5854
+format.name$ -- 636
+if$ -- 13347
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 545
+newline$ -- 228
+num.names$ -- 226
+pop$ -- 1025
+preamble$ -- 1
+purify$ -- 386
+quote$ -- 0
+skip$ -- 928
+stack$ -- 0
+substring$ -- 8046
+swap$ -- 1261
+text.length$ -- 1
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 486
+warning$ -- 1
+while$ -- 480
+width$ -- 0
+write$ -- 672
+(There was 1 warning)

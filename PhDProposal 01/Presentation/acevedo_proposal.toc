@@ -1,0 +1,7 @@
+\beamer@endinputifotherversion {3.10pt}
+\select@language {english}
+\beamer@sectionintoc {1}{Introduction}{3}{0}{1}
+\beamer@sectionintoc {2}{Phytoplankton size-structure in the Atlantic Ocean}{22}{0}{2}
+\beamer@sectionintoc {3}{Phytoplankton size-based model}{43}{0}{3}
+\beamer@sectionintoc {4}{Phytoplankton and Zooplankton size-based model}{48}{0}{4}
+\beamer@sectionintoc {5}{Phytoplankton size evolution}{50}{0}{5}
