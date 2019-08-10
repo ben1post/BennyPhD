@@ -1,7 +1,19 @@
 \chapter{General Introduction}
 
 \section{The ocean, phytoplankton and why it matters}
-"Phytoplankton is important. Phytoplankton is diverse. I want to look at phytoplankton diversity, particularly from a functional type point of view. Quantify diversity as it relates to ecosystem function (as production for example).
+The complexity of the ocean and its vast ecosystems has fascinated scientists to this day and most likely will continue to do so far into the future. Myriad life forms are embedded in a matrix so far removed from our mostly dry existence on top the earth’s crust. In the ocean, life moves in dilution, and the equivalents of forests and grasslands are hard to spot unless the concentration of tiny phytoplankton is so large, that deep blue turns into a milky green.
+
+The term phytoplankton refers to microscopic marine photosynthetic organisms. These microorganisms form the basis of the oceanic food web and are primary producers of planetary scale, contributing roughly half of the oxygen in our atmosphere through photosynthesis (Field et al. 1998). Phytoplankton consists of mostly single-celled organisms, prokaryotes and eukaryotes from a highly diverse evolutionary background. (cite FALKOWSKI?) 
+The distribution of phytoplankton is driven by the complex physical and chemical boundary conditions that govern ocean currents and upwelling systems, with the key component being macronutrients (e.g. nitrogen \& phosphorus) and micronutrients (e.g. iron \& cobalt) brought up from the deep ocean or flushed in through river estuaries. 
+
+Wherever there are plenty of nutrients and light, planktonic life begins to thrive. The biomass produced indirectly feeds a considerable part of earth’s population through fisheries (Stock et al. 2017) and even shapes the elemental composition of oceanic water itself (Redfield 1958). 
+This newly generated biomass is mostly consumed and either assimilated or regenerated within the euphotic zone, fueling regenerated production (Eppley \& Peterson 1979). A small fraction sinks out of the photic layer as fecal or detrital matter to the deeper ocean and an even smaller fraction reaches the sea floor as sediment (~1\%) and remains there over geological times (Honjo et al. 2008). 
+Carbon sequestered this way is removed from the ocean-atmosphere system for potentially millions of years. Given the projected rise of atmospheric CO$_2$ levels, it is of great importance to better understand this process, termed the biological carbon pump. In particular to grasp how changes in the planktonic community driven by anthropogenic stressors will affect it in the future.
+
+xx
+
+
+"Phytoplankton is important. Phytoplankton is diverse.
 
 "it is amazing how little we actually know about phytoplankton globally and the effects that is has on biogeochemical cycles, and how it is affected by global change for example
 "quite a few publications using models go too far in their extrapolations, whilst the general discussion still strongly revolves around meaningful model structures.. but no consensus is anywhere to be seen!
@@ -19,6 +31,8 @@ Obviously bulk properties also have to be taken from specific depth
 
 so this adds the problem of the complexity of the physical environment that is the ocean, with enormous volume, turbulunce/mixing, diffusion and absorbance
 
+I want to look at phytoplankton diversity, particularly from a functional type point of view. Quantify diversity as it relates to ecosystem function (as production for example).
+
 XXX
 
 "Phytoplankton can be characterised by many morphological, physiological, behavioural and life history traits and trade-offs \citep{Litchman2008, Litchman2010}.
@@ -26,14 +40,27 @@ XXX
 "Studies on the phytoplankton community composition and their response to the environmental gradients are not novel. Ramón Margalef was probably one of the first ecologist to give an important momentum to the topic.  \citep{Margalef1978} used observations of key traits, such as nutrient utilization and sinking rates, to support his well known concept called "Margalef's mandala". His classification of phytoplankton functional types (PFTs) at different nutrient and turbulent environmental conditions represents an excellent first example of how the trait-based notion can be applied to better understand phytoplankton community ecology, therefore setting up the stage for further developments in the field.
 
 
-\subsection{Functional types vs. traits}
+\subsection{Functional types and traits}
+
+“Ecology has traditionally focused on species diversity as a way of characterizing the
+health of an ecosystem. In recent years, however, the focus has increasingly shifted
+towards trait diversity both within and across species” - from Functional Diversity Book
+
+We have incredibly diverse Phytoplankton, and want to analyze traits and model -> need to simplify somehow => Functional Types
+
+so I want to talk about:
+that phytoplankton can be divided in functional groups
+talk about the Work that Finkel and Irwin have done! 
+question whether it makes sense to use functional types instead of species, …
+Thus, photopigment-based measures offer an efficient way to quantify community or functional diversity (X Moreno et al., 2012 X). (From Pinckney et al 2015)
+
+
 
 XXXX
 
 
 XXXX
 
-\subsection{The relationship between diversity and ecosystem function}
 
 XXXX
 
@@ -42,6 +69,17 @@ XXXX
 Going into the details is necessary to understand the whole picture
 
 One tool of integration are mathematical models
+
+Given the complexity of the ocean ecosystem, it is necessary to aggregate our knowledge of the many smaller parts into comprehensive ecological models in order to understand the full-scale implications. 
+
+Computational models of phytoplankton growth have been developed since the 1970s and have greatly increased in sophistication and complexity since then, co-evolving with the rise in computational resources. Ecosystem modelling started with simple box-model descriptions of a few trophic levels. These were the nutrient-phytoplankton-zooplankton (NPZ) and nutrient-phytoplankton-zooplankton-detritus (NPZD) models, which succeeded in reproducing the basic bloom dynamics observed in the temperate ocean (Evans 1988, Fasham et al. 1990). However, in their generalistic approach, these models unavoidably limit the characterization of a diverse phytoplankton community (Bruggeman 2009). To make up for this shortcoming, in the following two decades, these models were expanded to more complex plankton functional type (PFT) models (Le Quere et al. 2005). 
+
+For every group of species that fulfill a distinct ecosystem function, a new set of parameters was added, complicating the model structure and massively prolonging calculations. This somewhat intuitive approach of having every functional group represented in a model, however, did create problems. First and foremost, this is the lack and inherent uncertainty of data from field and culture experiments to constrain functional types. 
+
+This again leads to the difficulty of validating the model output in light of insufficient information (Shimoda et al. 2016 ).Trait-based modeling, on the other side, tries to circumvent the problem of biodiversity (i.e. complexity) in natural systems with a radically different approach. The interactions of phytoplankton with their environment are based on multiple traits which characterize generalized physiological properties like nutrient affinities or motility. Ideally, these traits can be directly measured and are independent of species and therefore they can be directly related to the properties of the organisms function within the ecosystem, such as nutrient affinity for example deally, these traits can be directly measured and are independent of species and therefore they can be directly related to the properties of the organisms function within the ecosystem, such as nutrient affinity for example (Litchman and Klausmeier 2008).  
+
+
+A simple example of a trait-based description of phytoplankton succession is scaling the maximal nutrient acquisition rate and the respective affinity with cell size. A trade-off would emerge between different size classes, allowing for a modeled succession along gradients of nutrient depletion. One example of a very similar approach is the PhytoSFDM model developed by Acevedo-Trejos and colleagues (Acevedo‐Trejos et al. 2013, Acevedo-Trejos et al. 2015). In their approach, the trait-based modelling of phytoplankton is even further simplified, by describing an entire community as a size- distribution with a mean value and a variance, instead of modeling all the different size classes explicitly. This moment-based structure further simplifies the mathematical basis of the model, and leads to much faster processing times and less uncertainty in parameter estimation.
 
 "The study of phytoplankton community structure, also promoted by the work of \citet{Falkowski1998}, is therefore very relevant in marine ecology and is especially important for understanding how phytoplankton will respond to a changing climate and with which consequences.
 
@@ -69,6 +107,10 @@ XXX
 ALWAYS NEED A GOOD BASIS IN DATA TO VALIDATE MODELS AND HYPOTHESES
 
 \section{The Cariaco basin \& the CARIACO time series}
+
+"continental margins constitute only about 10\% of the total ocean surface area, these regions are responsible for about 10–15\% of the global marine primary production and greater than 40\% of seabed carbon sequestration (Yool and Fasham, 2001; Muller-Karger et al., 2005). 
+"The Cariaco Basin, located off the coast of Venezuela, has been the site of high frequency water column sampling for marine biogeochemical and ecological observations since 1995. The observations were collected as part of the Cariaco Ocean Time-Series Program (Muller-Karger et al., 2001; Thunell et al., 2007). 
+
 XXXX
 
 XXXX
