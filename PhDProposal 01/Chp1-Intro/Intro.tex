@@ -13,12 +13,14 @@ The emergence of such a large range of organisms and the mechanisms sustaining t
 \label{FinkelPhySizeRange}
 \end{figure}
 
+||| also explain MLD in the following paragraph |||
+
 The distribution of phytoplankton is driven by the complex physical forces that govern ocean currents and the chemistry of the bodies of water the move. The key components are macronutrients (e.g. nitrogen \& phosphorus) and micronutrients (e.g. iron \& cobalt) welling up from the deeper ocean or flushed in from continental sources. Wherever there are sufficient nutrients available within the euphotic zone, the depth where photosyntheticaly available radiation (PAR) is 1\% of the surface value, planktonic life begins to thrive. Ecosystems along continental margins provide a particularly productive habitat, with only 10\% of total ocean surface area covered by continental margins, but 10-15\% of marine primary production and more than 40\% of carbon export to the seabed occurring along coastal lines \citep{Yool2001,Muller-Karger2005}.
 
 
 Phytoplankton growth indirectly feeds a considerable part of earth’s population through fisheries \citep{Stock2017} and even shapes the elemental composition of oceanic water itself \citep{Redfield1958}. 
 The biomass produced is mostly consumed by higher trophic levels and either assimilated or excreted. Another large portion experiences natural mortality and viral lysis. Microbial degradation drives remineralization within the euphotic zone, which fuels regenerated production \citep{Eppley1979} [Perhaps put quotation about Microbial Loop here!]. 
-A small fraction sinks out of the photic layer as fecal or detrital matter to the deeper ocean and an even smaller fraction reaches the sea floor as sediment ( 1 \%) and remains there over geological times \citep{Honjo2008}. This process has been termed the biological carbon pump. Carbon sequestered this way is removed from the ocean-atmosphere system for potentially millions of years. Given the projected rise of atmospheric CO$_2$ levels, it is of grave importance to understand how changes in the phytoplankton community at the surface, driven by anthropogenic stressors and climate change, will affect the carbon burial potential of oceanic ecosystems. 
+A small fraction sinks out of the photic layer as fecal or detrital matter to the deeper ocean and an even smaller fraction reaches the sea floor as sediment ( roughly 1 \%) and remains there over geological times \citep{Honjo2008}. This process has been termed the biological carbon pump. Carbon sequestered this way is removed from the ocean-atmosphere system for potentially millions of years. Given the projected rise of atmospheric CO$_2$ levels, it is of grave importance to understand how changes in the phytoplankton community at the surface, driven by anthropogenic stressors and climate change, will affect the carbon burial potential of oceanic ecosystems. 
 Studies have both reported a global declining trend in marine primary production \citep{Boyce2012} and increasing trends in long-term ocean time series \citep{Chavez2011a}. 
 In order to answer questions of how phytoplankton will respond to a changing climate it is necessary to look the diverse phytoplankton community in greater detail. 
 
@@ -42,8 +44,10 @@ Phytoplankton are extremely diverse and the trait based approach lends itself to
 
 The terms functional group and functional type are used interchangeably, with functional groups more often referring to the grouping of species and the functional type describing the group as a whole, often as implemented in computational models. In fact, the simplification of the phytoplankton community into functional types has been widely used for the design and interpretation of computational models that try to recreate or make predictions about the biogeochemical cycling, biogeographic distribution, productivity and other ecosystem functions of phytoplankton \citep{Gregg2003,LeQuere2005}. Biogeochemically defined functional types are most often used, as these functional traits can usually be well defined within an ecosystem model. Typical examples of such functional groups are silicifers, which broadly correspond the phylogenetic group of diatoms, and calcifiers, which are usually represented by coccolithophores. Such functional types are always simplifications of the natural pyhtoplankton diversity. Silicoflagellates create silicified skeletons like diatoms, but are often not explicitly included because they rarely dominate modern phytoplankton assemblages. The choice of which functional groups to include in a model can also be driven by biogeography or analytical considerations concerning the measurement instrumentation used for a particular study \citep{IrwinAndrewJ.Finkel2017b}. 
 
-Perhaps small paragraph about functional diversity here?
-It is important to keep in mind that PFTs are often composed of many species with a possibly large variance in trait values. Recent research is trying to understand the effects of diversity within functional types and within species \citep{Violle2012,Violle2017a,DesRoches2018}.
+||||Perhaps small paragraph about functional diversity here?||||
+In biodiversity research, the trait-based approach has been readily adopted. It used to be that species diversity (i.e. the number of species) was the most important metric, but now it is functional diversity, which can be described by the variance in the value of a functional trait of the community or ecosystem.
+
+It is important to keep in mind that functional types are often composed of many species with a possibly large variance in trait values. Recent research is trying to understand the effects of diversity within functional types and within species \citep{Violle2012,Violle2017a,DesRoches2018}.
 
 
 
@@ -61,14 +65,16 @@ ALSO: current modeling paradigms are discussed quite critically in the literatur
 A bit earlier, but similar direction: \citep{Flynn2010}
 and more recent, but focused on Monod: \citep{Hellweger2017a}
 
-However, there are also examples of modeling approaches that show a way forward. To name an alternative to the modeling paradigm discussed so far, there is individual based modeling (IBM). In IBMS the phytoplankton are represented as individual agents, allowing for a diverse and spatially interactive phytoplankton community \citep{Hellweger2009}.
+However, there are also examples of modeling approaches that show a way forward. To name an alternative to the modeling paradigm discussed so far, there is individual based modeling (IBM). In IBM the phytoplankton are explicitly represented as individual agents, allowing for a diverse and spatially interactive phytoplankton community \citep{Hellweger2009}. The computational cost and structural complexity of this approach however does not yet lend itself well to studies of large-scale or even global ecosystems. 
 
-And the aggregate moment based models such as PhytoSFDM! (TRAIT-BASED-APPROACH)
+Another approach which lends itself very well to just such studies is to extend traditional NPZD models via moment-based estimation of aggregate properties \citep{Merico2009}. A specific implementation of this is the PhytoSFDM model developed by \citet{Acevedo-Trejos2016}. Instead of modeling multiple size-classes of phytoplankton explicitly, the community is described with a single equation that describes not only the biomass, but also the mean size, and size variance. Size is used as a master trait, with size variance as a proxy for functional diversity. Trade-offs related to nutrient uptake, grazing and sinking structure the phytoplankton community along the size spectrum as driven by the physical forcing. The model was used to investigate latitudinal diversity gradients in the Atlantic Ocean \citep{Acevedo-Trejos2018}. One point of criticism for this approach is that the size distribution is fixed to the shape of a skewed log-normal distribution, not allowing for the emergence of other, for example multi-modal, distributions that have been observed in natural phytoplankton communities. 
+ 
+ And the aggregate moment based models such as PhytoSFDM! (TRAIT-BASED-APPROACH)
 
 And the DARWIN model, including Ben Wards adaptation, including multiple PFTS with a trait-based parametrisation for each functional type based on the organismal size range! (TRAIT-BASED-APPROACH)
 
 
-A simple example of a trait-based description of phytoplankton succession is scaling the maximal nutrient acquisition rate and the respective affinity with cell size. A trade-off would emerge between different size classes, allowing for a modeled succession along gradients of nutrient depletion. One example of a very similar approach is the PhytoSFDM model developed by Acevedo-Trejos and colleagues (Acevedo‐Trejos et al. 2013, Acevedo-Trejos et al. 2015). In their approach, the trait-based modelling of phytoplankton is even further simplified, by describing an entire community as a size- distribution with a mean value and a variance, instead of modeling all the different size classes explicitly. This moment-based structure further simplifies the mathematical basis of the model, and leads to much faster processing times and less uncertainty in parameter estimation.
+A simple example of a trait-based description of phytoplankton succession is scaling the maximal nutrient acquisition rate and the respective affinity with cell size. A trade-off would emerge between different size classes, allowing for a modeled succession along gradients of nutrient depletion. One example of a very similar approach is the PhytoSFDM model developed by Acevedo-Trejos and colleagues (XAcevedo‐Trejos et al. 2013, Acevedo-Trejos et al. 2015X). In their approach, the trait-based modeling of phytoplankton is even further simplified, by describing an entire community as a size- distribution with a mean value and a variance, instead of modeling all the different size classes explicitly. This moment-based structure further simplifies the mathematical basis of the model, and leads to much faster processing times and less uncertainty in parameter estimation.
 
 
 
@@ -95,9 +101,9 @@ ALWAYS NEED A GOOD BASIS IN DATA TO VALIDATE MODELS AND HYPOTHESES
 
 \section{The Cariaco basin \& the CARIACO time series}
 
-A coastal tropical ecosystem
+A coastal tropical ecosystem, continental margins important site of marine PP
 
-"continental margins constitute only about 10\% of the total ocean surface area, these regions are responsible for about 10–15\% of the global marine primary production and greater than 40\% of seabed carbon sequestration (Yool and Fasham, 2001; Muller-Karger et al., 2005). 
+
 "The Cariaco Basin, located off the coast of Venezuela, has been the site of high frequency water column sampling for marine biogeochemical and ecological observations since 1995. The observations were collected as part of the Cariaco Ocean Time-Series Program (Muller-Karger et al., 2001; Thunell et al., 2007). 
 
 XXXX
