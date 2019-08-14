@@ -28,7 +28,7 @@ standardparams = Parameters()
 # standardparams.add('zoo_num', value=2, vary=False)
 
 # mld - related
-standardparams.add('kappa', value=0.1, vary=False) # min=0.09, max=0.11) # Diffusive mixing across thermocline (m*d^-1)
+standardparams.add('kappa', value=0.1, min=0.01, max=0.2) # vary=False) # min=0.09, max=0.11) # Diffusive mixing across thermocline (m*d^-1)
 standardparams.add('deltaD_N', value=0.05, vary=False)   # Nitrate Remineralization rate (d^-1)
 
 standardparams.add('kw', value=0.04, vary=False)     # Light attenuation constant of water (m^-1)
@@ -116,11 +116,11 @@ ztype1.add('zt1_P3', value=0.25, vary=False)  # Cyano
 ztype1.add('zt1_P4', value=0.25, vary=False)  # Dino
 ztype1.add('zt1_P5', value=0.25, vary=False)  # Others
 # MESO
-ztype2.add('zt2_P1', value=0.33, vary=False)
-ztype2.add('zt2_P2', value=0.25, vary=False)
-ztype2.add('zt2_P3', value=0.125, vary=False)
-ztype2.add('zt2_P4', value=0.125, vary=False)
-ztype2.add('zt2_P5', value=0.125, vary=False)
+ztype2.add('zt2_P1', value=1/5, vary=False)
+ztype2.add('zt2_P2', value=1/5, vary=False)
+ztype2.add('zt2_P3', value=1/5, vary=False)
+ztype2.add('zt2_P4', value=1/5, vary=False)
+ztype2.add('zt2_P5', value=1/5, vary=False)
 
 # inter zoo feeding
 # MIKRO
@@ -153,6 +153,88 @@ ptype5.add('pt5_Z1', value=ztype1['zt1_P5'].value, vary=False)
 ptype5.add('pt5_Z2', value=ztype2['zt2_P5'].value, vary=False)
 
 
+
+# READ THE VERIFICATION DATA
+# read yearly data (for comparison to model) from Cariaco
+NO3NO2 = pandas.read_csv('ValidationData/NewVerifDATA/NO2NO3_r1.csv')
+SiOH = pandas.read_csv('ValidationData/NewVerifDATA/SiOH_r1.csv')
+
+DIATOM = pandas.read_csv('ValidationData/NewVerifDATA/Diatoms_r1.csv')
+HAPTO = pandas.read_csv('ValidationData/NewVerifDATA/Hapto_r1.csv')
+DINO = pandas.read_csv('ValidationData/NewVerifDATA/Dino_r1.csv')
+CYANO = pandas.read_csv('ValidationData/NewVerifDATA/Cyano_r1.csv')
+OTHERS = pandas.read_csv('ValidationData/NewVerifDATA/Others_r1.csv')
+
+Zoo200BM = pandas.read_csv('ValidationData/200BIOMASS_above_R2.csv')
+Zoo500BM = pandas.read_csv('ValidationData/500BIOMASS_above_R2.csv')
+
+PN = pandas.read_csv('ValidationData/NewVerifDATA/PN_r1.csv')
+
+
+def returnintverifdat(DF):
+    DF = DF.assign(month=pandas.to_datetime(DF['yday'], format='%j').dt.month)
+    DF_monthly_median = DF.groupby('month').median()
+
+    DF_m1 = DF_monthly_median.copy()
+    DF_m2 = DF_monthly_median.copy()
+    DF_m3 = DF_monthly_median.copy()
+
+    DF_m2['yday'] = DF_m2['yday'] + 365
+    DF_m3['yday'] = DF_m3['yday'] + 2 * 365
+
+    DF_x = pandas.concat([DF_m1, DF_m2, DF_m3])
+
+    tm_dat_conc = np.arange(0., 3 * 365., 1.0)
+
+    DF_pad = DF_x.set_index('yday').reindex(tm_dat_conc).reset_index()
+
+    DF_int = DF_pad.Value.interpolate().values  # .plot() # .ffill().bfill()
+    DF_intslice = DF_int[365:365 + 365]
+
+    tm_year = np.arange(0., 365., 1.0)
+
+    DF_int2 = pandas.DataFrame()
+    DF_int2['yday'] = tm_year
+    DF_int2['Value'] = DF_intslice
+    return DF_int2
+
+
+###########--interpolate verification data---######
+NO3NO2_int = returnintverifdat(NO3NO2)
+SiOH_int = returnintverifdat(SiOH)
+
+DIATOM_int = returnintverifdat(DIATOM)
+HAPTO_int = returnintverifdat(HAPTO)
+DINO_int = returnintverifdat(DINO)
+CYANO_int = returnintverifdat(CYANO)
+OTHERS_int = returnintverifdat(OTHERS)
+
+Zoo200BM_int = returnintverifdat(Zoo200BM)
+Zoo500BM_int = returnintverifdat(Zoo500BM)
+
+PN_int = returnintverifdat(PN)
+
+
+
+###########--conversion factors model to data---######
+modeldepth = 100
+CtoNratioPhyto = 6.625
+CtoChla = 50
+muMolartoChlaconvfactor = modeldepth * CtoNratioPhyto / CtoChla  # µM N m^-2 * C N^-1 / C chla^-1 = µM chla m^-2
+
+# mg dry weight per cubic meter to µM of N
+mggramstograms = 1 / 1000
+Cperdryweight = 0.32
+# Wiebe et al. 1975 : Carbon was 31-33% ofdryweight
+molarmassCarbon = 12.01  # grams per mole
+CtonNratioZoo = 5.625
+mgDWtomuMolarZOO = mggramstograms / Cperdryweight / molarmassCarbon / CtonNratioZoo * 1000  # µM
+
+# convert PN in µg/L to µM of Detritus!
+molarmassNitrogen = 14.0067
+mugperlitertomuMolarPN = 1 / molarmassNitrogen  # g/L -> mol/L -> µM
+
+
 def setupinitcond(pfn,zn):
     # initialize parameters:
     N0 = 2  # Initial Nitrate concentration (mmol*m^-3)
@@ -170,64 +252,98 @@ def setupinitcond(pfn,zn):
     return initcond
 
 
-def runmodel(all_params, initcond, forcing):
-    print(list(all_params)[:])
+# set up model conditions and parameter dict
 
-    z = Plankton(all_params, 'Zooplankton').init()
-    p = Plankton(all_params, 'Phytoplankton').init()
-    fx = Forcing(forcing)
-    # INTEGRATE:
+timedays_model = np.arange(0., 5 * 365., 1.0)
+
+
+standardparams.add('pfun_num', value=5, vary=False)
+standardparams.add('zoo_num', value=2, vary=False)
+all_params = (standardparams + ptype1 + ptype2 + ptype3 + ptype4 + ptype5 + ztype1 + ztype2)
+initialcond = setupinitcond(5, 2)
+
+z = Plankton(all_params, 'Zooplankton').init()
+p = Plankton(all_params, 'Phytoplankton').init()
+fx = Forcing('constantMLD')
+
+
+def g(x0, t, params):
+    """
+    small wrapper function for parameter fitting
+    """
     tos = time.time()
     print('starting integration')
-    outarray = odeint(mc.phytomftm_extendedoutput_forcing, initcond, timedays_model, args=(all_params, p, z, fx))#, rtol=1e-12, atol=1e-12)
+    outarray = odeint(mc.phytomftm_extendedoutput_forcing, x0, t,
+                      args=(params, p, z, fx))  # , rtol=1e-12, atol=1e-12)
     tos1 = time.time()
     print('finished after %4.3f sec' % (tos1 - tos))
 
     return outarray
 
 
-def callmodelrun(pfn,zn, forcing):
-    # number of phytoplankton func types
-    standardparams.add('pfun_num', value=pfn, vary=False)
-    # number of zooplankton groups
-    standardparams.add('zoo_num', value=zn, vary=False)
+def residual(paras):
+    """
+    compute the residual between actual data and fitted data
+    """
 
-    if pfn == 4 and zn == 2:
-         print('4P2Z - prelim model')
-         all_params = (standardparams + ptype1 + ptype2 + ptype3 + ptype4 + ztype1 + ztype2)
-    elif pfn == 5 and zn == 2:
-         print('4P2Z - prelim model')
-         all_params = (standardparams + ptype1 + ptype2 + ptype3 + ptype4 + ptype5 + ztype1 + ztype2)
-    elif pfn == 2 and zn == 2:
-         print('2P2Z')
-         all_params = (standardparams + ptype1 + ptype2 + ztype1 + ztype2)
-    elif pfn == 2 and zn == 1:
-         print('2P1Z')
-         all_params = (standardparams + ptype1 + ptype2 + ztype1)
-    elif pfn == 1 and zn == 2:
-         print('2P1Z')
-         all_params = (standardparams + ptype1 + ztype1 + ztype2)
-    elif pfn == 1 and zn == 1:
-         print('1P1Z')
-         all_params = (standardparams + ptype1 + ztype1)
-    else:
-        print('just standard params')
-        all_params = (standardparams)
+    model = g(initialcond, timedays_model, paras)
 
-    #all_params = (standardparams)
-    parameters = all_params
-    initialcond = setupinitcond(pfn,zn)
-    print(initialcond)
-    out = runmodel(parameters,initialcond, forcing)
+    # to implement fitting algorithm make sure to calculate residual only for the last year!
 
-    return out
+    model_ly = model[1460:1825]
+
+    Nitrogen = model_ly[:, 0]
+    Silicate = model_ly[:, 1]
+    Detritus = model_ly[:, 2]
+
+    Diatoms = model_ly[:, 5 + 0]
+    Haptos = model_ly[:, 5 + 1]
+    Cyanos = model_ly[:, 5 + 2]
+    Dinos = model_ly[:, 5 + 3]
+    Otherss = model_ly[:, 5 + 4]
+
+    MesoZ = model_ly[:, 3]
+    MikroZ = model_ly[:, 4]
+
+    # print(len(NO3NO2_int), len(Nitrogen))
+    # print(type(NO3NO2_int['Value'].values), type(Nitrogen))
+
+    N_resid = (Nitrogen - NO3NO2_int['Value'].values)
+    Si_resid = (Silicate - SiOH_int['Value'].values)
+    De_resid = (Detritus - PN_int['Value'].values)
+
+    P1_resid = (Diatoms - DIATOM_int['Value'].values)
+    P2_resid = (Haptos - HAPTO_int['Value'].values)
+    P3_resid = (Cyanos - CYANO_int['Value'].values)
+    P4_resid = (Dinos - DINO_int['Value'].values)
+    P5_resid = (Otherss - OTHERS_int['Value'].values)
+
+    Z1_resid = (MesoZ - Zoo200BM_int['Value'].values)
+    Z2_resid = (MikroZ - Zoo500BM_int['Value'].values)
+
+
+    ss = np.concatenate((N_resid, Si_resid,De_resid,
+                         P1_resid,P2_resid,P3_resid,P4_resid,P5_resid,
+                         Z1_resid,Z2_resid))
+    return ss
 
 
 
-timedays_model = np.arange(0., 5 * 365., 1.0)
+# fit model
+result = minimize(residual, all_params, args=(), method='differential_evolution')  # leastsq nelder
 
-out5P2Z = callmodelrun(5,2, 'variableMLD')
 
-out5P2Z_2 = callmodelrun(5,2,'varMLDconstNuts')
+# check results of the fit
+outarray = g(initialcond, timedays_model, result.params)
+print(result.aic)
 
-out5P2Z_3 = callmodelrun(5,2,'constantMLD')
+report_fit(result)
+print(result.residual)
+
+"""
+# out5P2Z = callmodelrun(5,2, 'variableMLD')
+
+# out5P2Z_2 = callmodelrun(5,2,'varMLDconstNuts')
+
+#out5P2Z_3 = callmodelrun(5,2,'constantMLD')
+"""

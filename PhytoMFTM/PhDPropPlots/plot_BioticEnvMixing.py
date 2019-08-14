@@ -12,9 +12,10 @@ import pandas
 # Fitting
 from lmfit import minimize, Parameters, Parameter, report_fit
 
-from PhDPropPlots.runModel_BioticEnvMixing import out5P2Z, out5P2Z_2, out5P2Z_3, timedays_model #, out5P2Zconstant
+from PhDPropPlots.runModel_BioticEnvMixing import outarray, timedays_model #, out5P2Zconstant, out5P2Z, out5P2Z_2
 
 
+out5P2Z_3 = outarray
 # make all plots larger and more visible on dark background:
 #plt.rcParams['figure.figsize'] = [16, 10]
 #plt.rc_context({'axes.edgecolor':'black', 'xtick.color':'black', 'ytick.color':'black', 'figure.facecolor':'white'})
@@ -41,7 +42,6 @@ PN = pandas.read_csv('ValidationData/NewVerifDATA/PN_r1.csv')
 # [Gorsky et al. 1988] "C and N composition of some northwestern Mediterranean zooplankton and micronekton species"
 # to convert the values to µM  N  ::  1 mg N/m^3 = 0.071394 μM N
 
-###########--monthly medians---######
 NO3NO2 = NO3NO2.assign(month = pandas.to_datetime(NO3NO2['yday'], format='%j').dt.month)
 SiOH = SiOH.assign(month = pandas.to_datetime(SiOH['yday'], format='%j').dt.month)
 
@@ -56,14 +56,20 @@ Zoo500BM = Zoo500BM.assign(month = pandas.to_datetime(Zoo500BM['yday'], format='
 
 PN = PN.assign(month = pandas.to_datetime(PN['yday'], format='%j').dt.month)
 
+
 NO3NO2_monthly_median = NO3NO2.groupby('month').median()
 SiOH_monthly_median = SiOH.groupby('month').median()
-#DIATOM_monthly_median = DIATOM.groupby('month').median()
-#COCCO_monthly_median = COCCO.groupby('month').median()
-#DINO_monthly_median = DINO.groupby('month').median()
-#NANO_monthly_median = NANO.groupby('month').median()
+
+DIATOM_monthly_median = DIATOM.groupby('month').median()
+HAPTO_monthly_median = HAPTO.groupby('month').median()
+DINO_monthly_median = DINO.groupby('month').median()
+CYANO_monthly_median = CYANO.groupby('month').median()
+OTHERS_monthly_median = OTHERS.groupby('month').median()
+
 Zoo200BM_monthly_median = Zoo200BM.groupby('month').median()
 Zoo500BM_monthly_median = Zoo500BM.groupby('month').median()
+
+PN_monthly_median = PN.groupby('month').median()
 
 # COLOR SCHEME
 
@@ -94,14 +100,31 @@ def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
     f1, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 2, sharex='col')
     # N / Si / Pdt / Pc / Pdn / Pn / Zmu / Zlambda / D
     # PLOTTING
-    timedays = timedays_model#[1:366]
+    timedays = timedays_model[1:366]
     # truncate outarraySiNO to last year of 5:
-    outarray_ly = outarray#[1460:1825]
+    outarray_ly = outarray[1460:1825]
     i_plot = 0
     # color vectors
     colors = ['#808080', '#d55e00', '#cc79a7', '#0072b2', '#009e73', '#009e73']
     alphas = [1., 0.8, 0.6, 0.4]
     lws = [1, 2.5, 4, 5.5]
+
+    modeldepth = 100
+    CtoNratioPhyto = 6.625
+    CtoChla = 50
+    muMolartoChlaconvfactor = modeldepth * CtoNratioPhyto / CtoChla # µM N m^-2 * C N^-1 / C chla^-1 = µM chla m^-2
+
+    # mg dry weight per cubic meter to µM of N
+    mggramstograms = 1/1000
+    Cperdryweight = 0.32
+    # Wiebe et al. 1975 : Carbon was 31-33% ofdryweight
+    molarmassCarbon = 12.01 #grams per mole
+    CtonNratioZoo = 5.625
+    mgDWtomuMolarZOO = mggramstograms / Cperdryweight / molarmassCarbon / CtonNratioZoo * 1000 # µM
+
+    # convert PN in µg/L to µM of Detritus!
+    molarmassNitrogen = 14.0067
+    mugperlitertomuMolarPN = 1 / molarmassNitrogen # g/L -> mol/L -> µM
 
     # artist for legends
     FullArtist = plt.Line2D((0, 1), (0, 0), c=colors[4], alpha=alphas[1], lw=lws[0])
@@ -120,41 +143,41 @@ def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
 
     ax2[1].set_ylabel('Silicate \n' '[µM]', multialignment='center', fontsize=10)
 
-    ax1[0].plot(timedays, outarray_ly[:, 3 + zn + 0], c="Phyto")
-    ax1[0].set_ylabel('Diatoms \n' '[µM N]', multialignment='center', fontsize=9)
-    ax1_tx = ax1[0].twinx()
-    ax1_tx.scatter(DIATOM['yday'].values, DIATOM['Value'].values / 100, c="Phyto", s=4.3)
+    ax1[0].plot(timedays, outarray_ly[:, 3 + zn + 0] * muMolartoChlaconvfactor, c="Phyto")
+    ax1[0].set_ylabel('Diatoms \n' '[mg Chl m$^{-2}$]', multialignment='center', fontsize=9)
+    #ax1_tx = ax1[0].twinx()
+    ax1[0].scatter(DIATOM['yday'].values, DIATOM['Value'].values, c="Phyto", s=4.3)
     # 2. pmol per cell [Marchetti and Harrison 2007]
     # values of abundance are organisms per ml
     # to convert pmol per cell per ml to µM = * abundance / 1000
 
-    ax2[0].plot(timedays, outarray_ly[:, 3 + zn + 1], c="Phyto")
-    ax2[0].set_ylabel('Hapto \n' '[µM N]', multialignment='center', fontsize=9)
-    ax2_tx = ax2[0].twinx()
-    ax2_tx.scatter(HAPTO['yday'].values, HAPTO['Value'].values / 100, c="Phyto", s=4.3)
+    ax2[0].plot(timedays, outarray_ly[:, 3 + zn + 1] * muMolartoChlaconvfactor, c="Phyto")
+    ax2[0].set_ylabel('Hapto \n' '[mg Chl m$^{-2}$]', multialignment='center', fontsize=9)
+    #ax2_tx = ax2[0].twinx()
+    ax2[0].scatter(HAPTO['yday'].values, HAPTO['Value'].values, c="Phyto", s=4.3)
 
-    ax3[0].plot(timedays, outarray_ly[:, 3 + zn + 2], c="Phyto")
-    ax3[0].set_ylabel('Cyano \n' '[µM N]', multialignment='center', fontsize=9)
-    ax3_tx = ax3[0].twinx()
-    ax3_tx.scatter(CYANO['yday'].values, CYANO['Value'].values / 100, c="Phyto", s=4.3)
+    ax3[0].plot(timedays, outarray_ly[:, 3 + zn + 2] * muMolartoChlaconvfactor, c="Phyto")
+    ax3[0].set_ylabel('Cyano \n' '[mg Chl m$^{-2}$]', multialignment='center', fontsize=9)
+    #ax3_tx = ax3[0].twinx()
+    ax3[0].scatter(CYANO['yday'].values, CYANO['Value'].values, c="Phyto", s=4.3)
 
-    ax4[0].plot(timedays, outarray_ly[:, 3 + zn + 3], c="Phyto")
-    ax4[0].set_ylabel('Dino \n' '[µM N]', multialignment='center', fontsize=9)
-    ax4_tx = ax4[0].twinx()
-    ax4_tx.scatter(DINO['yday'].values, DINO['Value'].values / 100, c="Phyto", s=4.3)
+    ax4[0].plot(timedays, outarray_ly[:, 3 + zn + 3] * muMolartoChlaconvfactor, c="Phyto")
+    ax4[0].set_ylabel('Dino \n' '[mg Chl m$^{-2}$]', multialignment='center', fontsize=9)
+    #ax4_tx = ax4[0].twinx()
+    ax4[0].scatter(DINO['yday'].values, DINO['Value'].values, c="Phyto", s=4.3)
 
-    ax5[0].plot(timedays, outarray_ly[:, 3 + zn + 4], c="Phyto")
-    ax5[0].set_ylabel('Others \n' '[µM N]', multialignment='center', fontsize=9)
-    ax5_tx = ax5[0].twinx()
-    ax5_tx.scatter(OTHERS['yday'].values, OTHERS['Value'].values / 100, c="Phyto", s=4.3)
+    ax5[0].plot(timedays, outarray_ly[:, 3 + zn + 4] * muMolartoChlaconvfactor, c="Phyto")
+    ax5[0].set_ylabel('Others \n' '[mg Chl m$^{-2}$]', multialignment='center', fontsize=9)
+    #ax5_tx = ax5[0].twinx()
+    ax5[0].scatter(OTHERS['yday'].values, OTHERS['Value'].values, c="Phyto", s=4.3)
 
 
     i=3
     ax3[1].plot(timedays, outarray_ly[:, 3 + 0], c="MikroZ", lw=lws[0], alpha=alphas[0])
-    ax3[1].scatter(Zoo200BM['yday'].values, Zoo200BM['abundance'].values * 0.1 * 0.071394, c="MikroZ", s=4.3)
+    ax3[1].scatter(Zoo200BM['yday'].values, Zoo200BM['Value'].values * mgDWtomuMolarZOO, c="MikroZ", s=4.3)
 
     ax4[1].plot(timedays, outarray_ly[:, 3 + 1], c="MesoZ", lw=lws[0], alpha=alphas[0])
-    ax4[1].scatter(Zoo500BM['yday'].values, Zoo500BM['abundance'].values * 0.1 * 0.071394, c="MesoZ", s=4.3)
+    ax4[1].scatter(Zoo500BM['yday'].values, Zoo500BM['Value'].values * mgDWtomuMolarZOO, c="MesoZ", s=4.3)
 
     ax3[1].set_ylabel('Mikro Z \n' '[µM N]', multialignment='center', fontsize=9)
 
@@ -165,8 +188,8 @@ def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
     # D
     ax5[1].plot(timedays, outarray_ly[:, 2], c="De", lw=lws[0], alpha=alphas[0])
     ax5[1].set_ylabel('Detritus \n' '[µM N]', multialignment='center', fontsize=9)
-    ax51_tx = ax5[1].twinx()
-    ax51_tx.scatter(PN['yday'].values, PN['Value'].values, c="De", s=4.3)
+    #ax51_tx = ax5[1].twinx()
+    ax5[1].scatter(PN['yday'].values, PN['Value'].values * mugperlitertomuMolarPN, c="De", s=4.3)
 
     # ax5[i_plot].set_title('Detritus')
     # ax5[i_plot].set_ylim(0,0.15)
