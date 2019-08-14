@@ -38,22 +38,26 @@ def phytomftm_extendedoutput_forcing(x, t, paras, pClass, zClass, forcing):
         K = (paras['kappa'].value + max(deriv_MLD, 0)) / int_MLD  # i.e. there is constant mixing & increased loss with MLD shallowing
         K_Z = deriv_MLD / int_MLD  # i.e. concentration varies with the MLD depth
         U = 0 #i.e. there is no mixing via U, the upwelling parameter for box models
+        Sink = 0
 
     elif forcing.type == 'box':
         K = 0  # i.e. there is no modification of mixing due to K
         K_Z = 0  # since there is no change in modeled depth, no losses due to MLD changes
         U = (paras['kappa'].value + max(deriv_MLD, 0)) / int_MLD  # max(deriv_MLD, 0)) / int_MLD # upwelling according to MLD
+        Sink = 0.01
 
     elif forcing.type == 'box_constantKappa':
         K = 0  # i.e. there is no modification of mixing due to K
         K_Z = 0  # since there is no change in modeled depth, no losses due to MLD changes
         U = 0.02 # max(deriv_MLD, 0)) / int_MLD # upwelling according to MLD
+        Sink = 0
     elif forcing.type == 'box_stochasticKappa':
         import random
         stochastic = random.uniform(0, 0.03)
         K = 0  # i.e. there is no modification of mixing due to K
         K_Z = 0  # since there is no change in modeled depth, no losses due to MLD changes
         U = stochastic  # max(deriv_MLD, 0)) / int_MLD # upwelling according to MLD
+        Sink = 0
     elif forcing.type == 'box_MLD_stochastic':
         import random
         stochastic = random.uniform(-0.01, 0.01)
@@ -61,6 +65,7 @@ def phytomftm_extendedoutput_forcing(x, t, paras, pClass, zClass, forcing):
         K_Z = 0  # since there is no change in modeled depth, no losses due to MLD changes
         U = max((paras['kappa'].value + max(deriv_MLD,
                                         0)) / int_MLD + stochastic, 0) # max(deriv_MLD, 0)) / int_MLD # upwelling according to MLD
+        Sink = 0
     else:
         raise('wrong forcing.type in forcing class, check forcing call')
 
@@ -69,7 +74,7 @@ def phytomftm_extendedoutput_forcing(x, t, paras, pClass, zClass, forcing):
     # SiRemineralization = paras['deltaD_Si'].value * D
 
     # Detritus
-    DetritusMixing = D * K
+    DetritusMixing = D * max(K, Sink)
 
     # Nutrient Mixing
     NMixing = max(K, U) * (int_NOX - N)
@@ -106,7 +111,7 @@ def phytomftm_extendedoutput_forcing(x, t, paras, pClass, zClass, forcing):
     # Phytoplankton losses
     PhytoMortality = [p[i].mortality(P[i]) for i in range(pfn)]
     PhytoSinking = [p[i].sinking(int_MLD, P[i]) for i in range(pfn)]
-    PhytoMixing = [P[i] * K for i in range(pfn)]
+    PhytoMixing = [P[i] * max(K, Sink) for i in range(pfn)]
 
     y0 = NRemineralization + NMixing - sum(Gains)  # Nitrate draw down
     y1 = SiMixing - sum(SilicateDrawdown)  # Silicate draw down

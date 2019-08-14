@@ -267,6 +267,61 @@ p = Plankton(all_params, 'Phytoplankton').init()
 fx = Forcing('constantMLD')
 
 
+
+def runmodel(all_params, initcond, forcing):
+    print(list(all_params)[:])
+
+    z = Plankton(all_params, 'Zooplankton').init()
+    p = Plankton(all_params, 'Phytoplankton').init()
+    fx = Forcing(forcing)
+    # INTEGRATE:
+    tos = time.time()
+    print('starting integration')
+    outarray = odeint(mc.phytomftm_extendedoutput_forcing, initcond, timedays_model, args=(all_params, p, z, fx))#, rtol=1e-12, atol=1e-12)
+    tos1 = time.time()
+    print('finished after %4.3f sec' % (tos1 - tos))
+
+    return outarray
+
+
+def callmodelrun(pfn,zn, forcing):
+    # number of phytoplankton func types
+    standardparams.add('pfun_num', value=pfn, vary=False)
+    # number of zooplankton groups
+    standardparams.add('zoo_num', value=zn, vary=False)
+
+    if pfn == 4 and zn == 2:
+         print('4P2Z - prelim model')
+         all_params = (standardparams + ptype1 + ptype2 + ptype3 + ptype4 + ztype1 + ztype2)
+    elif pfn == 5 and zn == 2:
+         print('5P2Z - prelim model')
+         all_params = (standardparams + ptype1 + ptype2 + ptype3 + ptype4 + ptype5 + ztype1 + ztype2)
+    elif pfn == 2 and zn == 2:
+         print('2P2Z')
+         all_params = (standardparams + ptype1 + ptype2 + ztype1 + ztype2)
+    elif pfn == 2 and zn == 1:
+         print('2P1Z')
+         all_params = (standardparams + ptype1 + ptype2 + ztype1)
+    elif pfn == 1 and zn == 2:
+         print('2P1Z')
+         all_params = (standardparams + ptype1 + ztype1 + ztype2)
+    elif pfn == 1 and zn == 1:
+         print('1P1Z')
+         all_params = (standardparams + ptype1 + ztype1)
+    else:
+        print('just standard params')
+        all_params = (standardparams)
+
+    #all_params = (standardparams)
+    parameters = all_params
+    initialcond = setupinitcond(pfn,zn)
+    print(initialcond)
+    out = runmodel(parameters,initialcond, forcing)
+
+    return out
+
+
+
 def g(x0, t, params):
     """
     small wrapper function for parameter fitting
@@ -328,7 +383,7 @@ def residual(paras):
     return ss
 
 
-
+"""
 # fit model
 result = minimize(residual, all_params, args=(), method='differential_evolution')  # leastsq nelder
 
@@ -339,11 +394,10 @@ print(result.aic)
 
 report_fit(result)
 print(result.residual)
-
 """
+
 # out5P2Z = callmodelrun(5,2, 'variableMLD')
 
 # out5P2Z_2 = callmodelrun(5,2,'varMLDconstNuts')
 
-#out5P2Z_3 = callmodelrun(5,2,'constantMLD')
-"""
+outarray = callmodelrun(5,2,'constantMLD')
