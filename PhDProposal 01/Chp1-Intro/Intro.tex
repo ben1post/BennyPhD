@@ -24,7 +24,7 @@ A small fraction sinks out of the photic layer as fecal or detrital matter to th
 Studies have both reported a global declining trend in marine primary production \citep{Boyce2012} and increasing trends in long-term ocean time series \citep{Chavez2011a}. 
 In order to answer questions of how phytoplankton will respond to a changing climate it is necessary to look the diverse phytoplankton community in greater detail. 
 
-\section{Characterizing phytoplankton}
+\section{Characterizing phytoplankton communities}
 From the early days of oceanographic research, scientists have been interested in the microscopic organisms that were floating in samples of sea water. These communities contain many species each and in total there are tens of thousands of species of phytoplankton that inhabit the surface ocean \citep{DeVargas2015}. All phytoplankton species use chlorophyll or bacteriochlorophyll to harvest light as the energy source to fix organic carbon, but there is wide variation in virtually all their other properties \citep{Litchman2008}. In addition to the complex community composition, there are many factors affecting measurements of their bulk properties in the ocean, such as the viral and bacterial community and the influence of diverse grazers, all within the complex three-dimensional physical environment that is the ocean. 
 Where earlier phytoplankton ecologists focused on identifying individual species, decoding their phylogeny or growing them in controlled lab cultures, recent research is trying to integrate the insights gained from these approaches and quantify the diversity on higher levels of organization in relation to other properties of the ecosystem. The focus has shifted towards trait diversity both within and across species and within and across phytoplankton groups. In order to scientifically describe this perplexing diversity the concepts of trait-based ecology and functional types have been developed \citep{Tilman2001,McGill2006,Violle2007c}.
 
@@ -35,7 +35,8 @@ Where earlier phytoplankton ecologists focused on identifying individual species
 \label{PhytoTraits}
 \end{figure}
 
-\subsection{Functional types and traits}
+\small {\textbf{Functional types, traits and diversity}}
+
 In the following I will try to clarify the complementary terms of phytoplankton traits, functional traits, and functional types. 
 
 The trait-based approach to phytoplankton ecology has been growing in popularity. Part of the fascination evoked by this term stems from its origin in evolutionarily theory. Over the last three decades, it has been adopted by ecologists trying to understand communities and ecosystems. In this new context, the concept of traits has been stretched far beyond its original meaning, which can lead to some confusion surrounding the scope of trait-based methods \citep{Violle2007c}. In the simplest definition, a trait is a surrogate of organismal performance. In the ecological context this has been expanded to surrogates for the performance of populations, communities and entire ecosystems. This can include ecophysiological traits, life-history traits, demographic traits or response and effect traits of ecosystems (see Figure \ref{PhytoTraits} for a selection of phytoplankton traits). Theoretically, any property of an organism or ecosystem could be defined as a trait, but ideally a trait should be functional. Functional traits are defined by \cite{Violle2007c} as "morpho-, physio- or phenological traits which impact fitness indirectly via their effects on growth, reproduction and survival". An important facet of the trait-based approach is to describe organismal function via trade-offs between traits. For example when competing for multiple nutrients, phytoplankton species are thought to be constrained by trade-offs in their competitive ability for one over another resource \citep{Tilman1990}. 
@@ -84,6 +85,7 @@ perhaps not cutting edge, but my method allows me to catpure variability wihtin 
 don't rubbish other models/papers
 
 A major advancement in the field of phytoplankton modeling was the DARWIN model developed at MIT \citep{Follows2007d}. In the general framework of the DARWIN model, large numbers of phytoplankton types are initialized with equal biomass but with different parameters for the most important traits, namely those related to light harvesting, temperature dependence, and nutrient acquisition. These parameters are chosen stochastically from broad ranges of values, based on laboratory and field data, and constrained by simplified allometric functions describing ecological trade-offs. Different functional types are prescribed in the model via varying nutrient utilization traits (e.g. small phytoplankton that cannot assimilate nitrate as Prochlorococcus analogs). Over multi-annual runs this community self-assembles through ecological competition and physical changes produced by the simulated environment of a global circulation model (GCM). In the random initialization of phytoplankton types, the DARWIN model allows for the emergence and development of diverse phytoplankton communities. This approach of modeling biodiversity has been termed “selection-based” \citep{Follows2011c}. ||more attention to this review|| The model framework is continually modified and expanded, for example for exploring the effect of grazing formulations \citep{Prowe2012c}, the biogeography of phytoplankton traits \citep{Barton2013} and the influence of ocean acidification at a global scale \citep{Dutkiewicz2015}. 
+Size structured ecosystem models have been done before: \citep{Baird2007b}
 A study of particular interest is the size-structured food-web model component developed by \citet{Ward2012}, because the modeling approach combines the trait-based approach of scaling parameters allometrically along cell size with a PFT modeling approach. Each functional type is assigned a different allometry based on the size ranges and relationships taken from data. Together with the selection-based biodiversity representation that the DARWIN framework provides, this seems to be a promising direction for future models. The model has however only been applied and compared to data at a global scale and the code of this specific implementation is not publicly available.
 
 PhytoFLEX -> Systems of infinite Diversity ->
@@ -92,10 +94,13 @@ structure paragraph along axis of complexity?
 ALWAYS NEED A GOOD BASIS IN DATA TO VALIDATE MODELS AND HYPOTHESES
 
 \section{The Cariaco Basin and the CARIACO time-series}
+\label{CARIACOintro}
 
 At the beginning of my PhD I was tasked with the mission to find publicly available ocean time-series data that could be used as the basis for my modeling work. Initially the plan was to choose multiple locations, to compare results from model applications in contrasting environments. Not surprisingly the search did quickly yield results, among the most prominent: the Bermuda Atlantic Time-series Study (BATS) and the Hawaii Ocean Time-Series (HOTS). Quickly the issues of public ocean time-series data became apparent. Links often lead to defunct sites and servers were sporadically maintained. In particular for my application the problem was that the basic physical parameters and bulk properties such as total chlorophyll were readily available, but more specific phytoplankton functional type or taxonomy data was harder to find, if not missing. In particular the type of phytoplankton data that was available differed widely between the stations and would have not allowed for a straightforward comparison. It was only later in my search that I came across the CARIACO time series, an acronym for "CArbon Retention In A Colored Ocean", located in the Cariaco Basin off the coast of Venezuela. The data is available through the University of South Florida (USF) at \href{http://imars.marine.usf.edu/cariaco}{http://imars.marine.usf.edu/cariaco} and includes a wealth of data that was collected since 1995. Most importantly to my purposes, the data included both phytoplankton pigment measurements and taxonomic data of the phytoplankton community at monthly intervals. It was the first ocean time-series with such detailed public phytoplankton data and soon I decided to focus my work on this time-series.
 
 In addition to the recent importance of the cariaco basin as the site of an important paleo-oceanographic time sereis, the Cariaco basin has served as a natureal laboratory for biogeochemists for over 50 years. This basin has been key in constructiong stoichiometric models of organic matter remineralization (Redfield et al 1963 and Richards 1975!), developing residence time and box models, and numerous other studies.
+
+Cariaco basin is the worlds largest truly marine anoxic basin \citep{Wakeham2012}.
 
 
 |||perhaps what is above is not entirely needed --> maybe less colloquial, more why CARIACO is interesting! ||||||
@@ -103,18 +108,33 @@ In addition to the recent importance of the cariaco basin as the site of an impo
 THE BASIN
 The CARIACO Ocean Time-Series program was established in 1995 off the coast of Venezuela (10$^\circ$ 30$'$ N, 64$^\circ$ 40$'$ W, see Figure \ref{CARIACO-map}). Located in the south-eastern Caribbean Sea, the Cariaco Basin is a 160 km long and 70 km wide tectonic depression, reaching up to 1400 m in depth. The two deeper parts of the basin are separated by a saddle of 900 m depth, with the time-series mooring located in the eastern part. The entire basin is bound to the west and north by a shallow ridge at 100 m depth, restricting the exchange of deep water with the Caribbean Sea. The restricted circulation and high productivity at the surface resulted in anoxic conditions below 250 m depth within the basin \citep{Richards1956}. The hydrography at the surface is influenced by Guyana and North Equatorial currents that flow into the Caribbean Sea from a south-eastern direction, but this exchange is restricted to the two channels above the 100 m ridge. Observed and modeled horizontal surface water velocities within the basin are relatively weak, indicating a minimal influence of horizontal transport at the mooring site \citep{Alvera-Azcarate2009}. 
 
+\begin{figure}
+\centering
+\includegraphics[trim = 0mm 0mm 0mm 0mm, clip, width=1.\linewidth]{./Chp1-Intro/CARIACObasinMAP_Bringueetal2018.png}
+\caption[Scheme]{\small {"Study area. A. Location of the Cariaco Basin off the Venezuelan coast in the southern Caribbean Sea, with January and June positions of the Intertropical Convergence Zone (ITCZ). B. Location of the CARIACO station in the eastern sub-basin, general bathymetry and local rivers emptying in the basin (bathymetric data from GEBCO\_08 Grid)" from \cite{Bringue2019}}}
+\label{CARIACO-map}
+\end{figure}
+
 
 SAMPLE COLLECTION
 The program was established as a joint-project of the Venezuelan Fondo Nacional de Cienca, Tecnolog\'{i}a e Investigac\'{i}on (FONACIT) and the US National Science Foundation (NSF), with the particular interest in creating a time-series of surface ocean biogeochemistry that could be linked to satellite observations and the sedimentation accumulating in the anoxic basin. Since 1995 there were over 200 core cruises at mostly monthly intervals, in addition to sediment trap and microbial-biogeochemistry process cruises. 
 
 
 MEASURED DYNAMICS
+Simply mention the major publications and rough findings, further discussion in section 2
 
-LONG TERM TRENDS
+LONG TERM TRENDS <- not here, but discuss this in the 2nd section (MS 1)
 
+SCIENTIFIC FINDINGS - RESULTS what has been found here?
+
+- Interesting: Novel eukaryotes found at Oxic-Anoxic interface \citep{Stoeck2003}
 
 Say that JPinckney loves me
 and how this is a promising data set, given the history, wealth of data, incl phytoplankton diversity data, and long term trends here.
+
+ALSO: Time series has stopped, due to lack of funding, and cite review paper (scientific legacy of CARIACO) \citep{Muller-Karger2019a}
+Perhaps here go through the main points in the big review to give a nice overview
+
 
 % keep muthsinda et al and all that jazz to the next section, lessgo
 
@@ -138,14 +158,6 @@ LONG TERM TRENDS
  
 
 XXXX
-
-
-\begin{figure}
-\centering
-\includegraphics[trim = 0mm 0mm 0mm 0mm, clip, width=1.\linewidth]{./Chp1-Intro/CARIACObasinMAP_Bringueetal2018.png}
-\caption[Scheme]{\small {"Study area. A. Location of the Cariaco Basin off the Venezuelan coast in the southern Caribbean Sea, with January and June positions of the Intertropical Convergence Zone (ITCZ). B. Location of the CARIACO station in the eastern sub-basin, general bathymetry and local rivers emptying in the basin (bathymetric data from GEBCO\_08 Grid)" from \cite{Bringue2019}}}
-\label{CARIACO-map}
-\end{figure}
 
 XXXX
 
