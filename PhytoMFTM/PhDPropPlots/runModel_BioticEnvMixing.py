@@ -367,19 +367,21 @@ def residual(paras):
     Si_resid = (Silicate - SiOH_int['Value'].values)
     De_resid = (Detritus - PN_int['Value'].values)
 
-    P1_resid = (Diatoms - DIATOM_int['Value'].values)
-    P2_resid = (Haptos - HAPTO_int['Value'].values)
-    P3_resid = (Cyanos - CYANO_int['Value'].values)
-    P4_resid = (Dinos - DINO_int['Value'].values)
-    P5_resid = (Otherss - OTHERS_int['Value'].values)
+    #P1_resid = (Diatoms - DIATOM_int['Value'].values)
+    #P2_resid = (Haptos - HAPTO_int['Value'].values)
+    #P3_resid = (Cyanos - CYANO_int['Value'].values)
+    #P4_resid = (Dinos - DINO_int['Value'].values)
+    #P5_resid = (Otherss - OTHERS_int['Value'].values)
 
     Z1_resid = (MesoZ - Zoo200BM_int['Value'].values)
     Z2_resid = (MikroZ - Zoo500BM_int['Value'].values)
 
 
-    ss = np.concatenate((N_resid, Si_resid,De_resid,
-                         P1_resid,P2_resid,P3_resid,P4_resid,P5_resid,
-                         Z1_resid,Z2_resid))
+    #ss = np.concatenate((N_resid, Si_resid,De_resid, P1_resid,P2_resid,P3_resid,P4_resid,P5_resid, Z1_resid,Z2_resid))
+
+    ss = np.concatenate((N_resid, Si_resid, De_resid,
+                         #P1_resid, P2_resid, P3_resid, P4_resid, P5_resid,
+                         Z1_resid, Z2_resid))
     return ss
 
 
@@ -394,6 +396,8 @@ print(result.aic)
 
 report_fit(result)
 print(result.residual)
+
+
 """
 
 # out5P2Z = callmodelrun(5,2, 'variableMLD')
