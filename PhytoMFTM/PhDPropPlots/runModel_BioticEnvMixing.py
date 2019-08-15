@@ -349,16 +349,16 @@ def residual(paras):
 
     Nitrogen = model_ly[:, 0]
     Silicate = model_ly[:, 1]
-    Detritus = model_ly[:, 2]
+    Detritus = model_ly[:, 2] * mugperlitertomuMolarPN
 
-    Diatoms = model_ly[:, 5 + 0]
-    Haptos = model_ly[:, 5 + 1]
-    Cyanos = model_ly[:, 5 + 2]
-    Dinos = model_ly[:, 5 + 3]
-    Otherss = model_ly[:, 5 + 4]
+    Diatoms = model_ly[:, 5 + 0] * muMolartoChlaconvfactor
+    Haptos = model_ly[:, 5 + 1] * muMolartoChlaconvfactor
+    Cyanos = model_ly[:, 5 + 2] * muMolartoChlaconvfactor
+    Dinos = model_ly[:, 5 + 3] * muMolartoChlaconvfactor
+    Otherss = model_ly[:, 5 + 4] * muMolartoChlaconvfactor
 
-    MesoZ = model_ly[:, 3]
-    MikroZ = model_ly[:, 4]
+    MesoZ = model_ly[:, 3] * mgDWtomuMolarZOO
+    MikroZ = model_ly[:, 4] * mgDWtomuMolarZOO
 
     # print(len(NO3NO2_int), len(Nitrogen))
     # print(type(NO3NO2_int['Value'].values), type(Nitrogen))
@@ -367,11 +367,11 @@ def residual(paras):
     Si_resid = (Silicate - SiOH_int['Value'].values)
     De_resid = (Detritus - PN_int['Value'].values)
 
-    #P1_resid = (Diatoms - DIATOM_int['Value'].values)
-    #P2_resid = (Haptos - HAPTO_int['Value'].values)
-    #P3_resid = (Cyanos - CYANO_int['Value'].values)
-    #P4_resid = (Dinos - DINO_int['Value'].values)
-    #P5_resid = (Otherss - OTHERS_int['Value'].values)
+    P1_resid = (Diatoms - DIATOM_int['Value'].values)
+    P2_resid = (Haptos - HAPTO_int['Value'].values)
+    P3_resid = (Cyanos - CYANO_int['Value'].values)
+    P4_resid = (Dinos - DINO_int['Value'].values)
+    P5_resid = (Otherss - OTHERS_int['Value'].values)
 
     Z1_resid = (MesoZ - Zoo200BM_int['Value'].values)
     Z2_resid = (MikroZ - Zoo500BM_int['Value'].values)
@@ -380,7 +380,7 @@ def residual(paras):
     #ss = np.concatenate((N_resid, Si_resid,De_resid, P1_resid,P2_resid,P3_resid,P4_resid,P5_resid, Z1_resid,Z2_resid))
 
     ss = np.concatenate((N_resid, Si_resid, De_resid,
-                         #P1_resid, P2_resid, P3_resid, P4_resid, P5_resid,
+                         P1_resid, P2_resid, P3_resid, P4_resid, P5_resid,
                          Z1_resid, Z2_resid))
     return ss
 
@@ -399,7 +399,7 @@ print(result.residual)
 
 
 # save fit report to a file:
-with open('fit_result_01.txt', 'w') as fh:
+with open('fit_result_03.txt', 'w') as fh:
     fh.write(result.fit_report())
 
 """
