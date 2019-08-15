@@ -44,7 +44,7 @@ def phytomftm_extendedoutput_forcing(x, t, paras, pClass, zClass, forcing):
         K = 0  # i.e. there is no modification of mixing due to K
         K_Z = 0  # since there is no change in modeled depth, no losses due to MLD changes
         U = (paras['kappa'].value + max(deriv_MLD, 0)) / int_MLD  # max(deriv_MLD, 0)) / int_MLD # upwelling according to MLD
-        Sink = 0.01
+        Sink = 0.005  # 0.5 m per day
 
     elif forcing.type == 'box_constantKappa':
         K = 0  # i.e. there is no modification of mixing due to K

@@ -28,7 +28,7 @@ standardparams = Parameters()
 # standardparams.add('zoo_num', value=2, vary=False)
 
 # mld - related
-standardparams.add('kappa', value=0.1, min=0.01, max=0.2) # vary=False) # min=0.09, max=0.11) # Diffusive mixing across thermocline (m*d^-1)
+standardparams.add('kappa', value=0.01, vary=False)#min=0.01, max=0.2) # vary=False) # min=0.09, max=0.11) # Diffusive mixing across thermocline (m*d^-1)
 standardparams.add('deltaD_N', value=0.05, vary=False)   # Nitrate Remineralization rate (d^-1)
 
 standardparams.add('kw', value=0.04, vary=False)     # Light attenuation constant of water (m^-1)
@@ -37,7 +37,7 @@ standardparams.add('kc', value=0.03, vary=False)      # Light attenuation via ph
 standardparams.add('alpha', value=0.15, vary=False)  # initial slope of the P-I curve
 standardparams.add('VpMax', value=1., vary=False)    # maximum photosynthetic rate
 
-standardparams.add('v', value=0.01, vary=False)      # Sinking of Phytoplankton from Mixed Layer
+standardparams.add('v', value=0., vary=False)      # Sinking of Phytoplankton from Mixed Layer
 standardparams.add('OptI', value=30, vary=False)    # Optimum irradiance (einstein*m^-2*d^-1)
 
 # p - related
@@ -81,7 +81,7 @@ ptype5.add('pt5_muP', value=0.8, vary=False)    # Phytoplankton maximum growth r
 standardparams.add('moZ', value=0.1, vary=False)        # Zooplankton mortality (d^-1)
 standardparams.add('deltaZ', value=0.75, vary=False)    # Zooplankton Grazing assimilation coefficient (-)
 standardparams.add('deltaLambda', value=0.75, vary=False)    # Zooplankton Inter-Grazing assimilation coefficient (-)
-standardparams.add('muIntGraze', value=0.001, vary=False)  # InterZooGrazing maximum grazing rate
+standardparams.add('muIntGraze', value=0.01, vary=False)  # InterZooGrazing maximum grazing rate
 standardparams.add('kIntGraze', value=1., vary=False)  # InterZooGrazing saturation constant
 
 standardparams.add('Kp', value=0, vary=False)     # Zooplankton Grazing saturation constant (-)
@@ -97,9 +97,9 @@ ztype1.add('zt1_pred', value=0.01, vary=False)    # quadratic higher order preda
 
 # set up zooplankton type 2 (e.g. MESO zooplankton)
 ztype2 = Parameters()
-ztype2.add('zt2_muZ', value=0.1, vary=False)    # Zooplankton maximum grazing rate (d^-1)
+ztype2.add('zt2_muZ', value=0.315, vary=False)    # Zooplankton maximum grazing rate (d^-1)
 
-ztype2.add('zt2_Kp', value=.8, vary=False)       # Zooplankton Grazing saturation constant (-)
+ztype2.add('zt2_Kp', value=.5, vary=False)       # Zooplankton Grazing saturation constant (-)
 ztype2.add('zt2_pred', value=0.01, vary=False)    # quadratic higher order predation rate on zooplankton
 
 """
