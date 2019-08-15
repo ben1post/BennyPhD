@@ -398,6 +398,10 @@ report_fit(result)
 print(result.residual)
 
 
+# save fit report to a file:
+with open('fit_result_01.txt', 'w') as fh:
+    fh.write(result.fit_report())
+
 """
 
 # out5P2Z = callmodelrun(5,2, 'variableMLD')
