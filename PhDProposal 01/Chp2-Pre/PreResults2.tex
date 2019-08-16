@@ -17,7 +17,7 @@ this would be coherent with Pinckney, no real reduction in biomass, but shifts i
 \centering
 \includegraphics[trim = 0mm 0mm 0mm 0mm, clip, width=0.7\linewidth]{./Chp2-Pre/Tayloretal2012_F3.large.jpg}
 \caption[Scheme]{\small {"Shifts in phytoplankton community composition and sardine landings from the southeastern Margarita Island fishery. Monthly observations presented as gray symbols. Box and whisker plots depict binned annual variations in diatom (A), dinoflagellate (B), coccolithophorid (C) inventories integrated over the upper 55 m and sardine fishery landings (D) in metric tons. Boxes represent the interquartile range of all observations (25th to 75th percentiles). Internal horizontal lines and whiskers are medians and 10th to 90th percentiles, respectively. Blue and red horizontal lines represent the grand medians of all observations between 1996 and 2004 and between 2005 and 2009, respectively. Data in early and late bins are significantly different in all cases (ANOVA; P < 0.001). [Fishery data are courtesy of L. W. Gonzáles (Universidad de Oriente, Boca de Río, Isla de Margarita, Venezuela); zero values artificially set at 0.5 for plotting purposes.)" from \citet{Taylor2012}}}
-\label{PrinComp}
+\label{TaylorSHIFTS}
 \end{figure}
 
 
@@ -31,7 +31,7 @@ There are global trends and indications of a regime shift, but methods to identi
 \centering
 \includegraphics[trim = 0mm 0mm 0mm 0mm, clip, width=.9\linewidth]{./Chp2-Pre/Pinckneyetal2015_TotChlAcontoursMLD.png}
 \caption[Scheme]{\small {Contour plot of HPLC-measured $chl~a$ for the two time periods with full data coverage (January 1996 to October 2000 and July 2006 to December 2010). Light white dots indicate data points. White line shows the depth of the mixed layer. HPLC Data and MLD depth was received from James Pinckney and Claudia Benitez-Nelson.}}
-\label{PrinComp}
+\label{TChlAPinckney}
 \end{figure}
 
 
@@ -44,7 +44,7 @@ Mutshinda study, same year, environmental factors: \cite{Mutshinda2013}
 
 culminated in the study in PNAS: "Phytoplankton adapt to a changing environment" \cite{Irwin2015}
 
-detailed phytoplankton data has been used in the previous studies for statistical analysis, but suprisingly not yet for ecosystem or trait-based modeling
+detailed phytoplankton data has been used in the previous studies for statistical analysis, but surprisingly not yet for ecosystem or trait-based modeling
 This will be a first! first proper ecological model apart from this Export Flux model only including diatoms \citep{Walsh2002a}
 
 FUNCTIONAL TYPES STRUCTURE --> explain linkage between Pigment Data that I use and functional diversity measurements (XMoreno et al. 2012X) take this from Pinckney et al. 2015...
@@ -55,6 +55,13 @@ bb
 
 LOOKING AT BIOMASS DYNAMICS, leading over from Intro where i mentioned JP CBN data at the end (ad-lib)
 XXX
+
+\begin{figure}
+\centering
+\includegraphics[trim = 0mm 0mm 0mm 0mm, clip, width=.7\linewidth]{./Chp2-Pre/PFT_groupsAsset511.png}
+\caption[Scheme]{\small {Boxplots of HPLC-measured $chl~a$ depth integrated to 100 m for the two time periods with full data coverage. Boxplots illustrate the 25th and 75th quartiles (the box), the whiskers show the 5th and 95th percentiles, full line shows the median, dotted line shows the mean value per regime. Asterisk * indicates a significant difference between Times 1 and 2 in a one-sided t-test (p \textless	 0.05). Functional type $chl a$ was separated using the software Chemtax as described in \citet{Pinckney2015} The analyzed data was received from James Pinckney and Claudia Benitez-Nelson.}}
+\label{PFTcariaco}
+\end{figure}
 
 EXPLAIN THE HYPOTHESES HERE; AND HOW THEY CAN BE TESteD
 
@@ -73,9 +80,23 @@ dont really go into depth here, just generally state how things are done, python
 COPY METHODS SECTION FROM PhytoSFDM in a way, but with the current model setup
 including the equations and allofthat!
 
-SHOW MODEL SCHEMATICS!
 
+\begin{figure}
+\centering
+\includegraphics[trim = 0mm 0mm 0mm 0mm, clip, width=1.\linewidth]{./Chp2-Pre/ModelSchematicsAsset1111.pdf}
+\caption[Scheme]{\small {Model schematics of current iteration of the ecosystem model.The ecosystem is embedded in a box of fixed depth. Nutrients below are assumed to be constant, mixing is a function MLD to simulate seasonal upwelling. XXXX}}
+\label{ModelSchematics}
+\end{figure}
 XXXX
+
+FORCING DATA
+
+\begin{figure}
+\centering
+\includegraphics[trim = 0mm 0mm 0mm 0mm, clip, width=1.\linewidth]{./Chp2-Pre/ForcingAsset411.png}
+\caption[Scheme]{\small {Aggregated forcing per the two regimes adapted from \citet{Pinckney2015}. Regime 1 from January 1996 to October 2000, Regime 2 from July 2006 to December 2010, values are aggregated to a single year. Depth profiles of Nitrate and Silicate were interpolated to depth and averaged between 100 and 150 m. Continous line shows interpolated values of MLD, PAR and SST used for model forcing and mean values for N and Si due to the assumption of a constant value at depth. SST and PAR data is taken from SeaWiFS satellite monthly climatological data. }}
+\label{ModelForcing}
+\end{figure}
 
 \small {\textbf{Model physics in a tropical coastal setting}}
 
@@ -84,6 +105,14 @@ xXXX
 Most models built for temperate oceans, since that is where reasearch (and funding) has been most well developed. Fasham NPZD type slabe physics explain.
 Why won't this fit well in the Cariaco setting? - mostly due to shallow and comparatively invariable MLD, and nutrient fluxes don't correlate.
 Problem of nutrient forcing! If MLD driven, nutrients below MLD are highly variable, only below 100m do we get towards a relatively constant N0 and Si0 (can show plots here!)
+
+
+\begin{figure}
+\centering
+\includegraphics[trim = 0mm 0mm 0mm 0mm, clip, width=0.65\linewidth]{./Chp2-Pre/NutsBELOWmldAsset1011.png}
+\caption[Scheme]{\small {Nutrient concentrations below MLD and averaged between 100 and 150 m depth for both regimes aggregated to one year. For values below MLD the continuous line represents interpolated forcing, for values below 100 m the line shows the mean value.}}
+\label{BelowMLD}
+\end{figure}
 
 Moved from slab physics of PhytoSFDM model \citep{Acevedo-Trejos2016} which is based on Fasham \citep{Evans2003,Fasham1990a} to a box model formulation adapted from Tyrrell \citep{Tyrrell1999}
 The specific differences are (show equations):

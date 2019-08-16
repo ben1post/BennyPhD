@@ -96,6 +96,8 @@ ALWAYS NEED A GOOD BASIS IN DATA TO VALIDATE MODELS AND HYPOTHESES
 \section{The Cariaco Basin and the CARIACO time-series}
 \label{CARIACOintro}
 
+%need to explain SST somewhere! im using it later a lot
+
 At the beginning of my PhD I was tasked with the mission to find publicly available ocean time-series data that could be used as the basis for my modeling work. Initially the plan was to choose multiple locations, to compare results from model applications in contrasting environments. Not surprisingly the search did quickly yield results, among the most prominent: the Bermuda Atlantic Time-series Study (BATS) and the Hawaii Ocean Time-Series (HOTS). Quickly the issues of public ocean time-series data became apparent. Links often lead to defunct sites and servers were sporadically maintained. In particular for my application the problem was that the basic physical parameters and bulk properties such as total chlorophyll were readily available, but more specific phytoplankton functional type or taxonomy data was harder to find, if not missing. In particular the type of phytoplankton data that was available differed widely between the stations and would have not allowed for a straightforward comparison. It was only later in my search that I came across the CARIACO time series, an acronym for "CArbon Retention In A Colored Ocean", located in the Cariaco Basin off the coast of Venezuela. The data is available through the University of South Florida (USF) at \href{http://imars.marine.usf.edu/cariaco}{http://imars.marine.usf.edu/cariaco} and includes a wealth of data that was collected since 1995. Most importantly to my purposes, the data included both phytoplankton pigment measurements and taxonomic data of the phytoplankton community at monthly intervals. It was the first ocean time-series with such detailed public phytoplankton data and soon I decided to focus my work on this time-series.
 
 In addition to the recent importance of the cariaco basin as the site of an important paleo-oceanographic time sereis, the Cariaco basin has served as a natureal laboratory for biogeochemists for over 50 years. This basin has been key in constructiong stoichiometric models of organic matter remineralization (Redfield et al 1963 and Richards 1975!), developing residence time and box models, and numerous other studies.
@@ -126,8 +128,23 @@ Simply mention the major publications and rough findings, further discussion in 
 perhaps here:
 inter-annual and subdecadal variability in nutrient geochemistry \citep{Scranton2014}
 
+\begin{figure}
+\centering
+\includegraphics[trim = 0mm 0mm 0mm 0mm, clip, width=0.9\linewidth]{./Chp1-Intro/NUTSatCARIACOAsset811.png}
+\caption[Scheme]{\small {Contour plots of Nitrate, Phosphate and Silicate of the CARIACO time series down to 250 m. White line shows depth of MLD. Surface interpolation using R package MBA.surf.}}
+\label{CARIACO-map}
+\end{figure}
+
 
 LONG TERM TRENDS <- not here, but discuss this in the 2nd section (MS 1)
+
+\begin{figure}
+\centering
+\includegraphics[trim = 0mm 0mm 0mm 0mm, clip, width=0.7\linewidth]{./Chp1-Intro/IRWIN_F1.large.jpg}
+\caption[Scheme]{\small {"Monthly environmental conditions averaged over the upper mixed layer (1, 7, 15, and 25 m depth) from the CARIACO Ocean Time-Series Program: temperature ($^\circ$C), irradiance (mol m$^{–2}$ d$^{–1}$), and nitrate concentration ($\mu$mol L$^{–1}$). The vertical dotted line is drawn at the boundary (January 1, 2004) between the cool and warm periods. The straight lines are linear regressions: temperature = (24.6 $\pm$ 0.3) + (0.09 $\pm$ 0.03)$t$, $R^2$ = 0.05, P \textless 0.005; irradiance = (18.1 $\pm$ 0.9) + (0.05 $\pm$ 0.11)$t$, $R^2$= 0.001, P = 0.65; nitrate = (1.06 $\pm$ 0.14) – (0.045 $\pm$ 0.017)$t$, $R^2$ = 0.04, P = 0.03, where $t$ is time in years since January 1, 1996, errors are one SE, and the shaded region is the 95\% confidence interval on the line. The $R^2$ is very low because of the tremendous interannual variation relative to the trend." from \cite{Irwin2015}}}
+\label{CARIACO-map}
+\end{figure}
+
 
 SCIENTIFIC FINDINGS - RESULTS what has been found here?
 

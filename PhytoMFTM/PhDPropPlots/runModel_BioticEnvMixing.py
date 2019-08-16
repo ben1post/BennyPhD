@@ -10,6 +10,7 @@ import pandas
 
 # Fitting
 from lmfit import minimize, Parameters, Parameter, report_fit
+from lmfit.model import save_modelresult
 
 # loading Modules
 from PhytoMFTM.ModelClasses import Plankton, Forcing
@@ -28,8 +29,8 @@ standardparams = Parameters()
 # standardparams.add('zoo_num', value=2, vary=False)
 
 # mld - related
-standardparams.add('kappa', value=0.01, min=0.005, max=0.1) # vary=False) # min=0.09, max=0.11) # Diffusive mixing across thermocline (m*d^-1)
-standardparams.add('deltaD_N', value=0.05, min=0.005, max=0.1)   # Nitrate Remineralization rate (d^-1)
+standardparams.add('kappa', value=0.1, min=0.0999,max=0.101) # vary=False) # min=0.09, max=0.11) # Diffusive mixing across thermocline (m*d^-1)
+standardparams.add('deltaD_N', value=0.0116, vary=False)   # Nitrate Remineralization rate (d^-1)
 
 standardparams.add('kw', value=0.04, vary=False)     # Light attenuation constant of water (m^-1)
 
@@ -41,7 +42,7 @@ standardparams.add('v', value=0., vary=False)      # Sinking of Phytoplankton fr
 standardparams.add('OptI', value=30, vary=False)    # Optimum irradiance (einstein*m^-2*d^-1)
 
 # p - related
-standardparams.add('moP', value=0.1, min=0.01, max=0.15)    # Phytoplankton mortality (d^-1)
+standardparams.add('moP', value=0.114, vary=False)    # Phytoplankton mortality (d^-1)
 
 standardparams.add('ratioSi', value=0, vary=False)  # Silicate ratio ## FALLBACK PARAM FOR OTHER PFTs
 standardparams.add('U_N', value=0, vary=False)    # Nitrate Half Saturation Constant
@@ -50,39 +51,39 @@ standardparams.add('muP', value=0, vary=False)    # Phytoplankton maximum growth
 
 # set up phytoplankton type 1 (e.g. DIATOMS)
 ptype1 = Parameters()
-ptype1.add('pt1_ratioSi', value=1, min=0.7, max=1.5)  # Silicate ratio
-ptype1.add('pt1_U_Si', value=1.5, min=0.7, max=2.5)   # Silicate Half Saturation Constant
-ptype1.add('pt1_U_N', value=1.5, min=0.7, max=2.5)    # Nitrate Half Saturation Constant
-ptype1.add('pt1_muP', value=1.2, min=0.9, max=1.5)    # Phytoplankton maximum growth rate (d^-1)
+ptype1.add('pt1_ratioSi', value=0.783, vary=False)  # Silicate ratio
+ptype1.add('pt1_U_Si', value=0.7, vary=False)   # Silicate Half Saturation Constant
+ptype1.add('pt1_U_N', value=1.4, vary=False)    # Nitrate Half Saturation Constant
+ptype1.add('pt1_muP', value=1.35, vary=False)    # Phytoplankton maximum growth rate (d^-1)
 
 # set up phytoplankton type 2 (e.g. Haptos)
 ptype2 = Parameters()
 #ptype2.add('pt2_OptI', value=30, vary=False)    # Optimum irradiance (einstein*m^-2*d^-1)
-ptype2.add('pt2_U_N', value=1., min=0.7, max=1.5)    # Nitrate Half Saturation Constant
-ptype2.add('pt2_muP', value=1., min=0.5, max=1.5)    # Phytoplankton maximum growth rate (d^-1)
+ptype2.add('pt2_U_N', value=1.38, vary=False)    # Nitrate Half Saturation Constant
+ptype2.add('pt2_muP', value=0.5, vary=False)    # Phytoplankton maximum growth rate (d^-1)
 
 # set up phytoplankton type 3 (e.g. Cyanos)
 ptype3 = Parameters()
-ptype3.add('pt3_U_N', value=0.7, min=0.7, max=1.5)    # Nitrate Half Saturation Constant
-ptype3.add('pt3_muP', value=0.5, min=0.4, max=1.5)    # Phytoplankton maximum growth rate (d^-1)
+ptype3.add('pt3_U_N', value=1.44, vary=False)    # Nitrate Half Saturation Constant
+ptype3.add('pt3_muP', value=1., vary=False)    # Phytoplankton maximum growth rate (d^-1)
 
 # set up phytoplankton type 4 (e.g. Dinos)
 ptype4 = Parameters()
-ptype4.add('pt4_U_N', value=0.8, min=0.7, max=1.5)    # Nitrate Half Saturation Constant
-ptype4.add('pt4_muP', value=0.5, min=0.4, max=1.5)    # Phytoplankton maximum growth rate (d^-1)
+ptype4.add('pt4_U_N', value=1.137, vary=False)    # Nitrate Half Saturation Constant
+ptype4.add('pt4_muP', value=0.48, vary=False)    # Phytoplankton maximum growth rate (d^-1)
 
 # set up phytoplankton type 5 (e.g. Others)
 ptype5 = Parameters()
-ptype5.add('pt5_U_N', value=0.8, min=0.7, max=1.5)    # Nitrate Half Saturation Constant
-ptype5.add('pt5_muP', value=0.8, min=0.6, max=1.5)    # Phytoplankton maximum growth rate (d^-1)
+ptype5.add('pt5_U_N', value=1.1, vary=False)    # Nitrate Half Saturation Constant
+ptype5.add('pt5_muP', value=0.87, vary=False)    # Phytoplankton maximum growth rate (d^-1)
 
 # z - related
 #z grazing related
-standardparams.add('moZ', value=0.1, min=0.01, max=0.1)        # Zooplankton mortality (d^-1)
+standardparams.add('moZ', value=0.01, vary=False)        # Zooplankton mortality (d^-1)
 standardparams.add('deltaZ', value=0.75, vary=False)    # Zooplankton Grazing assimilation coefficient (-)
 standardparams.add('deltaLambda', value=0.75, vary=False)    # Zooplankton Inter-Grazing assimilation coefficient (-)
-standardparams.add('muIntGraze', value=0.01, min=0.01, max=0.2)  # InterZooGrazing maximum grazing rate
-standardparams.add('kIntGraze', value=1., min=0.1, max=2.0)  # InterZooGrazing saturation constant
+standardparams.add('muIntGraze', value=0.074, vary=False)  # InterZooGrazing maximum grazing rate
+standardparams.add('kIntGraze', value=1.66, vary=False)  # InterZooGrazing saturation constant
 
 standardparams.add('Kp', value=0, vary=False)     # Zooplankton Grazing saturation constant (-)
 standardparams.add('pred', value=0, vary=False)  # quadratic higher order predation rate on zooplankton
@@ -90,16 +91,16 @@ standardparams.add('muZ', value=0, vary=False)    # Zooplankton maximum grazing 
 
 # set up zooplankton type 1 (e.g. MIKRO zooplankton)
 ztype1 = Parameters()
-ztype1.add('zt1_muZ', value=0.3, min=0.1, max=0.5)    # Zooplankton maximum grazing rate (d^-1)
+ztype1.add('zt1_muZ', value=0.44, vary=False)    # Zooplankton maximum grazing rate (d^-1)
 
-ztype1.add('zt1_Kp', value=.5, min=0.1, max=1.5)       # Zooplankton Grazing saturation constant (-)
+ztype1.add('zt1_Kp', value=1.15, vary=False)       # Zooplankton Grazing saturation constant (-)
 ztype1.add('zt1_pred', value=0.01, vary=False)    # quadratic higher order predation rate on zooplankton
 
 # set up zooplankton type 2 (e.g. MESO zooplankton)
 ztype2 = Parameters()
-ztype2.add('zt2_muZ', value=0.315, min=0.1, max=1.5)    # Zooplankton maximum grazing rate (d^-1)
+ztype2.add('zt2_muZ', value=0.85, vary=False)    # Zooplankton maximum grazing rate (d^-1)
 
-ztype2.add('zt2_Kp', value=.5, min=0.1, max=1.5)       # Zooplankton Grazing saturation constant (-)
+ztype2.add('zt2_Kp', value=.22, vary=False)       # Zooplankton Grazing saturation constant (-)
 ztype2.add('zt2_pred', value=0.01, vary=False)    # quadratic higher order predation rate on zooplankton
 
 """
@@ -399,8 +400,7 @@ print(result.residual)
 
 
 # save fit report to a file:
-with open('fit_result_03.txt', 'w') as fh:
-    fh.write(result.fit_report())
+#save_modelresult(result, 'modeloutput1')
 
 """
 

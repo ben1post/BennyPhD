@@ -8,11 +8,18 @@ from matplotlib.gridspec import GridSpec
 from scipy.integrate import odeint
 import time
 import pandas
+import lmfit
 
 # Fitting
 from lmfit import minimize, Parameters, Parameter, report_fit
 
-from PhDPropPlots.runModel_BioticEnvMixing import outarray, timedays_model #, out5P2Zconstant, out5P2Z, out5P2Z_2
+from PhDPropPlots.runModel_BioticEnvMixing import outarray, timedays_model , result#, out5P2Zconstant, out5P2Z, out5P2Z_2
+
+
+
+# save fit report to a file:
+print(type(result.params))
+
 
 
 out5P2Z_3 = outarray
