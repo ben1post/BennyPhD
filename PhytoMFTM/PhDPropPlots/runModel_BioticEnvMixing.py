@@ -29,8 +29,8 @@ standardparams = Parameters()
 # standardparams.add('zoo_num', value=2, vary=False)
 
 # mld - related
-standardparams.add('kappa', value=0.1, min=0.01,max=0.15) # vary=False) # min=0.09, max=0.11) # Diffusive mixing across thermocline (m*d^-1)
-standardparams.add('deltaD_N', value=0.0116, min=0.01,max=0.1)   # Nitrate Remineralization rate (d^-1)
+standardparams.add('kappa', value=0.15, vary=False) # vary=False) # min=0.09, max=0.11) # Diffusive mixing across thermocline (m*d^-1)
+standardparams.add('deltaD_N', value=0.2, vary=False)   # Nitrate Remineralization rate (d^-1)
 
 standardparams.add('kw', value=0.04, vary=False)     # Light attenuation constant of water (m^-1)
 
@@ -42,7 +42,7 @@ standardparams.add('v', value=0., vary=False)      # Sinking of Phytoplankton fr
 standardparams.add('OptI', value=30, vary=False)    # Optimum irradiance (einstein*m^-2*d^-1)
 
 # p - related
-standardparams.add('moP', value=0.114, min=0.05,max=0.1)    # Phytoplankton mortality (d^-1)
+standardparams.add('moP', value=0.1, vary=False)    # Phytoplankton mortality (d^-1)
 
 standardparams.add('ratioSi', value=0, vary=False)  # Silicate ratio ## FALLBACK PARAM FOR OTHER PFTs
 standardparams.add('U_N', value=0, vary=False)    # Nitrate Half Saturation Constant
@@ -52,38 +52,38 @@ standardparams.add('muP', value=0, vary=False)    # Phytoplankton maximum growth
 # set up phytoplankton type 1 (e.g. DIATOMS)
 ptype1 = Parameters()
 ptype1.add('pt1_ratioSi', value=1., vary=False)  # Silicate ratio
-ptype1.add('pt1_U_Si', value=0.7, vary=False)   # Silicate Half Saturation Constant
-ptype1.add('pt1_U_N', value=1.4, min=0.5,max=2.15)    # Nitrate Half Saturation Constant
-ptype1.add('pt1_muP', value=1.35, min=1., max=1.5)    # Phytoplankton maximum growth rate (d^-1)
+ptype1.add('pt1_U_Si', value=0.5, vary=False)   # Silicate Half Saturation Constant
+ptype1.add('pt1_U_N', value=0.9, vary=False)    # Nitrate Half Saturation Constant
+ptype1.add('pt1_muP', value=1.074, vary=False)    # Phytoplankton maximum growth rate (d^-1)
 
 # set up phytoplankton type 2 (e.g. Haptos)
 ptype2 = Parameters()
 #ptype2.add('pt2_OptI', value=30, vary=False)    # Optimum irradiance (einstein*m^-2*d^-1)
-ptype2.add('pt2_U_N', value=1.38, vary=False)    # Nitrate Half Saturation Constant
-ptype2.add('pt2_muP', value=0.5, vary=False)    # Phytoplankton maximum growth rate (d^-1)
+ptype2.add('pt2_U_N', value=1.5, vary=False)    # Nitrate Half Saturation Constant
+ptype2.add('pt2_muP', value=0.51, vary=False)    # Phytoplankton maximum growth rate (d^-1)
 
 # set up phytoplankton type 3 (e.g. Cyanos)
 ptype3 = Parameters()
-ptype3.add('pt3_U_N', value=1.44, vary=False)    # Nitrate Half Saturation Constant
-ptype3.add('pt3_muP', value=1., vary=False)    # Phytoplankton maximum growth rate (d^-1)
+ptype3.add('pt3_U_N', value=2.5, vary=False)    # Nitrate Half Saturation Constant
+ptype3.add('pt3_muP', value=.4, vary=False)    # Phytoplankton maximum growth rate (d^-1)
 
 # set up phytoplankton type 4 (e.g. Dinos)
 ptype4 = Parameters()
-ptype4.add('pt4_U_N', value=1.137, vary=False)    # Nitrate Half Saturation Constant
-ptype4.add('pt4_muP', value=0.48, vary=False)    # Phytoplankton maximum growth rate (d^-1)
+ptype4.add('pt4_U_N', value=1.5, vary=False)    # Nitrate Half Saturation Constant
+ptype4.add('pt4_muP', value=0.3, vary=False)    # Phytoplankton maximum growth rate (d^-1)
 
 # set up phytoplankton type 5 (e.g. Others)
 ptype5 = Parameters()
-ptype5.add('pt5_U_N', value=1.1, vary=False)    # Nitrate Half Saturation Constant
-ptype5.add('pt5_muP', value=0.87, vary=False)    # Phytoplankton maximum growth rate (d^-1)
+ptype5.add('pt5_U_N', value=1.84, vary=False)    # Nitrate Half Saturation Constant
+ptype5.add('pt5_muP', value=0.51, vary=False)    # Phytoplankton maximum growth rate (d^-1)
 
 # z - related
 #z grazing related
-standardparams.add('moZ', value=0.01, min=0.01, max=0.1)        # Zooplankton mortality (d^-1)
+standardparams.add('moZ', value=0.07, vary=False)        # Zooplankton mortality (d^-1)
 standardparams.add('deltaZ', value=0.75, vary=False)    # Zooplankton Grazing assimilation coefficient (-)
 standardparams.add('deltaLambda', value=0.75, vary=False)    # Zooplankton Inter-Grazing assimilation coefficient (-)
-standardparams.add('muIntGraze', value=0.074, min=0.001, max=0.1)  # InterZooGrazing maximum grazing rate
-standardparams.add('kIntGraze', value=1.66, min=1., max=2.)  # InterZooGrazing saturation constant
+standardparams.add('muIntGraze', value=0.1, vary=False)  # InterZooGrazing maximum grazing rate
+standardparams.add('kIntGraze', value=0.5, vary=False)  # InterZooGrazing saturation constant
 
 standardparams.add('Kp', value=0, vary=False)     # Zooplankton Grazing saturation constant (-)
 standardparams.add('pred', value=0, vary=False)  # quadratic higher order predation rate on zooplankton
@@ -91,17 +91,17 @@ standardparams.add('muZ', value=0, vary=False)    # Zooplankton maximum grazing 
 
 # set up zooplankton type 1 (e.g. MIKRO zooplankton)
 ztype1 = Parameters()
-ztype1.add('zt1_muZ', value=0.44, min=0.1, max=1.)    # Zooplankton maximum grazing rate (d^-1)
+ztype1.add('zt1_muZ', value=0.5, min=.2, max=1.5)    # Zooplankton maximum grazing rate (d^-1)
 
-ztype1.add('zt1_Kp', value=1.15, min=1., max=1.5)       # Zooplankton Grazing saturation constant (-)
-ztype1.add('zt1_pred', value=0.01, min=0.001, max=0.1)    # quadratic higher order predation rate on zooplankton
+ztype1.add('zt1_Kp', value=1., min=.2, max=1.5)       # Zooplankton Grazing saturation constant (-)
+ztype1.add('zt1_pred', value=0.06, min=.001, max=0.2)    # quadratic higher order predation rate on zooplankton
 
 # set up zooplankton type 2 (e.g. MESO zooplankton)
 ztype2 = Parameters()
-ztype2.add('zt2_muZ', value=0.85, min=0.1, max=1.)    # Zooplankton maximum grazing rate (d^-1)
+ztype2.add('zt2_muZ', value=0.5, min=.2, max=1.5)    # Zooplankton maximum grazing rate (d^-1)
 
-ztype2.add('zt2_Kp', value=.22, min=0.1, max=1.)       # Zooplankton Grazing saturation constant (-)
-ztype2.add('zt2_pred', value=0.01, min=0.001, max=0.1)    # quadratic higher order predation rate on zooplankton
+ztype2.add('zt2_Kp', value=1.3, min=.2, max=1.5)       # Zooplankton Grazing saturation constant (-)
+ztype2.add('zt2_pred', value=ztype1['zt1_pred'].value, vary=False)    # quadratic higher order predation rate on zooplankton
 
 """
 add feeding pref params!
@@ -263,8 +263,6 @@ standardparams.add('zoo_num', value=2, vary=False)
 all_params = (standardparams + ptype1 + ptype2 + ptype3 + ptype4 + ptype5 + ztype1 + ztype2)
 initialcond = setupinitcond(5, 2)
 
-z = Plankton(all_params, 'Zooplankton').init()
-p = Plankton(all_params, 'Phytoplankton').init()
 fx = Forcing('constantMLD')
 
 
@@ -327,6 +325,8 @@ def g(x0, t, params):
     """
     small wrapper function for parameter fitting
     """
+    z = Plankton(params, 'Zooplankton').init()
+    p = Plankton(params, 'Phytoplankton').init()
     tos = time.time()
     print('starting integration')
     outarray = odeint(mc.phytomftm_extendedoutput_forcing, x0, t,
@@ -378,17 +378,15 @@ def residual(paras):
     Z2_resid = (MikroZ - Zoo500BM_int['Value'].values * mgDWtomuMolarZOO)
 
 
-    #ss = np.concatenate((N_resid, Si_resid,De_resid, P1_resid,P2_resid,P3_resid,P4_resid,P5_resid, Z1_resid,Z2_resid))
+    ss = np.concatenate((N_resid, Si_resid,De_resid, P1_resid,P2_resid,P3_resid,P4_resid,P5_resid, Z1_resid,Z2_resid))
 
-    ss = np.concatenate((N_resid*3, Si_resid, De_resid,
-                         P1_resid, P2_resid, P3_resid, P4_resid, P5_resid,
-                         Z1_resid*3, Z2_resid*3))
+    #ss = np.concatenate((P1_resid, P2_resid, P3_resid, P4_resid, P5_resid))
+    print(sum(ss))
     return ss
 
-
-
+"""
 # fit model
-result = minimize(residual, all_params, args=(), method='differential_evolution')  # leastsq nelder
+result = minimize(residual, all_params, args=(), method='leastsq')  # leastsq nelder differential_evolution
 
 
 # check results of the fit
@@ -409,4 +407,5 @@ print(result.residual)
 # out5P2Z_2 = callmodelrun(5,2,'varMLDconstNuts')
 
 outarray = callmodelrun(5,2,'constantMLD')
-"""
+result = 0
+

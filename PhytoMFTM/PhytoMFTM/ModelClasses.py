@@ -185,17 +185,17 @@ class PhytoType:
         self.pfn = stdpars['pfun_num']
         self.zn = stdpars['zoo_num']
 
-        print('PHYTO',self.pfn, self.zn)
+        # print('PHYTO',self.pfn, self.zn)
 
         self.kc = checkreplaceparam(stdpars, slicedpars, 'kc')
         self.alpha = checkreplaceparam(stdpars, slicedpars, 'alpha')
         self.VpMax = checkreplaceparam(stdpars, slicedpars, 'VpMax')
 
         self.zoolist = ['Z'+str(j+1) for j in range(self.zn)]
-        print(self.zoolist)
+        # print(self.zoolist)
         self.grazepref = [checkreplaceparam(stdpars, slicedpars, string) for string in self.zoolist]
 
-        print('grazepref', self.grazepref)
+        # print('grazepref', self.grazepref)
 
 
     def n_uptake(self, Nitrate):
@@ -286,7 +286,7 @@ class ZooType:
 
         self.pfn = stdpars['pfun_num']
         self.zn = stdpars['zoo_num']
-        print('ZOO', self.pfn,self.zn)
+        # print('ZOO', self.pfn,self.zn)
 
         self.beta = 2 # for Vallina KTW Grazing, beta = 1 : Holling Type II, beta = 2 : Holling Type III
         self.ksat = self.Kp
@@ -294,13 +294,13 @@ class ZooType:
         self.phylist = ['P' + str(i + 1) for i in range(self.pfn)]
         self.zoointlistfeed = ['Zint_feed' + str(j + 1) for j in range(self.zn)] # list of feeding
         self.zoointlistgrazed = ['Zint_grazed' + str(j + 1) for j in range(self.zn)]
-        print(self.phylist, self.zoointlistfeed, self.zoointlistgrazed)
+        # print(self.phylist, self.zoointlistfeed, self.zoointlistgrazed)
 
         self.feedpref = [checkreplaceparam(stdpars, slicedpars, string) for string in self.phylist]
         self.interfeedpref = [checkreplaceparam(stdpars, slicedpars, string) for string in self.zoointlistfeed]
         self.intergrazedpref = [checkreplaceparam(stdpars, slicedpars, string) for string in self.zoointlistgrazed]
 
-        print('feedpref',self.feedpref, 'intfeedpref', self.interfeedpref, 'intrgrpref', self.intergrazedpref, 'muZ', self.muZ)
+        # print('feedpref',self.feedpref, 'intfeedpref', self.interfeedpref, 'intrgrpref', self.intergrazedpref, 'muZ', self.muZ)
 
     def zoomortality(self, Z):
         # linear mortality of zooplankton, quadratic loss via higher order pred (below)

@@ -18,7 +18,8 @@ from PhDPropPlots.runModel_BioticEnvMixing import outarray, timedays_model , res
 
 
 # save fit report to a file:
-print(type(result.params))
+#print(type(result.params))
+#print(result.residual.tolist())
 
 
 
@@ -107,6 +108,13 @@ def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
     f1, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 2, sharex='col')
     # N / Si / Pdt / Pc / Pdn / Pn / Zmu / Zlambda / D
     # PLOTTING
+
+    plt.setp((ax1, ax2, ax3, ax4, ax5), xticks=[1,60,120,180,240,300,360])
+    from matplotlib.ticker import MaxNLocator
+    for axe in (ax1, ax2, ax3, ax4, ax5):
+        for i in range(2):
+            axe[i].get_yaxis().set_major_locator(MaxNLocator(nbins=4))
+
     timedays = timedays_model[1:366]
     # truncate outarraySiNO to last year of 5:
     outarray_ly = outarray[1460:1825]
@@ -142,7 +150,7 @@ def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
     # N Data
     ax1[1].scatter(NO3NO2['yday'].values, NO3NO2['Value'].values, c="Ni", s=4.3, label='Data')
     ax1[1].set_ylabel('Nitrate \n' '[µM]', multialignment='center', fontsize=10)
-
+    ax1[1].set_ylim(0, 10)
     # Si
     ax2[1].plot(timedays, outarray_ly[:, 1], c="Si", lw=lws[0], alpha=alphas[0])
     # Si Data
@@ -187,9 +195,9 @@ def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
     ax4[1].scatter(Zoo500BM['yday'].values, Zoo500BM['Value'].values * mgDWtomuMolarZOO, c="MesoZ", s=4.3)
 
     ax3[1].set_ylabel('Mikro Z \n' '[µM N]', multialignment='center', fontsize=9)
-
+    ax3[1].set_ylim(0,2)
     ax4[1].set_ylabel('Meso Z \n' '[µM N]', multialignment='center', fontsize=9)
-
+    ax4[1].set_ylim(0, 2)
     ax2[1].tick_params('y', labelsize=10)
 
     # D
@@ -197,7 +205,7 @@ def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
     ax5[1].set_ylabel('Detritus \n' '[µM N]', multialignment='center', fontsize=9)
     #ax51_tx = ax5[1].twinx()
     ax5[1].scatter(PN['yday'].values, PN['Value'].values * mugperlitertomuMolarPN, c="De", s=4.3)
-
+    ax5[1].set_ylim(0,5)
     # ax5[i_plot].set_title('Detritus')
     # ax5[i_plot].set_ylim(0,0.15)
     ax1[1].yaxis.set_label_position('right')
