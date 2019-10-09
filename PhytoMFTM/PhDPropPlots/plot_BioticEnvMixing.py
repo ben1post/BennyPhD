@@ -105,14 +105,16 @@ mcolors.get_named_colors_mapping().update(c)
 
 
 def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
-    f1, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 2, sharex='col')
+    numplots = 4
+
+    f1, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, numplots, sharex='col', gridspec_kw={'width_ratios':[1, .5, 1, .5]})
     # N / Si / Pdt / Pc / Pdn / Pn / Zmu / Zlambda / D
     # PLOTTING
 
     plt.setp((ax1, ax2, ax3, ax4, ax5), xticks=[1,60,120,180,240,300,360])
     from matplotlib.ticker import MaxNLocator
     for axe in (ax1, ax2, ax3, ax4, ax5):
-        for i in range(2):
+        for i in range(numplots):
             axe[i].get_yaxis().set_major_locator(MaxNLocator(nbins=4))
 
     timedays = timedays_model[1:366]
@@ -145,23 +147,14 @@ def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
     FullArtist = plt.Line2D((0, 1), (0, 0), c=colors[4], alpha=alphas[1], lw=lws[0])
 
     # Figure 1
-    # N
-    ax1[1].plot(timedays, outarray_ly[:, 0], c="Ni", lw=lws[0], alpha=alphas[0], label='Model')
-    # N Data
-    ax1[1].scatter(NO3NO2['yday'].values, NO3NO2['Value'].values, c="Ni", s=4.3, label='Data')
-    ax1[1].set_ylabel('Nitrate \n' '[µM]', multialignment='center', fontsize=10)
-    ax1[1].set_ylim(0, 10)
-    # Si
-    ax2[1].plot(timedays, outarray_ly[:, 1], c="Si", lw=lws[0], alpha=alphas[0])
-    # Si Data
-    ax2[1].scatter(SiOH['yday'].values, SiOH['Value'].values, c="Si", s=4.3)
-
-    ax2[1].set_ylabel('Silicate \n' '[µM]', multialignment='center', fontsize=10)
 
     ax1[0].plot(timedays, outarray_ly[:, 3 + zn + 0] * muMolartoChlaconvfactor, c="Phyto")
     ax1[0].set_ylabel('Diatoms \n' '[mg Chl m$^{-2}$]', multialignment='center', fontsize=9)
-    #ax1_tx = ax1[0].twinx()
+    # ax1_tx = ax1[0].twinx()
     ax1[0].scatter(DIATOM['yday'].values, DIATOM['Value'].values, c="Phyto", s=4.3)
+
+    #    ([DIATOM['Value'].values, outarray_ly[:, 3 + zn + 0] * muMolartoChlaconvfactor], widths=0.7, labels=['Data', 'Model'])
+
     # 2. pmol per cell [Marchetti and Harrison 2007]
     # values of abundance are organisms per ml
     # to convert pmol per cell per ml to µM = * abundance / 1000
@@ -186,49 +179,118 @@ def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
     #ax5_tx = ax5[0].twinx()
     ax5[0].scatter(OTHERS['yday'].values, OTHERS['Value'].values, c="Phyto", s=4.3)
 
+    ## BOXPLoT COLUMN 1
+    boxplotdata_diatom = [DIATOM['Value'].values, outarray_ly[:, 3 + zn + 0] * muMolartoChlaconvfactor]
+    ax1[1].boxplot(boxplotdata_diatom, widths=0.7)
+
+    boxplotdata_hapto = [HAPTO['Value'].values, outarray_ly[:, 3 + zn + 1] * muMolartoChlaconvfactor]
+    ax2[1].boxplot(boxplotdata_hapto, widths=0.7)
+
+    boxplotdata_cyano = [CYANO['Value'].values, outarray_ly[:, 3 + zn + 2] * muMolartoChlaconvfactor]
+    ax3[1].boxplot(boxplotdata_cyano, widths=0.7)
+
+    boxplotdata_dino = [DINO['Value'].values, outarray_ly[:, 3 + zn + 3] * muMolartoChlaconvfactor]
+    ax4[1].boxplot(boxplotdata_dino, widths=0.7)
+
+    boxplotdata_others = [OTHERS['Value'].values, outarray_ly[:, 3 + zn + 4] * muMolartoChlaconvfactor]
+    ax5[1].boxplot(boxplotdata_others, widths=0.7)
+
+    #Boxplot labels column 1:
+    ax5[1].set_xticks([1, 2])
+    ax5[1].set_xticklabels(['Data','Model'])
+
+
+    # N
+    ax1[2].plot(timedays, outarray_ly[:, 0], c="Ni", lw=lws[0], alpha=alphas[0], label='Model')
+    # N Data
+    ax1[2].scatter(NO3NO2['yday'].values, NO3NO2['Value'].values, c="Ni", s=4.3, label='Data')
+    ax1[2].set_ylabel('Nitrate \n' '[µM]', multialignment='center', fontsize=10)
+    ax1[2].set_ylim(0, 10)
+    ax1[3].set_ylim(0, 10)
+    # Si
+    ax2[2].plot(timedays, outarray_ly[:, 1], c="Si", lw=lws[0], alpha=alphas[0])
+    # Si Data
+    ax2[2].scatter(SiOH['yday'].values, SiOH['Value'].values, c="Si", s=4.3)
+
+    ax2[2].set_ylabel('Silicate \n' '[µM]', multialignment='center', fontsize=10)
 
     i=3
-    ax3[1].plot(timedays, outarray_ly[:, 3 + 0], c="MikroZ", lw=lws[0], alpha=alphas[0])
-    ax3[1].scatter(Zoo200BM['yday'].values, Zoo200BM['Value'].values * mgDWtomuMolarZOO, c="MikroZ", s=4.3)
+    ax3[2].plot(timedays, outarray_ly[:, 3 + 0], c="MikroZ", lw=lws[0], alpha=alphas[0])
+    ax3[2].scatter(Zoo200BM['yday'].values, Zoo200BM['Value'].values * mgDWtomuMolarZOO, c="MikroZ", s=4.3)
 
-    ax4[1].plot(timedays, outarray_ly[:, 3 + 1], c="MesoZ", lw=lws[0], alpha=alphas[0])
-    ax4[1].scatter(Zoo500BM['yday'].values, Zoo500BM['Value'].values * mgDWtomuMolarZOO, c="MesoZ", s=4.3)
+    ax4[2].plot(timedays, outarray_ly[:, 3 + 1], c="MesoZ", lw=lws[0], alpha=alphas[0])
+    ax4[2].scatter(Zoo500BM['yday'].values, Zoo500BM['Value'].values * mgDWtomuMolarZOO, c="MesoZ", s=4.3)
 
-    ax3[1].set_ylabel('Mikro Z \n' '[µM N]', multialignment='center', fontsize=9)
-    ax3[1].set_ylim(0,2)
-    ax4[1].set_ylabel('Meso Z \n' '[µM N]', multialignment='center', fontsize=9)
-    ax4[1].set_ylim(0, 2)
-    ax2[1].tick_params('y', labelsize=10)
+    ax3[2].set_ylabel('Micro Z \n' '[µM N]', multialignment='center', fontsize=9)
+    ax3[2].set_ylim(0,2)
+    ax3[3].set_ylim(0,2)
+
+    ax4[2].set_ylabel('Meso Z \n' '[µM N]', multialignment='center', fontsize=9)
+    ax4[2].set_ylim(0, 2)
+    ax4[3].set_ylim(0, 2)
+    ax2[2].tick_params('y', labelsize=10)
 
     # D
-    ax5[1].plot(timedays, outarray_ly[:, 2], c="De", lw=lws[0], alpha=alphas[0])
-    ax5[1].set_ylabel('Detritus \n' '[µM N]', multialignment='center', fontsize=9)
+    ax5[2].plot(timedays, outarray_ly[:, 2], c="De", lw=lws[0], alpha=alphas[0])
+    ax5[2].set_ylabel('Detritus \n' '[µM N]', multialignment='center', fontsize=9)
     #ax51_tx = ax5[1].twinx()
-    ax5[1].scatter(PN['yday'].values, PN['Value'].values * mugperlitertomuMolarPN, c="De", s=4.3)
-    ax5[1].set_ylim(0,5)
+    ax5[2].scatter(PN['yday'].values, PN['Value'].values * mugperlitertomuMolarPN, c="De", s=4.3)
+    ax5[2].set_ylim(0,5)
+    ax5[3].set_ylim(0,5)
     # ax5[i_plot].set_title('Detritus')
     # ax5[i_plot].set_ylim(0,0.15)
-    ax1[1].yaxis.set_label_position('right')
-    ax1[1].yaxis.tick_right()
-    ax2[1].yaxis.set_label_position('right')
-    ax2[1].yaxis.tick_right()
-    ax3[1].yaxis.set_label_position('right')
-    ax3[1].yaxis.tick_right()
-    ax4[1].yaxis.set_label_position('right')
-    ax4[1].yaxis.tick_right()
-    ax5[1].yaxis.set_label_position('right')
-    ax5[1].yaxis.tick_right()
+
+
+    ## BOXPLoT COLUMN 2
+
+    boxplotdata_nitrate = [NO3NO2['Value'].values[~np.isnan(NO3NO2['Value'].values)], outarray_ly[:, 0]]
+    ax1[3].boxplot(boxplotdata_nitrate, widths=0.7)
+
+    boxplotdata_silicate = [SiOH['Value'].values[~np.isnan(SiOH['Value'].values)], outarray_ly[:, 1]]
+    ax2[3].boxplot(boxplotdata_silicate, widths=0.7)
+
+    boxplotdata_microz = [Zoo200BM['Value'].values * mgDWtomuMolarZOO, outarray_ly[:, 3 + 0]]
+    ax3[3].boxplot(boxplotdata_microz, widths=0.7)
+
+    boxplotdata_mesoz = [Zoo500BM['Value'].values * mgDWtomuMolarZOO, outarray_ly[:, 3 + 1]]
+    ax4[3].boxplot(boxplotdata_mesoz, widths=0.7)
+
+    boxplotdata_detritus = [PN['Value'].values * mugperlitertomuMolarPN, outarray_ly[:, 2]]
+    ax5[3].boxplot(boxplotdata_detritus, widths=0.7)
+
+    #Boxplot labels column 2:
+    ax5[3].set_xticks([1, 2])
+    ax5[3].set_xticklabels(['Data','Model'])
+
+
+
+    """ax1[2].yaxis.set_label_position('right')
+    ax1[2].yaxis.tick_right()
+    ax2[2].yaxis.set_label_position('right')
+    ax2[2].yaxis.tick_right()
+    ax3[2].yaxis.set_label_position('right')
+    ax3[2].yaxis.tick_right()
+    ax4[2].yaxis.set_label_position('right')
+    ax4[2].yaxis.tick_right()
+    ax5[2].yaxis.set_label_position('right')
+    ax5[2].yaxis.tick_right()
+    """
+    for axe in (ax1, ax2, ax3, ax4, ax5):
+        for i in [1,3]:
+            axe[i].yaxis.set_major_formatter(plt.NullFormatter())
 
     #plt.yticks(np.arange(0, 3, .1))
 
     ax5[0].set_xlabel('Day in year')
-    ax5[1].set_xlabel('Day in year')
+    ax5[2].set_xlabel('Day in year')
+
+
     # Legend
     f1.align_ylabels()
     #f1.delaxes(ax = ax1[0])
     #plt.margins(x=0)
     #adjustFigAspect(fig, aspect=.5)
-    plt.tight_layout()
+    #plt.tight_layout()
     #plt.savefig('FirstNaiveOutputCARIACO.png')
 
 

@@ -1,11 +1,11 @@
 \chapter{PhytoMFTM - a flexible object-oriented PFT model}
-
+% EST: Since the previous description of the system of differential equations and its associated processes (i.e. the actual the model) was particularly poor, consider here to explain in detail all the processes parameters and assumptions that goes into the model
 
 \small {\textbf{This is the work towards the second manuscript, to be submitted to Geoscientific Model Development (GMD)}}
 
 
 \normalsize
-\section{Python ecosystem model package development}
+\section{Python ecosystem model package development} % EST: unclear section title!
 The developments in computational capacities and tools have revolutionized the field of ecology. Where models were first only mathematically solved, soon they could be run on highly specialized computers until today where anybody can code or run a model on their personal computer, smartphone or even a cloud platform. This allows much greater reproducibility and makes sharing model code, results and statistical analysis much easier. Science can greatly benefit from this, even though there are many barriers to completely "Open Science". Open Science refers to transparency at all stages of the scientific process \citep{Hampton2015}.
 
 \begin{figure}
@@ -15,7 +15,8 @@ The developments in computational capacities and tools have revolutionized the f
 \label{PhytoMFTM}
 \end{figure}
 
-Given that code is easily shared, this can be well implemented in ecological modeling research. There are different attempts at unified modeling frameworks, but most researchers still use different tools depending on their experience and computational literacy \citep{Michener2012}. The development of open-source modeling packages is a step in the direction of greater reproducibility and collaboration in ecological research. The modeling community is moving towards open-source tools and in particular the programming language Python is growing in popularity \citep{Lin2012}. The idea to publicly share my model code and develop a well documented Python package to be used by other researchers was inspired by the PhytoSFDM model \citep{Acevedo-Trejos2016}. The PhytoMFTM model structure itself will allow for flexible implementations of different kinds of ecosystem models. 
+Given that code is easily shared, this can be well implemented in ecological modeling research. There are different attempts at unified modeling frameworks, but most researchers still use different tools depending on their experience and computational literacy \citep{Michener2012}. The development of open-source modeling packages is a step in the direction of greater reproducibility and collaboration in ecological research. The modeling community is moving towards open-source tools and in particular the programming language Python is growing in popularity \citep{Lin2012}. The PhytoMFTM model structure itself will allow for flexible implementations of different kinds of ecosystem models. 
+% COMPLETELY REVISE THIS SECTION, esteban did not like it..
 
 
 
@@ -24,7 +25,9 @@ Given that code is easily shared, this can be well implemented in ecological mod
 
 {\textbf{Object-oriented structure}}
 
-The model code used in the previous section was developed with flexibility in mind. The main reason for building this code was that at the start of the project, I did not know yet how many functional types will have to be implemented. Instead of manually adding a new equation, each equation is implemented as a list of equations (see Figure \ref{PhytoMFTM}). These lists contain the functions to be solved and iterate over a list of all model components. Each model class, like a phytoplankton type for example, contains the parameters assigned to it so that each individual interaction can be called upon as the equation iterates over the contained list. In theory this allows for an arbitrary number of model components, only constrained by computational costs that increase with each instantiated object. The object-oriented code allows for efficient calculation, particularly in relatively simple applications. For a model structure as used in Section 2 a five year run can be calculated in 2.5 seconds. 
+The model code used in the previous section was developed with flexibility in mind. The main reason for building this code was that at the start of the project, I did not know yet how many functional types will have to be implemented. Instead of manually adding a new equation, each equation is implemented as a list of equations (see Figure \ref{PhytoMFTM}). These lists contain the functions to be solved and iterate over a list of all model components. 
+% EST: what is a model component?
+Each model class, like a phytoplankton type for example, contains the parameters assigned to it so that each individual interaction can be called upon as the equation iterates over the contained list. In theory this allows for an arbitrary number of model components, only constrained by computational costs that increase with each instantiated object. The object-oriented code allows for efficient calculation, particularly in relatively simple applications. For a model structure as used in Section 2 a five year run can be calculated in 2.5 seconds. 
 
 
 
