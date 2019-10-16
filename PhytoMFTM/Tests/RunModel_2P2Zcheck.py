@@ -103,6 +103,7 @@ ztype2.add('zt2_muZ', value=0.05, vary=False)    # Zooplankton maximum grazing r
 
 all_params = (standardparams)
 
+fx =
 
 def setupinitcond(pfn,zn):
     # initialize parameters:

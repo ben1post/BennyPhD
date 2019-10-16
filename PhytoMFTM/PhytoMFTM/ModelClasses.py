@@ -138,6 +138,22 @@ class Forcing:
             self.PAR = IndForcing('PAR', 'Forcing/constantMLD/PAR_R1.csv', k=5, s=None, kind="spline", forctype=forcingtype)
             self.type = 'box'
 
+        elif forcingtype == 'flowthrough':
+            self.MLD = IndForcing('MLD', 'Forcing/MLDdriven/MLD2015_R1.csv', k=5, s=100, kind="spline", forctype=forcingtype)
+            self.NOX = IndForcing('NO2NO3', 'Forcing/constantMLD/NO2NO3_R1.csv', k=5, s=None, kind="PWPoly", forctype=forcingtype)
+            self.SiOX = IndForcing('SiOH', 'Forcing/constantMLD/SiOH_R1.csv', k=5, s=None, kind="PWPoly", forctype=forcingtype)
+            self.SST = IndForcing('SST', 'Forcing/MLDdriven/SST_R1.csv', k=5, s=None, kind="spline", forctype=forcingtype)
+            self.PAR = IndForcing('PAR', 'Forcing/MLDdriven/PAR_R1.csv', k=5, s=None, kind="spline", forctype=forcingtype)
+            self.type = 'flowthrough'
+
+        elif forcingtype == 'batch':
+            self.MLD = IndForcing('MLD', 'Forcing/MLDdriven/MLD2015_R1.csv', k=5, s=100, kind="spline", forctype=forcingtype)
+            self.NOX = IndForcing('NO2NO3', 'Forcing/constantMLD/NO2NO3_R1.csv', k=5, s=None, kind="PWPoly", forctype=forcingtype)
+            self.SiOX = IndForcing('SiOH', 'Forcing/constantMLD/SiOH_R1.csv', k=5, s=None, kind="PWPoly", forctype=forcingtype)
+            self.SST = IndForcing('SST', 'Forcing/MLDdriven/SST_R1.csv', k=5, s=None, kind="spline", forctype=forcingtype)
+            self.PAR = IndForcing('PAR', 'Forcing/MLDdriven/PAR_R1.csv', k=5, s=None, kind="spline", forctype=forcingtype)
+            self.type = 'batch'
+
         else:
             raise('wrong forcingtype passed to Forcing class')
 
