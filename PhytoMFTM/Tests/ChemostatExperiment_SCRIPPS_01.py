@@ -58,14 +58,6 @@ standardparams.add('pred', value=0, vary=False)  # quadratic higher order predat
 standardparams.add('muZ', value=0, vary=False)    # Zooplankton maximum grazing rate (d^-1)
 
 
-# set up phytoplankton type 1 (e.g. DIATOMS)
-ptype1 = Parameters()
-ptype1.add('pt1_ratioSi', value=0, vary=False)  # Silicate ratio
-ptype1.add('pt1_U_Si', value=0, vary=False)   # Silicate Half Saturation Constant
-ptype1.add('pt1_U_N', value=1.5, vary=False)    # Nitrate Half Saturation Constant
-ptype1.add('pt1_muP', value=0.3, vary=False)    # Phytoplankton maximum growth rate (d^-1)
-
-
 # set up zooplankton type 1 (e.g. MIKRO zooplankton)
 ztype1 = Parameters()
 ztype1.add('zt1_muZ', value=0.5, min=.2, max=1.5)    # Zooplankton maximum grazing rate (d^-1)
@@ -81,6 +73,9 @@ Z1P2
 Z2P1
 Z2P2
 """
+'''''PARAM GENERATOR'''
+# here!
+
 
 
 # set up model conditions and parameter dict
@@ -122,33 +117,47 @@ def callmodelrun(pfn,zn):
     standardparams.add('pfun_num', value=pfn, vary=False)
     # number of zooplankton groups
     standardparams.add('zoo_num', value=zn, vary=False)
-    """
-    if pfn == 2 and zn == 2:
-         print('3P2Z')
-         all_params = (standardparams + ztype1 + ztype2)
-    elif pfn == 3 and zn == 2:
-         print('2P2Z')
-         all_params = (standardparams + ztype1 + ztype2)
-    elif pfn == 4 and zn == 1:
-         print('2P1Z')
-         all_params = (standardparams )
-    elif pfn == 1 and zn == 1:
-         print('1P1Z')
-         all_params = (standardparams)
-    else:
-        print('just standard params')
-        all_params = (standardparams)
-    """
-
-    standardparams.add('P1', value=1, vary=False)  # Phytoplankton maximum growth rate (d^-1)
 
     standardparams.add('Zint_feed1', value=0, vary=False)  # Phytoplankton maximum growth rate (d^-1)
-
     standardparams.add('Zint_grazed1', value=0, vary=False)
-
     standardparams.add('Z1', value=1, vary=False)
 
-    all_params = (standardparams + ptype1 + ztype1 )
+    # uptake * growth = constant
+    # 1. give mean value for both
+    # 2. generate ranges
+    mean_U_N = 1
+    range_U_N = 0.5
+
+    if pfn == 1:
+        uptakeRange = mean_U_N
+
+        growthRange = 1 / uptakeRange
+
+        ptype = Parameters()
+
+        ptype.add('pt1_U_N', value=uptakeRange, vary=False)
+        ptype.add('pt1_muP', value=growthRange, vary=False)
+        ptype.add('P1', value=1, vary=False)
+
+        all_params = standardparams + ztype1 + ptype
+
+    else:
+        uptakeRange = np.linspace(mean_U_N - range_U_N, mean_U_N + range_U_N, pfn)
+
+        growthRange = 1 / uptakeRange
+
+        ptype = Parameters()
+        for n in range(pfn):
+            ptype.add('pt' + str(n + 1) + '_U_N', value=uptakeRange[n], vary=False)  # uptake affinity
+            ptype.add('pt' + str(n + 1) + '_muP', value=growthRange[n], vary=False)  # growth rate
+            ptype.add('P' + str(n + 1), value=1 / pfn, vary=False)  # edibility
+
+        print(ptype)
+        all_params = standardparams + ztype1 + ptype
+
+
+
+
 
     parameters = all_params
     initialcond = setupinitcond(pfn,zn)
@@ -160,13 +169,13 @@ def callmodelrun(pfn,zn):
 def plotoutput(outarray, pfn, zn, i_plot, title):
 
     # PLOTTING
-    timedays = timedays_model#[1:120]#[1:366]
+    timedays = timedays_model[1:120]#[1:366]
     # truncate outarraySiNO to last year of 5:
-    outarray_ly = outarray#[1:120]#[1460:1825]
+    outarray_ly = outarray[1:120]#[1460:1825]
 
     # color vectors
     #colors = ['#edc951', '#dddddd', '#00a0b0', '#343436', '#cc2a36']
-    colors = ['#808080','#d55e00', '#cc79a7', '#0072b2', '#009e73', '#009e73']
+    colors = ['#808080','#d55e00', '#cc79a7', '#0072b2', '#009e73', '#009e73','#808080','#d55e00', '#cc79a7', '#0072b2', '#009e73', '#009e73','#808080','#d55e00', '#cc79a7', '#0072b2', '#009e73', '#009e73']
     alphas = [1., 0.8, 0.6, 0.4]
     lws = [1, 2.5, 4, 5.5]
 
@@ -231,13 +240,15 @@ fx = Forcing('flowthrough')
 
 out1P1Z = callmodelrun(1, 1)
 out5P1Z = callmodelrun(5, 1)
-out10P1Z = callmodelrun(10, 1)
+out15P1Z = callmodelrun(15, 1)
 
 
-f1, (ax1, ax3, ax4, ax5) = plt.subplots(4, 2, sharex='col', sharey='row') # ax2 removed for single nut plots
+f1, (ax1, ax3, ax4, ax5) = plt.subplots(4, 3, sharex='col', sharey='row') # ax2 removed for single nut plots
 #plt.subplots_adjust(hspace=0.01)
 
 plotoutput(out1P1Z,1,1,0, '1P1Z')
 
 plotoutput(out5P1Z,5,1,1, '5P1Z')
+
+plotoutput(out15P1Z,15,1,2, '15P1Z')
 
