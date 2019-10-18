@@ -47,7 +47,7 @@ standardparams.add('muP', value=0, vary=False)    # Phytoplankton maximum growth
 
 # z - related
 #z grazing related
-standardparams.add('moZ', value=0.07, vary=False)        # Zooplankton mortality (d^-1)
+standardparams.add('moZ', value=0.05, vary=False)        # Zooplankton mortality (d^-1)
 standardparams.add('deltaZ', value=0.75, vary=False)    # Zooplankton Grazing assimilation coefficient (-)
 standardparams.add('deltaLambda', value=0.75, vary=False)    # Zooplankton Inter-Grazing assimilation coefficient (-)
 standardparams.add('muIntGraze', value=0.1, vary=False)  # InterZooGrazing maximum grazing rate
@@ -63,7 +63,7 @@ ztype1 = Parameters()
 ztype1.add('zt1_muZ', value=0.5, min=.2, max=1.5)    # Zooplankton maximum grazing rate (d^-1)
 
 ztype1.add('zt1_Kp', value=1., min=.2, max=1.5)       # Zooplankton Grazing saturation constant (-)
-ztype1.add('zt1_pred', value=0.06, min=.001, max=0.2)    # quadratic higher order predation rate on zooplankton
+ztype1.add('zt1_pred', value=0.01, min=.001, max=0.2)    # quadratic higher order predation rate on zooplankton
 
 
 """
@@ -83,7 +83,7 @@ def setupinitcond(pfn,zn):
     # initialize parameters:
     N0 = 1  # Initial Nitrate concentration (mmol*m^-3)
     Si0 = 0  # Initial Silicate concentration (mmol*m^-3)
-    Z0 = 0.   # Initial Zooplankton concentration (mmol*m^-3)
+    Z0 = 0.1   # Initial Zooplankton concentration (mmol*m^-3)
     D0 = 0.0  # Initial Detritus concentration (mmol*m^-3)
     P0 = 0.5 / pfn  # Initial Phytoplankton concentration (mmol*m^-3)
 
@@ -151,6 +151,7 @@ def callmodelrun(pfn,zn):
             ptype.add('pt' + str(n + 1) + '_U_N', value=uptakeRange[n], vary=False)  # uptake affinity
             ptype.add('pt' + str(n + 1) + '_muP', value=growthRange[n], vary=False)  # growth rate
             ptype.add('P' + str(n + 1), value=1 / pfn, vary=False)  # edibility
+            ztype1.add('zt1_P' + str(n + 1), value=1, vary=False)  # Diatoms
 
         print(ptype)
         all_params = standardparams + ztype1 + ptype
@@ -169,9 +170,9 @@ def callmodelrun(pfn,zn):
 def plotoutput(outarray, pfn, zn, i_plot, title):
 
     # PLOTTING
-    timedays = timedays_model[1:120]#[1:366]
+    timedays = timedays_model#[1:120]#[1:366]
     # truncate outarraySiNO to last year of 5:
-    outarray_ly = outarray[1:120]#[1460:1825]
+    outarray_ly = outarray#[1:120]#[1460:1825]
 
     # color vectors
     #colors = ['#edc951', '#dddddd', '#00a0b0', '#343436', '#cc2a36']
@@ -198,12 +199,15 @@ def plotoutput(outarray, pfn, zn, i_plot, title):
     #    ax2[i_plot].set_ylabel('Silicate \n' '[µM]', multialignment='center', fontsize=10)
     #ax2[i_plot].set_ylim(-0.1, 12)
 
+    print(len(outarray_ly))
 
     # Phyto
     ax3[i_plot].plot(timedays, sum([outarray_ly[:, 3 + zn + i] for i in range(pfn)]), c=colors[4], lw=lws[1])
-    [ax3[i_plot].plot(timedays, outarray_ly[:, 3 + zn + i], c=colors[i + 1]) for i in range(pfn)]
+    [ax3[i_plot].plot(timedays, outarray_ly[:, 3 + zn + i], c=colors[i % 5]) for i in range(pfn)]
     if i_plot == 0:
         ax3[i_plot].set_ylabel('Phyto \n' '[µM N]', multialignment='center', fontsize=10)
+
+
     #ax3[i_plot].set_ylim(-0.1, 0.8)
 
     #ax3[i_plot].set_title('Phy Biomass & ChlA Data')
@@ -216,7 +220,7 @@ def plotoutput(outarray, pfn, zn, i_plot, title):
     ax4[i_plot].tick_params('y', labelsize=10)
 
     #ax4[i_plot].set_title('Zooplankton')
-    #ax4[i_plot].set_ylim(0, 0.62)
+    ax4[i_plot].set_ylim(0, 0.25)
 
     # D
     ax5[i_plot].plot(timedays, outarray_ly[:, 2], c=colors[1], lw=lws[0], alpha=alphas[0])
@@ -241,9 +245,10 @@ fx = Forcing('flowthrough')
 out1P1Z = callmodelrun(1, 1)
 out5P1Z = callmodelrun(5, 1)
 out15P1Z = callmodelrun(15, 1)
+out50P1Z = callmodelrun(50, 1)
 
 
-f1, (ax1, ax3, ax4, ax5) = plt.subplots(4, 3, sharex='col', sharey='row') # ax2 removed for single nut plots
+f1, (ax1, ax3, ax4, ax5) = plt.subplots(4, 4, sharex='col', sharey='row') # ax2 removed for single nut plots
 #plt.subplots_adjust(hspace=0.01)
 
 plotoutput(out1P1Z,1,1,0, '1P1Z')
@@ -251,4 +256,6 @@ plotoutput(out1P1Z,1,1,0, '1P1Z')
 plotoutput(out5P1Z,5,1,1, '5P1Z')
 
 plotoutput(out15P1Z,15,1,2, '15P1Z')
+
+plotoutput(out50P1Z,50,1,3, '50P1Z')
 
