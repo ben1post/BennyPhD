@@ -94,4 +94,8 @@ ENV/
 .Rproj.user
 *.nc
 
+
+*.zip
 *.netcdf
+CaRiaco/SCRIPPS/MODEL_DATA/MAREDAT/PANGAEA.777398_(PDI-1453-1455)_MACROZOOPLANKTON/1MAC_COPEPOD_OBRIEN_MORIARTY.xls
+CaRiaco/SCRIPPS/MODEL_DATA/Phytoplankton occurences/Phytoplankton_harmonized_database.csv

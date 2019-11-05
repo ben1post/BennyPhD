@@ -83,7 +83,7 @@ def setupinitcond(pfn,zn):
     # initialize parameters:
     N0 = 1  # Initial Nitrate concentration (mmol*m^-3)
     Si0 = 0  # Initial Silicate concentration (mmol*m^-3)
-    Z0 = 0.1   # Initial Zooplankton concentration (mmol*m^-3)
+    Z0 = 0.   # Initial Zooplankton concentration (mmol*m^-3)
     D0 = 0.0  # Initial Detritus concentration (mmol*m^-3)
     P0 = 0.5 / pfn  # Initial Phytoplankton concentration (mmol*m^-3)
 

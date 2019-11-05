@@ -197,7 +197,7 @@ def plotoutput(outarray, pfn, zn, i_plot, title):
 
     # Phyto
     ax2s = ax2[i_plot].twinx()
-    ax2s.scatter(BIOTRANS_ChlA['month'] * 30, BIOTRANS_ChlA['value'])
+    ax2s.scatter(PAPA_ChlA['month'] * 30, PAPA_ChlA['value'])
     ax2[i_plot].set_zorder(ax2s.get_zorder() + 1)
     ax2[i_plot].patch.set_visible(False)
 
@@ -241,7 +241,7 @@ def plotoutput(outarray, pfn, zn, i_plot, title):
 
     ax2[muplot].plot(timedays, fx.MLD.return_interpvalattime(timedays), c=colors[4], lw=lws[0], alpha=alphas[0])
     ax2[muplot].set_ylabel('MLD \n' '[m]', multialignment='center', fontsize=10)
-    ax2[muplot].set_ylim(0, 100) # 400 for biotrans
+    ax2[muplot].set_ylim(0, 100) # 400 for biotrans, 100 for Papa
     ax2[muplot].invert_yaxis()
 
     ax3[muplot].plot(timedays, fx.PAR.return_interpvalattime(timedays), c=colors[2], lw=lws[0], alpha=alphas[0])
@@ -265,7 +265,7 @@ timedays_model = np.arange(0., 5 * 365., 1.0)
 
 numcols = 2
 
-fx = Forcing('BIOTRANS')
+fx = Forcing('PAPA')
 
 out1P1Z = callmodelrun(1,1)
 
