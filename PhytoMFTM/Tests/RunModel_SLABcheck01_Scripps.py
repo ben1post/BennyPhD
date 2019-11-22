@@ -52,7 +52,7 @@ ptype1 = Parameters()
 ptype1.add('pt1_ratioSi', value=0., vary=False)  # Silicate ratio
 ptype1.add('pt1_U_Si', value=0., vary=False)   # Silicate Half Saturation Constant
 ptype1.add('pt1_U_N', value=0.9, vary=False)    # Nitrate Half Saturation Constant
-ptype1.add('pt1_muP', value=1.0, vary=False)    # Phytoplankton maximum growth rate (d^-1)
+ptype1.add('pt1_muP', value=1., vary=False)    # Phytoplankton maximum growth rate (d^-1)
 
 
 # z - related
@@ -91,9 +91,9 @@ ztype1.add('zt1_Zint_grazed1', value=ztype1['zt1_Zint_feed1'].value, vary=False)
 ptype1.add('pt1_Z1', value=ztype1['zt1_P1'].value, vary=False)
 
 
-BIOTRANS_ChlA = pandas.read_csv('ValidationData/BIOTRANS_SeaWIFs_8Day_ChlA_extracted.csv')
+#BIOTRANS_ChlA = pandas.read_csv('ValidationData/BIOTRANS_SeaWIFs_8Day_ChlA_extracted.csv')
 
-PAPA_ChlA = pandas.read_csv('ValidationData/PAPA_SeaWIFs_8Day_ChlA_extracted.csv')
+#PAPA_ChlA = pandas.read_csv('ValidationData/PAPA_SeaWIFs_8Day_ChlA_extracted.csv')
 
 
 # set up model conditions and parameter dict
@@ -101,9 +101,9 @@ def setupinitcond(pfn,zn):
     # initialize parameters:
     N0 = 2  # Initial Nitrate concentration (mmol*m^-3)
     Si0 = 0  # Initial Silicate concentration (mmol*m^-3)
-    Z0 = 0.5   # Initial Zooplankton concentration (mmol*m^-3)
-    D0 = 0.0  # Initial Detritus concentration (mmol*m^-3)
-    P0 = 0.3  # Initial Phytoplankton concentration (mmol*m^-3)
+    Z0 = 0.1   # Initial Zooplankton concentration (mmol*m^-3)
+    D0 = 0.1  # Initial Detritus concentration (mmol*m^-3)
+    P0 = 1.0  # Initial Phytoplankton concentration (mmol*m^-3)
 
     initnut = [N0, Si0, D0]
     initzoo = [Z0 for i in range(zn)]
@@ -171,9 +171,9 @@ def plotoutput(outarray, pfn, zn, i_plot, title):
 
     # color vectors
     #colors = ['#edc951', '#dddddd', '#00a0b0', '#343436', '#cc2a36']
-    colors = ['#808080','#d55e00', '#cc79a7', '#0072b2', '#009e73', '#009e73']
+    colors = ['#808080','#d55e00', '#cc79a7', '#0072b2', '#009e73', 'grey']
     alphas = [1., 0.8, 0.6, 0.4]
-    lws = [1, 2.5, 4, 5.5]
+    lws = [2, 2.5, 4, 5.5]
 
     # artist for legends
     FullArtist = plt.Line2D((0, 1), (0, 0), c=colors[4], alpha=alphas[1], lw=lws[0])
@@ -183,10 +183,11 @@ def plotoutput(outarray, pfn, zn, i_plot, title):
 
     # Figure 1
     # N
+    N_Max = np.max(fx.NOX.return_interpvalattime(timedays)) + np.max(fx.NOX.return_interpvalattime(timedays)) * 0.1
     ax1[i_plot].plot(timedays, outarray_ly[:, 0], c=colors[1], lw=lws[0], alpha=alphas[0], label='Model')
     if i_plot == 0:
-        ax1[i_plot].set_ylabel('Nitrate \n' '[µM]', multialignment='center', fontsize=10)
-    ax1[i_plot].set_ylim(0., 12)
+        ax1[i_plot].set_ylabel('Nutrients \n' '[µM N]', multialignment='center', fontsize=10)
+    ax1[i_plot].set_ylim(0, N_Max)
 
     # Si
     #ax2[i_plot].plot(timedays, outarray_ly[:, 1], c=colors[1], lw=lws[0], alpha=alphas[0])
@@ -194,38 +195,48 @@ def plotoutput(outarray, pfn, zn, i_plot, title):
     #    ax2[i_plot].set_ylabel('Silicate \n' '[µM]', multialignment='center', fontsize=10)
     #ax2[i_plot].set_ylim(-0.1, 12)
 
-
+    Chl_Max = 1
     # Phyto
     ax2s = ax2[i_plot].twinx()
-    ax2s.scatter(PAPA_ChlA['month'] * 30, PAPA_ChlA['value'])
+    ax2s.scatter(np.arange(1,13,1) * 30 -15, fx.chla.MODISaquaChlAclimatology)
     ax2[i_plot].set_zorder(ax2s.get_zorder() + 1)
     ax2[i_plot].patch.set_visible(False)
+    ax2s.set_ylim(0, Chl_Max)
+    ax2s.set_ylabel('$Chl$ $a$ \n' '[mg $m^{-3}$]', multialignment='center', fontsize=10)
+    # UNITS: mg m^-3 according to ncdf
+
+    Pall = [outarray_ly[:, 3 + zn + i] for i in range(pfn)]
+    P_Max = np.max(Pall) + 0.5 * np.max(Pall)
+
 
     ax2[i_plot].plot(timedays, sum([outarray_ly[:, 3 + zn + i] for i in range(pfn)]), c=colors[4], lw=lws[1])
     [ax2[i_plot].plot(timedays, outarray_ly[:, 3 + zn + i], c=colors[i + 1]) for i in range(pfn)]
     if i_plot == 0:
-        ax2[i_plot].set_ylabel('Phyto \n' '[µM N]', multialignment='center', fontsize=10)
-    #ax3[i_plot].set_ylim(-0.1, 0.8)
+        ax2[i_plot].set_ylabel('Phytoplankton \n' '[µM N]', multialignment='center', fontsize=10)
+    ax2[i_plot].set_ylim(0, P_Max)
 
     #ax3[i_plot].set_title('Phy Biomass & ChlA Data')
 
     # Z
+    Zall = [outarray_ly[:, 3 + i] for i in range(zn)]
+    Z_Max = np.max(Zall) + 0.1 * np.max(Zall)
+
     ax3[i_plot].plot(timedays, sum([outarray_ly[:, 3 + i] for i in range(zn)]), c=colors[4], lw=lws[1])
     [ax3[i_plot].plot(timedays, outarray_ly[:, 3 + i], c=colors[i + 1], lw=lws[0], alpha=alphas[0]) for i in range(zn)]
     if i_plot == 0:
         ax3[i_plot].set_ylabel('Zooplankton \n' '[µM N]', multialignment='center', fontsize=9)
     ax3[i_plot].tick_params('y', labelsize=10)
-
+    ax3[i_plot].set_ylim(0, Z_Max)
     #ax4[i_plot].set_title('Zooplankton')
-    #ax4[i_plot].set_ylim(0, 0.62)
 
+    D_Max = np.max(outarray_ly[:, 2]) + 0.2 * np.max(outarray_ly[:, 2])
     # D
     ax4[i_plot].plot(timedays, outarray_ly[:, 2], c=colors[1], lw=lws[0], alpha=alphas[0])
     if i_plot == 0:
         ax4[i_plot].set_ylabel('Detritus \n' '[µM N]', multialignment='center', fontsize=9)
 
     #ax5[i_plot].set_title('Detritus')
-    #ax5[i_plot].set_ylim(0,0.15)
+    ax4[i_plot].set_ylim(0,D_Max)
 
     ax4[i_plot].set_xlabel('Day in year')
     # Legend
@@ -234,24 +245,29 @@ def plotoutput(outarray, pfn, zn, i_plot, title):
     muplot = i_plot+1
     ax1[muplot].set_title('model forcing')
 
-    ax1[muplot].plot(timedays, fx.NOX.return_interpvalattime(timedays), c=colors[3], lw=lws[0], alpha=alphas[0])
-    ax1[muplot].set_ylabel('N0 \n' '[µM]', multialignment='center', fontsize=10)
-    ax1[muplot].set_ylim(0., 18)
+    ax4[muplot].set_xlabel('Day in year')
+
+    ax1[muplot].plot(timedays, fx.NOX.return_interpvalattime(timedays), c=colors[5], lw=lws[0], alpha=alphas[0])
+    ax1[muplot].set_ylabel('$N_0$ \n' '[µmol $kg^{-1}$]', multialignment='center', fontsize=10)
+    ax1[muplot].set_ylim(0., N_Max)
     #ax1[muplot].invert_yaxis()
 
-    ax2[muplot].plot(timedays, fx.MLD.return_interpvalattime(timedays), c=colors[4], lw=lws[0], alpha=alphas[0])
+    MLD_max = np.max(fx.MLD.return_interpvalattime(timedays)) + 0.1 * np.max(fx.MLD.return_interpvalattime(timedays))
+    ax2[muplot].plot(timedays, fx.MLD.return_interpvalattime(timedays), c=colors[5], lw=lws[0], alpha=alphas[0])
     ax2[muplot].set_ylabel('MLD \n' '[m]', multialignment='center', fontsize=10)
-    ax2[muplot].set_ylim(0, 100) # 400 for biotrans, 100 for Papa
+    ax2[muplot].set_ylim(0, MLD_max) # 400 for biotrans, 100 for Papa
     ax2[muplot].invert_yaxis()
 
-    ax3[muplot].plot(timedays, fx.PAR.return_interpvalattime(timedays), c=colors[2], lw=lws[0], alpha=alphas[0])
+    PAR_max = np.max(fx.PAR.return_interpvalattime(timedays)) + 0.1 * np.max(fx.PAR.return_interpvalattime(timedays))
+    ax3[muplot].plot(timedays, fx.PAR.return_interpvalattime(timedays), c=colors[5], lw=lws[0], alpha=alphas[0])
     ax3[muplot].set_ylabel('PAR \n' '[E $m^{−2}$ $s^{−1}$]', multialignment='center', fontsize=10)
-    # ax1[muplot].set_ylim(0, 400)
+    ax3[muplot].set_ylim(0, PAR_max)
     # ax1[muplot].invert_yaxis()
 
-    ax4[muplot].plot(timedays, fx.SST.return_interpvalattime(timedays), c=colors[2], lw=lws[0], alpha=alphas[0])
-    ax4[muplot].set_ylabel('SST \n' '[°C]', multialignment='center', fontsize=10)
-    # ax1[muplot].set_ylim(0, 400)
+    Tmld_max = np.max(fx.SST.return_interpvalattime(timedays)) + 0.1 * np.max(fx.SST.return_interpvalattime(timedays))
+    ax4[muplot].plot(timedays, fx.SST.return_interpvalattime(timedays), c=colors[5], lw=lws[0], alpha=alphas[0])
+    ax4[muplot].set_ylabel('$T_{MLD}$ \n' '[°C]', multialignment='center', fontsize=10)
+    ax4[muplot].set_ylim(0, Tmld_max)
     # ax1[muplot].invert_yaxis()
 
 
@@ -273,7 +289,7 @@ out1P1Z = callmodelrun(1,1)
 f1, (ax1, ax2, ax3, ax4) = plt.subplots(4, numcols, sharex='col')#, sharey='row')
 
 
-plt.setp((ax1, ax2, ax3, ax4), xticks=[1,60,120,180,240,300,360])
+plt.setp((ax1, ax2, ax3, ax4), xticks=[1,60,120,180,240,300,365])
 from matplotlib.ticker import MaxNLocator
 for axe in (ax1, ax2, ax3, ax4):
     for i in range(numcols):

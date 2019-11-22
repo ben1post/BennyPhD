@@ -9,6 +9,33 @@ from PhytoMFTM.AuxFuncs import sliceparams, sliceoffparams, checkreplaceparam
 from scipy.io import netcdf
 import os
 
+class VerifData:
+    """
+    initializes and reads verification data, contained in ncdf files
+
+    """
+    def __init__(self, Lat, Lon, RBB):
+        self.Lat = Lat
+        self.Lon = Lon
+        self.RangeBB = RBB
+        self.fordir = os.path.split(os.path.realpath(__file__))[0]
+        self.MODISaquaChlAclimatology = self.readchla()
+
+        print('VerifData forcing created')
+
+    def readchla(self):
+        ncfile = netcdf.netcdf_file(self.fordir + '/ChlAclimatology_MODISaqua_L3_nc3.nc', 'r')
+        nclat = ncfile.variables['lat'].data.copy()
+        nclon = ncfile.variables['lon'].data.copy()
+        ncdat = ncfile.variables['chlor_a'].data.copy()
+        ncfile.close()
+        longrid, latgrid = np.meshgrid(nclon, nclat)
+        selectarea = np.logical_and(longrid <= self.Lon + self.RangeBB, longrid >= self.Lon - self.RangeBB) * \
+                     np.logical_and(latgrid <= self.Lat + self.RangeBB, latgrid >= self.Lat - self.RangeBB)
+        outforcing = list(np.nanmean(ncdat[:, selectarea], axis=1))
+        return outforcing
+
+
 class WOAForcing:
     """
     initializes and reads forcing from a certain location in the WOA 2009 data, contained in ncdf files
@@ -32,65 +59,73 @@ class WOAForcing:
         """
 
         if self.varname == 'mld':
-            ncfile = netcdf.netcdf_file(self.fordir + '/mld_vd_WOA_Monterey_and_Levitus.nc', 'r')
+            ncfile = netcdf.netcdf_file(self.fordir + '/mld_mindtr02_l3_nc3.nc', 'r')
+            print(ncfile.dimensions)
             nclat = ncfile.variables['lat'].data.copy()
             nclon = ncfile.variables['lon'].data.copy()
-            ncdat = ncfile.variables[self.varname].data.copy()
+            ncdat = ncfile.variables['mld_mindtr02_rmoutliers_smth_okrg'].data.copy()
             ncfile.close()
-            nclon_transform = np.hstack((nclon[nclon > 180] - 360., nclon[nclon < 180]))
-            ncdat_new = np.dstack((ncdat[:, :, 180:], ncdat[:, :, :180]))
-            mskdat = np.ma.masked_less(ncdat_new, 0)
-            longrid, latgrid = np.meshgrid(nclon_transform, nclat)
+            longrid, latgrid = np.meshgrid(nclon, nclat)
             selectarea = np.logical_and(longrid <= self.Lon + self.RangeBB, longrid >= self.Lon - self.RangeBB) * \
                          np.logical_and(latgrid <= self.Lat + self.RangeBB, latgrid >= self.Lat - self.RangeBB)
-            outforcing = list(np.mean(mskdat[:, selectarea], axis=1))
+            outforcing = list(np.nanmean(ncdat[:, selectarea], axis=1))
             return outforcing * 3
         elif self.varname == 'par':
-            ncfile = netcdf.netcdf_file(self.fordir + '/par_MODIS_2002to2011.nc', 'r')
+            ncfile = netcdf.netcdf_file(self.fordir + '/PARclimatology_MODISaqua_L3_nc3.nc', 'r')
             nclat = ncfile.variables['lat'].data.copy()
             nclon = ncfile.variables['lon'].data.copy()
-            ncdat = ncfile.variables[self.varname].data.copy()
-            mskdat = np.ma.masked_less(ncdat, 0)
+            ncdat = ncfile.variables['par'].data.copy()
             ncfile.close()
-            nclon_transform = np.hstack((nclon[nclon > 180] - 360, nclon[nclon < 180]))
-            longrid, latgrid = np.meshgrid(nclon_transform, nclat)
+            longrid, latgrid = np.meshgrid(nclon, nclat)
             selectarea = np.logical_and(longrid <= self.Lon + self.RangeBB, longrid >= self.Lon - self.RangeBB) * \
                          np.logical_and(latgrid <= self.Lat + self.RangeBB, latgrid >= self.Lat - self.RangeBB)
-            outforcing = list(np.mean(mskdat[:, selectarea], axis=1))
+            outforcing = list(np.nanmean(ncdat[:, selectarea], axis=1))
             return outforcing * 3
+
         elif self.varname == 'n0x':
-            ncfile = netcdf.netcdf_file(self.fordir + '/n0x_WOA09.nc', 'r')
+            ncfile = netcdf.netcdf_file(self.fordir + '/Nitrate_WOA_tmld_test03_nc3.nc', 'r')
             nclat = ncfile.variables['lat'].data.copy()
             nclon = ncfile.variables['lon'].data.copy()
-            ncdat = ncfile.variables[self.varname].data.copy()
-            ncdepth = ncfile.variables['depth'].data.copy()
+            ncdat = ncfile.variables['n0'].data.copy()
             ncfile.close()
-            mlddat = WOAForcing(self.Lat, self.Lon, self.RangeBB, 'mld')
-            ncdat_mld = np.zeros((12, 180, 360))
-            for i in range(0, 12):
-                (depthindx,) = (ncdepth >= mlddat.outForcing[i]).nonzero()
-                ncdat_mld[i, :, :] = ncdat[i, depthindx.min(), :, :]
-            nclon_transform = np.hstack((nclon[nclon > 180] - 360, nclon[nclon < 180]))
-            ncdat_new = np.dstack((ncdat_mld[:, :, 180:], ncdat_mld[:, :, :180]))
-            mskdat = np.ma.masked_less(ncdat_new, 0)
-            longrid, latgrid = np.meshgrid(nclon_transform, nclat)
-            selectarea = np.logical_and(longrid <= self.Lon + self.RangeBB, longrid >= self.Lon - self.RangeBB) * \
-                         np.logical_and(latgrid <= self.Lat + self.RangeBB, latgrid >= self.Lat - self.RangeBB)
-            outforcing = list(np.mean(mskdat[:, selectarea], axis=1))
+            longrid, latgrid = np.meshgrid(nclon, nclat)
+            selectarea = np.logical_and(latgrid <= self.Lat + self.RangeBB, latgrid >= self.Lat - self.RangeBB) * \
+                         np.logical_and(longrid <= self.Lon + self.RangeBB, longrid >= self.Lon - self.RangeBB)
+            outforcing = list(np.nanmean(ncdat[selectarea,:], axis=0))
+            return outforcing * 3
+
+        elif self.varname == 'p0x':
+            ncfile = netcdf.netcdf_file(self.fordir + '/Phosphate_WOA_tmld_test03_nc3.nc', 'r')
+            nclat = ncfile.variables['lat'].data.copy()
+            nclon = ncfile.variables['lon'].data.copy()
+            ncdat = ncfile.variables['p0'].data.copy()
+            ncfile.close()
+            longrid, latgrid = np.meshgrid(nclon, nclat)
+            selectarea = np.logical_and(latgrid <= self.Lat + self.RangeBB, latgrid >= self.Lat - self.RangeBB) * \
+                         np.logical_and(longrid <= self.Lon + self.RangeBB, longrid >= self.Lon - self.RangeBB)
+            outforcing = list(np.nanmean(ncdat[selectarea,:], axis=0))
+            return outforcing * 3
+        elif self.varname == 'si0x':
+            ncfile = netcdf.netcdf_file(self.fordir + '/Silicate_WOA_tmld_test02_nc3.nc', 'r')
+            nclat = ncfile.variables['lat'].data.copy()
+            nclon = ncfile.variables['lon'].data.copy()
+            ncdat = ncfile.variables['si0'].data.copy()
+            ncfile.close()
+            longrid, latgrid = np.meshgrid(nclon, nclat)
+            selectarea = np.logical_and(latgrid <= self.Lat + self.RangeBB, latgrid >= self.Lat - self.RangeBB) * \
+                         np.logical_and(longrid <= self.Lon + self.RangeBB, longrid >= self.Lon - self.RangeBB)
+            outforcing = list(np.nanmean(ncdat[selectarea,:], axis=0))
             return outforcing * 3
         elif self.varname == 'sst':
-            ncfile = netcdf.netcdf_file(self.fordir + '/sst-t_an-WOA09.nc', 'r')
+            ncfile = netcdf.netcdf_file(self.fordir + '/Temp_WOA_tmld_test02_nc3.nc', 'r')
             nclat = ncfile.variables['lat'].data.copy()
             nclon = ncfile.variables['lon'].data.copy()
-            ncdat = ncfile.variables[self.varname].data.copy()
+            ncdat = ncfile.variables['t_mld'].data.copy()
             ncfile.close()
-            nclon_transform = np.hstack((nclon[nclon > 180] - 360., nclon[nclon < 180]))
-            ncdat_new = np.dstack((ncdat[:, 0, :, 180:], ncdat[:, 0, :, :180]))
-            mskdat = np.ma.masked_greater(ncdat_new, 99)
-            longrid, latgrid = np.meshgrid(nclon_transform, nclat)
-            selectarea = np.logical_and(longrid <= self.Lon + self.RangeBB, longrid >= self.Lon - self.RangeBB) * \
-                         np.logical_and(latgrid <= self.Lat + self.RangeBB, latgrid >= self.Lat - self.RangeBB)
-            outforcing = list(np.mean(mskdat[:, selectarea], axis=1))
+            longrid, latgrid = np.meshgrid(nclon, nclat)
+            selectarea = np.logical_and(latgrid <= self.Lat + self.RangeBB, latgrid >= self.Lat - self.RangeBB) * \
+                         np.logical_and(longrid <= self.Lon + self.RangeBB, longrid >= self.Lon - self.RangeBB)
+            outforcing = list(np.nanmean(ncdat[selectarea,:], axis=0))
             return outforcing * 3
         else:
             return 'Please specify either mld, par, n0x or sst'
@@ -258,6 +293,7 @@ class Forcing:
                                   WOA=True, Lat=47, Lon=-20, RBB=2.5)
             self.PAR = IndForcing('par', 'X', k=5, s=5, kind="spline", forctype=forcingtype,
                                   WOA=True, Lat=47, Lon=-20, RBB=2.5)
+            self.chla = VerifData(Lat=47, Lon=-20, RBB=2.5)
             self.type = 'MLD'
 
         elif forcingtype == 'PAPA':
@@ -270,6 +306,7 @@ class Forcing:
                                   WOA=True, Lat=50.1, Lon=-144.9, RBB=2.5)
             self.PAR = IndForcing('par', 'X', k=5, s=5, kind="spline", forctype=forcingtype,
                                   WOA=True, Lat=50.1, Lon=-144.9, RBB=2.5)
+            self.chla = VerifData(Lat=50.1, Lon=-144.9, RBB=2.5)
             self.type = 'MLD'
 
         elif forcingtype == 'CARIACO':
