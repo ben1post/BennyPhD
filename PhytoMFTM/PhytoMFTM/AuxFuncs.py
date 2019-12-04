@@ -38,7 +38,7 @@ def checkreplaceparam(stdpardict, functypepardict, parsuffix):
         try:
             return next(v for k, v in stdpardict.items() if k.endswith(parsuffix))
         except StopIteration:
-            raise Exception('Parameter {} is not found in Parameters passed to Plankton class'.format(parsuffix))
+            raise Exception('Parameter {} is not found in Parameters passed to SV class'.format(parsuffix))
 
 
 
