@@ -6,8 +6,98 @@ import numpy as np
 import scipy.interpolate as intrp
 from PhytoMFTM.AuxFuncs import sliceparams, sliceoffparams, checkreplaceparam
 
+from lmfit import minimize, Parameters, Parameter, report_fit
+
 from scipy.io import netcdf
 import os
+
+class Nutrient:
+    def __init__(self, allpars, slicedpars):
+        self.kappa = checkreplaceparam(allpars, slicedpars, 'kappa')
+
+    def mixing(self,N):
+        return self.kappa * N
+
+
+class SV:
+    def __init__(self, params, SVStype, SVparams):
+        """Class that contains all general properties of state variables, to be inherited by each instance"""
+        self.type = SVStype
+        self.sliced_pars = SVparams
+        self.all_pars = params
+        if SVStype == 'nuts':
+            self.funcs = Nutrient(self.all_pars,self.sliced_pars)
+        if SVStype == 'phyto':
+            self.funcs = Phyto(self.all_pars,self.pars)
+
+class SVS:
+    def __init__(self,params,SVtype):
+        self.type = SVtype
+        self.num = params[SVtype + '_num'].value
+        self.pars = sliceoffparams(params, SVtype)
+        if self.type == 'nuts':
+            self.svs = [SV(self.pars, self.type + str(i + 1), sliceparams(self.pars, self.type + str(i + 1))) for i in range(self.num)]
+
+    def init(self):
+        return self.svs
+
+class modelsetup:
+    def __init__(self, params):
+        self.nutrients = SVS(params, 'nuts').init()
+        self.phytoplankton = Plankton('in here unpack the number of respective instances, return list of instances')
+        self._classes = np.array(self.nutrients,self.phytoplankton,self.zooplankton,self.detritus) # concatenate instances here
+
+    @property
+    def classes(self):
+        return self._classes
+
+parameters = Parameters()
+
+parameters.add('nuts_num', value=1)
+parameters.add('nuts1_mixing')
+
+ms = modelsetup(parameters)
+
+n = ms.classes
+
+
+
+
+
+
+class Plankton(SV):
+    def __init__(self,params,SVtype,...):
+        super().__init__(params,SVtype)
+
+    def uptake(self):
+
+
+
+
+class Plankton:
+    """
+    initializes the Plankton (both Zoo- & Phyto-) community according to number of types prescribed by params
+    """
+
+    def __init__(self, modelparams, zptype):
+        if zptype == 'Zooplankton':
+            self.zoonum = modelparams['zoo_num'].value
+            self.stdparams = sliceoffparams(modelparams, 'zt')
+            self.pars = [ZooType(self.stdparams, sliceparams(modelparams, 'zt' + str(i + 1)))
+                        for i in range(self.zoonum)]
+        elif zptype == 'Phytoplankton':
+            self.phytonum = modelparams['pfun_num'].value
+            self.stdparams = sliceoffparams(modelparams, 'pt')
+            self.pars = [PhytoType(self.stdparams, sliceparams(modelparams, 'pt' + str(i + 1))) for i in
+                         range(self.phytonum)]
+
+        else:
+            raise('wrong functional type passed to Plankton class')
+
+    def init(self, ):
+        return self.pars
+
+
 
 class VerifData:
     """

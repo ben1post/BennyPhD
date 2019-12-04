@@ -63,6 +63,10 @@ def new_way_of_creating_model(x,t,modelsetup):
     out = np.concatenate(Nx, Px, Zx, Dx)
     return out
 
+
+
+
+
 def phytomftm_extendedoutput_forcing(x, t, paras, pClass, zClass, forcing):
     N = x[0]  # Nitrate
     Si = x[1]  # Silicate
