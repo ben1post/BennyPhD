@@ -52,7 +52,7 @@ ptype1 = Parameters()
 ptype1.add('pt1_ratioSi', value=0., vary=False)  # Silicate ratio
 ptype1.add('pt1_U_Si', value=0., vary=False)   # Silicate Half Saturation Constant
 ptype1.add('pt1_U_N', value=0.9, vary=False)    # Nitrate Half Saturation Constant
-ptype1.add('pt1_muP', value=1.5, vary=False)    # Phytoplankton maximum growth rate (d^-1)
+ptype1.add('pt1_muP', value=1,min=0.3, max=1.5)    # Phytoplankton maximum growth rate (d^-1) #value=1.5,
 
 
 # z - related
@@ -69,9 +69,9 @@ standardparams.add('muZ', value=0, vary=False)    # Zooplankton maximum grazing 
 
 # set up zooplankton type 1 (e.g. MIKRO zooplankton)
 ztype1 = Parameters()
-ztype1.add('zt1_muZ', value=1.,  vary=False)    # Zooplankton maximum grazing rate (d^-1)
+ztype1.add('zt1_muZ', value=1.,  min=0.1, max=1.5)    # Zooplankton maximum grazing rate (d^-1)
 
-ztype1.add('zt1_Kp', value=0.7,  vary=False)       # Zooplankton Grazing saturation constant (-)
+ztype1.add('zt1_Kp', value=0.7,  min=0.1, max=1.5)       # Zooplankton Grazing saturation constant (-)
 ztype1.add('zt1_pred', value=0.01,  vary=False)    # quadratic higher order predation rate on zooplankton
 
 
@@ -131,7 +131,7 @@ def runmodel(all_params, initcond):
     return outarray
 
 
-def callmodelrun(pfn,zn):
+def callmodelrun(pfn,zn,parameters):
     # number of phytoplankton func types
     standardparams.add('pfun_num', value=pfn, vary=False)
     # number of zooplankton groups
@@ -153,14 +153,70 @@ def callmodelrun(pfn,zn):
         print('just standard params')
         all_params = (standardparams)
     """
-    all_params = (standardparams + ptype1 + ztype1)
+    #all_params = (standardparams + ptype1 + ztype1)
 
-    parameters = all_params
+    #parameters = all_params
     initialcond = setupinitcond(pfn,zn)
     print(initialcond)
     out = runmodel(parameters,initialcond)
 
     return out
+
+
+
+
+def g(x0, t, params):
+    """
+    small wrapper function for parameter fitting
+    """
+    tos = time.time()
+    print('starting integration')
+    outarray = odeint(mc.phytomftm_extendedoutput_forcing, x0, t,
+                      args=(params, p, z, fx))  # , rtol=1e-12, atol=1e-12)
+    tos1 = time.time()
+    print('finished after %4.3f sec' % (tos1 - tos))
+
+    return outarray
+
+
+def residual(paras):
+    """
+    compute the residual between actual data and fitted data
+    """
+
+    CtoChla = 40  # g/g
+    MolarMassC = 12.0107
+    CtoNratioPhyto = 6.625
+    muMolartoChlaconvfactor = CtoChla / MolarMassC / CtoNratioPhyto  # Chla as mg/m-3 to
+
+    model = g(initialcond, timedays_model, paras)
+
+    # to implement fitting algorithm make sure to calculate residual only for the last year!
+
+    model_ly = model[1460:1825]
+
+    Nitrogen = model_ly[:, 0]
+
+    Phyto = model_ly[:, 5] / muMolartoChlaconvfactor
+
+    Zoo = model_ly[:, 4]
+
+    Detritus = model_ly[:, 2]
+
+    # print(len(NO3NO2_int), len(Nitrogen))
+    # print(type(NO3NO2_int['Value'].values), type(Nitrogen))
+    #print(fx.verif.Nint[0:15])
+    #print(fx.verif.chlaint[0:15])
+    N_resid = (Nitrogen - fx.verif.Nint)
+    Phy_resid = (Phyto - fx.verif.chlaint)
+
+    #ss = np.concatenate((N_resid, Si_resid,De_resid, P1_resid,P2_resid,P3_resid,P4_resid,P5_resid, Z1_resid,Z2_resid))
+
+    ss = np.concatenate((N_resid, Phy_resid))
+    #print(ss)
+    return ss
+
+
 
 def plotoutput(outarray, pfn, zn, i_plot, title):
 
@@ -288,20 +344,40 @@ def plotoutput(outarray, pfn, zn, i_plot, title):
 
 
 
-
-
-
-
-
 timedays_model = np.arange(0., 5 * 365., 1.0)
 
+standardparams.add('pfun_num', value=1, vary=False)
+standardparams.add('zoo_num', value=1, vary=False)
+all_params = (standardparams + ptype1 + ztype1)
+initialcond = setupinitcond(1, 1)
+
+z = Plankton(all_params, 'Zooplankton').init()
+p = Plankton(all_params, 'Phytoplankton').init()
+fx = Forcing('WOA2018',47,-20,1.5)
+
+
+
+# fit model
+result = minimize(residual, all_params, args=(), method='differential_evolution')  # leastsq nelder differential_evolution
+
+
+# check results of the fit
+outarray = g(initialcond, timedays_model, result.params)
+print(result.aic)
+
+report_fit(result)
+print(result.residual)
+
+
+# save fit report to a file:
+#with open('fit_result_01.txt', 'w') as fh:
+#    fh.write(str(report_fit(result)))
+
+
+
+out1P1Z = callmodelrun(1,1,result.params)
+
 numcols = 2
-
-fx = Forcing('WOA2018',47,-21,2.5)
-
-out1P1Z = callmodelrun(1,1)
-
-
 f1, (ax1, ax2, ax3, ax4) = plt.subplots(4, numcols, sharex='col')#, sharey='row')
 
 
