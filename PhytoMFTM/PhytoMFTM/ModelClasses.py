@@ -558,7 +558,7 @@ class ZooType:
             GrazingProb = self.muZ / (self.ksat ** 2 + Frho)
             return GrazingProb
 
-        elif func == 'fasham':
+        elif func == 'fasham': #put the holling type num here
             FrhoP = sum([self.feedpref[i] * P[i] ** 2 for i in range(self.pfn)])
             FrhoZ = sum([self.interfeedpref[j] * Z[j] ** 2 for j in range(self.zn)])
             Frho = FrhoP + FrhoZ  # active switching coefficient
