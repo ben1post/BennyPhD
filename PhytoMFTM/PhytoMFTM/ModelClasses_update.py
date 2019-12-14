@@ -50,6 +50,7 @@ class Phytoplankton:
 
         self.muP = checkreplaceparam(allpars, slicedpars, 'muP')
         self.moP = checkreplaceparam(allpars, slicedpars, 'moP')
+        self.moP_quad = checkreplaceparam(allpars, slicedpars, 'moP_quad')
 
         self.ratioSi = checkreplaceparam(allpars, slicedpars, 'ratioSi')
 
@@ -62,6 +63,9 @@ class Phytoplankton:
 
         self.zoolist = ['Z'+str(j+1) for j in range(self.zn)]
         self.grazepref = [checkreplaceparam(allpars, slicedpars, string) for string in self.zoolist]
+
+    def growth(self):
+        return self.muP
 
     def uptake(self, N):
         """Michealis-Menten uptake of Nutrients"""
@@ -89,15 +93,20 @@ class Phytoplankton:
 
     def tempdepgrowth(self, Tmld):
         """"""
-        tdp = np.exp(0.063 * Tmld)
+        #tdp = np.exp(0.063 * Tmld)
+        tdp = self.VpMax * 1.066 ** Tmld
         return tdp
 
-    def mortality(self, P):
+    def mortality(self, P, type='linear'):
         """"""
-        Mortal = self.moP * P[self.num]
-        return Mortal
+        if type == 'linear':
+            mortal = self.moP * P[self.num]
+            return mortal
+        elif type == 'quadratic':
+            mortal = self.moP_quad * P[self.num] ** 2
+            return mortal
 
-    def zoograzing(self, Gj, P, Z):
+    def zoograzing(self, Gj, P, Z, D):
         """"""
         # take the general grazing term from each zooplankton, multiply by phyto fraction and sum
         Grazing = [Gj[j] * (self.grazepref[j] * P[self.num] ** 2) * Z[j] for j in range(self.zn)]
@@ -128,74 +137,96 @@ class Zooplankton:
 
         self.pfn = allpars['phyto_num'].value
         self.zn = allpars['zoo_num'].value
+        self.dn = allpars['det_num'].value
 
         self.beta = 2  # for Vallina KTW Grazing, beta = 1 : Holling Type II, beta = 2 : Holling Type III
         self.ksat = self.Kp
 
-        self.phylist = ['P' + str(i + 1) for i in range(self.pfn)]
+        self.phylist = ['P'+ str(i + 1) for i in range(self.pfn)] # + str(i + 1)
+        self.detlist = ['D'+ str(i + 1) for i in range(self.dn)] # + str(i + 1)
         self.zoointlistfeed = ['Zint_feed' + str(j + 1) for j in range(self.zn)]  # list of feeding
         self.zoointlistgrazed = ['Zint_grazed' + str(j + 1) for j in range(self.zn)]
         # print(self.phylist, self.zoointlistfeed, self.zoointlistgrazed)
 
         self.feedpref = [checkreplaceparam(allpars, slicedpars, string) for string in self.phylist]
-        self.interfeedpref = [checkreplaceparam(allpars, slicedpars, string) for string in self.zoointlistfeed]
-        self.intergrazedpref = [checkreplaceparam(allpars, slicedpars, string) for string in self.zoointlistgrazed]
+        self.detfeedpref = [checkreplaceparam(allpars, slicedpars, string) for string in self.detlist]
+        print('D feedpref',self.detfeedpref,'P feedpref',self.feedpref)
+#        self.interfeedpref = [checkreplaceparam(allpars, slicedpars, string) for string in self.zoointlistfeed]
+#        self.intergrazedpref = [checkreplaceparam(allpars, slicedpars, string) for string in self.zoointlistgrazed]
 
-    def zoofeeding(self, P, Z, func='anderson'):
+        self.beta_feed = checkreplaceparam(allpars, slicedpars, 'beta_feed')
+        self.kN_feed = checkreplaceparam(allpars, slicedpars, 'kN_feed')
+
+    def zoofeeding(self, P, Z, D, func='anderson'):
         if func == 'anderson':
             FrhoP = sum([self.feedpref[i] * P[i] ** 2 for i in range(self.pfn)])
-            FrhoZ = sum([self.interfeedpref[j] * Z[j] ** 2 for j in range(self.zn)])
-            Frho = FrhoP + FrhoZ
+            #FrhoZ = sum([self.interfeedpref[j] * Z[j] ** 2 for j in range(self.zn)])
+            Frho = FrhoP #+ FrhoZ
             GrazingProb = self.muZ / (self.ksat ** 2 + Frho)
             return GrazingProb
 
         elif func == 'fasham': #put the holling type num here
             FrhoP = sum([self.feedpref[i] * P[i] ** 2 for i in range(self.pfn)])
-            FrhoZ = sum([self.interfeedpref[j] * Z[j] ** 2 for j in range(self.zn)])
-            Frho = FrhoP + FrhoZ  # active switching coefficient
+            #FrhoZ = sum([self.interfeedpref[j] * Z[j] ** 2 for j in range(self.zn)])
+            Frho = FrhoP #+ FrhoZ  # active switching coefficient
             FpP = sum([self.feedpref[i] * P[i] for i in range(self.pfn)])
-            FpZ = sum([self.interfeedpref[j] * Z[j] for j in range(self.zn)])
-            Fp = FpP + FpZ  # total food available
+            #FpZ = sum([self.interfeedpref[j] * Z[j] for j in range(self.zn)])
+            Fp = FpP #+ FpZ  # total food available
             GrazingProb = self.muZ * (1 / (self.ksat * Fp + Frho))
             return GrazingProb
 
         elif func == 'vallina':
             FrhoP = sum([self.feedpref[i] * P[i] ** 2 for i in range(self.pfn)])
-            FrhoZ = sum([self.interfeedpref[j] * Z[j] ** 2 for j in range(self.zn)])
-            Frho = FrhoP + FrhoZ  # active switching coefficient
+            #FrhoZ = sum([self.interfeedpref[j] * Z[j] ** 2 for j in range(self.zn)])
+            Frho = FrhoP #+ FrhoZ  # active switching coefficient
             FpP = sum([self.feedpref[i] * P[i] for i in range(self.pfn)])
-            FpZ = sum([self.interfeedpref[j] * Z[j] for j in range(self.zn)])
-            Fp = FpP + FpZ  # total food available
+            #FpZ = sum([self.interfeedpref[j] * Z[j] for j in range(self.zn)])
+            Fp = FpP #+ FpZ  # total food available
             GrazingProb = self.muZ * (1 / Frho) * ((Fp ** self.beta) / (self.ksat ** self.beta + Fp ** self.beta))
+            return GrazingProb
+
+        elif func == 'hollingtypeIII':
+            FrhoP = sum([self.feedpref[i] * P[i] ** 2 for i in range(self.pfn)])
+            FrhoD = sum([self.detfeedpref[j] * D[j] ** 2 for j in range(self.dn)])
+            Frho = FrhoP + FrhoD
+            #print('Frho',Frho,'FrhoP',FrhoP,P,'FrhoD',FrhoD,D)
+            GrazingProb = self.muZ / (self.ksat ** 2 + Frho)
             return GrazingProb
 
         else:
             print('no grazing formulation given, wrong func key')
 
-    def fullgrazing(self, Gj, P, Z):
+    def fullgrazing(self, Gj, P, Z, D):
         # phytouptake + zooplankton per zooplankton for each phyto
         IprobP = [Gj[self.num] * (self.feedpref[i] * P[i] ** 2) for i in range(self.pfn)]  # grazeprob per each PFT
-        IprobZ = [Gj[self.num] * (self.interfeedpref[j] * Z[j] ** 2) for j in range(self.zn)]
-        Iprob = IprobP + IprobZ
+        IprobD = [Gj[self.num] * (self.detfeedpref[j] * D[j] ** 2) for j in range(self.dn)]
+        Iprob = IprobP + IprobD
         #perhaps here = multiply by Z before summing Iprobs!
         Itots = sum(Iprob)
         Itot = Itots * Z[self.num]
+        #print('Itots', Itots,Z, 'IprobP', IprobP, P, 'IprobD', IprobD, D)
         return Itot
 
     def assimgrazing(self, ZooFeeding):
-        AssimGrazing = self.deltaZ * ZooFeeding[self.num]
+        # AssimGrazing = self.deltaZ * ZooFeeding[self.num]
+        AssimGrazing = self.beta_feed * self.kN_feed * ZooFeeding[self.num]
         return AssimGrazing
 
-    def unassimilatedgrazing(self, ZooFeeding):
-        UnAsGraze = (1. - self.deltaZ) * ZooFeeding[self.num]
-        return UnAsGraze
+    def unassimilatedgrazing(self, ZooFeeding, pool='N'):
+        #UnAsGraze = (1. - self.deltaZ) * ZooFeeding[self.num]
+        if pool == 'N':
+            UnAsGraze = self.beta_feed * (1-self.kN_feed) * ZooFeeding[self.num]
+            return UnAsGraze
+        elif pool == 'D':
+            UnAsGraze = (1-self.beta_feed) * ZooFeeding[self.num]
+            return UnAsGraze
 
     def mortality(self, Z, type='linear'):
         if type == 'linear':
             total_moZ = self.moZ * Z[self.num]
             return total_moZ
         if type == 'quadratic':
-            total_moZ = self.pred * Z[self.num]
+            total_moZ = self.pred * Z[self.num] ** 2
             return total_moZ
 
 
@@ -204,8 +235,19 @@ class Detritus:
         self.num = num
         self.deltaD = checkreplaceparam(allpars, slicedpars, 'deltaD_N')
 
+        self.zn = allpars['zoo_num'].value
+        self.zoolist = ['Z' + str(j + 1) for j in range(self.zn)]
+        self.detgrazepref = [checkreplaceparam(allpars, slicedpars, string) for string in self.zoolist]
+
     def remineralisation(self, D):
         return D[self.num] * self.deltaD
+
+    def zoograzing(self, Gj, D, Z):
+        """"""
+        # take the general grazing term from each zooplankton, multiply by phyto fraction and sum
+        Grazing = [Gj[j] * (self.detgrazepref[j] * D[self.num] ** 2) * Z[j] for j in range(self.zn)]
+        GrazingPerZ = sum(Grazing)
+        return GrazingPerZ
 
 
 class StateVariables:
@@ -245,7 +287,7 @@ class Physics:
         self.type = type
         self.forcing = Forcing('WOA2018', 47, -20, 1.5)
 
-    def K(self,t, MLD, mix='h+'):
+    def K(self, MLD, mix='h+'):
         if mix == 'h+':
             MLDt = MLD[0]
             MLDt_deriv = MLD[1]
@@ -255,6 +297,12 @@ class Physics:
             MLDt = MLD[0]
             MLDt_deriv = MLD[1]
             return MLDt_deriv / MLDt
+
+    def omegaMix(self, MLD, type='std'):
+        if type == 'std':
+            return (self.parameters['wmix'].value + MLD[1]) / MLD[0]
+        elif type == 'D':
+            return (self.parameters['wmix'].value + MLD[1] + self.parameters['vD'].value) / MLD[0]
 
     def MLD(self,t):
         return np.array([self.forcing.MLD.return_interpvalattime(t), self.forcing.MLD.return_derivattime(t)])
@@ -297,11 +345,55 @@ class ModelSetup:
 
 
 # MODEL ODE
+def empower(x,t,modelsetup, q):
+    """System of ODEs"""
+
+    N,P,Z,D = modelsetup.timestep_init(x)
+    # print(N,P,Z,D)
+
+    # N = [Ni]
+    # P = [P1]
+    # Z = [Z1]
+    # D = [D]
+
+    MLD = physx.MLD(t)  # MLD = [int_MLD, deriv_MLD]
+    N0 = physx.N0(t)  # N0 = [Ni0,P0,Si0]
+    PAR = physx.PAR(t)
+    Tmld = physx.Tmld(t)
+
+    Mix = physx.omegaMix(MLD)  # i.e. there is constant mixing & increased mix when MLD shallowing
+    Mix_D = physx.omegaMix(MLD, type='D')  # i.e. there is constant mixing & increased mix when MLD shallowing
+
+    # Grazing
+    Gj = z.zoofeeding(P, Z, D, func='hollingtypeIII')  # feeding probability for all food
+    ZooFeeding = z.fullgrazing(Gj, P, Z, D)
+
+    # Phytoplankton Fluxes
+    PGains = p.tempdepgrowth(Tmld) * p.uptake(N) * p.lightharvesting(MLD[0], PAR, P) * 24/75 # (C to Chl)
+    PMortality = p.mortality(P, type='linear') + p.mortality(P, type='quadratic')
+    PhytoLosses = p.zoograzing(Gj, P, Z, D) + PMortality + P * Mix
+
+    # Zooplankton Fluxes
+    ZGains = z.assimgrazing(ZooFeeding)
+    ZMortality = z.mortality(Z, type='linear')
+    ZLosses = ZMortality + z.mortality(Z, type='quadratic') + Z * Mix
+
+    # Detritus Fluxes
+    DGains = sum(z.unassimilatedgrazing(ZooFeeding, pool='D')) + sum(ZMortality) #+ sum(PMortality)
+    DRemin = d.remineralisation(D)
+    DLosses = d.zoograzing(Gj, D, Z) + DRemin + D * Mix_D
+
+
+    Px = PGains - PhytoLosses
+
+    Nx = - sum(PGains) + DRemin + sum(z.unassimilatedgrazing(ZooFeeding, pool='N')) + Mix * (N0 - N) # Nutrient draw down
+    Zx = ZGains - ZLosses  # Zooplankton losses due to mortality and mixing
+    Dx = DGains - DLosses   # Detritus
+    out = [Nx, Px, Zx, Dx]
+    return np.concatenate(out)
 
 def ode(x,t,modelsetup, q):
     """System of ODEs"""
-    # instead of passing params, to initialize zn and pn, this should be done wrapped in a class
-    # modelsetup can be creating by adding all relevant info to params object, and calling ms_init(params)
 
     N,P,Z,D = modelsetup.timestep_init(x)
 #    print(N,P,Z,D)
@@ -311,18 +403,13 @@ def ode(x,t,modelsetup, q):
     # Z = [Z1,Z2,Z3]
     # D = [D]
 
-    # 'n' contains all functions related to the different nutrients
-    # a call to a function goes through a np.array of all nuts with that specific function,
-    # always using the respective param set, and returning the results as that same np.array.
-
     MLD = physx.MLD(t)  # MLD = [int_MLD, deriv_MLD]
     N0 = physx.N0(t)  # N0 = [Ni0,P0,Si0]
     PAR = physx.PAR(t)
     Tmld = physx.Tmld(t)
 
-    # the functions have to return an np.array!! this way piecewise adding is possible! no list
-    K = physx.K(t, MLD)  # i.e. there is constant mixing & increased mix when MLD shallowing
-    K_Z = physx.K(t, MLD, mix='Z')
+    K = physx.K(MLD)  # i.e. there is constant mixing & increased mix when MLD shallowing
+    K_Z = physx.K(MLD, mix='Z')
 
     # Grazing
     Gj = z.zoofeeding(P, Z, func='anderson')  # feeding probability for all food
@@ -337,19 +424,13 @@ def ode(x,t,modelsetup, q):
 
     # Zooplankton Fluxes
     ZGains = z.assimgrazing(ZooFeeding)
-
     ZMortality = z.mortality(Z, type='linear')
     ZLosses = ZMortality + z.mortality(Z, type='quadratic') + Z * K_Z
-
 
     # Detritus Fluxes
     DGains = sum(z.unassimilatedgrazing(ZooFeeding)) + sum(ZMortality) + sum(PMortality)
     DRemin = d.remineralisation(D)
-    DLosses = DRemin - D * K
-
-    # THESE ALL HAVE TO BE np.arrays, otherwise this won't work!
-
-    # ALSO using SUM() will cause problems with the flexibility!!!
+    DLosses = DRemin + D * K
 
     Px = PGains - PhytoLosses
 
@@ -373,53 +454,57 @@ parameters.add('nuts_num', value=1)
 parameters.add('nuts1_nuttype', value=0)  # Nitrate
 
 # PHYTOPLANKTON(s)
-parameters.add('phyto_num', value=2)
+parameters.add('phyto_num', value=1)
 parameters.add('v', value=0.01, vary=False)      # Sinking of Phytoplankton from Mixed Layer
 parameters.add('OptI', value=30, vary=False)    # Optimum irradiance (einstein*m^-2*d^-1)
 parameters.add('alpha', value=0.15, vary=False)  # initial slope of the P-I curve
-parameters.add('VpMax', value=1., vary=False)    # maximum photosynthetic rate
+parameters.add('VpMax', value=2.5, vary=False)    # maximum photosynthetic rate
 
-parameters.add('moP', value=0.1, vary=False)    # Phytoplankton mortality (d^-1)
+parameters.add('moP', value=0.015, vary=False)    # Phytoplankton mortality (d^-1)
 
 parameters.add('ratioSi', value=0, vary=False)  # Silicate ratio ## FALLBACK PARAM FOR OTHER PFTs
-parameters.add('U_N', value=0.5, vary=False)    # Nitrate Half Saturation Constant
+parameters.add('U_N', value=0.85, vary=False)    # Nitrate Half Saturation Constant
 parameters.add('U_P', value=0, vary=False)    # Phosphate Half Saturation Constant
 parameters.add('U_Si', value=0, vary=False)   # Silicate Half Saturation Constant
 parameters.add('muP', value=0, vary=False)    # Phytoplankton maximum growth rate (d^-1)
 
 # ZOOPLANKTON(s)
 parameters.add('zoo_num', value=1)
-parameters.add('moZ', value=0.1, vary=False)        # Zooplankton mortality (d^-1)
+parameters.add('moZ', value=0.02, vary=False)        # Zooplankton mortality (d^-1)
 parameters.add('deltaZ', value=0.75, vary=False)    # Zooplankton Grazing assimilation coefficient (-)
 
-parameters.add('Kp', value=1.5, vary=False)     # Zooplankton Grazing saturation constant (-)
-parameters.add('pred', value=0.01, vary=False)  # quadratic higher order predation rate on zooplankton
-parameters.add('muZ', value=0.5, vary=False)    # Zooplankton maximum grazing rate (d^-1)
+parameters.add('Kp', value=0.5, vary=False)     # Zooplankton Grazing saturation constant (-)
+parameters.add('pred', value=0.34, vary=False)  # quadratic higher order predation rate on zooplankton
+parameters.add('muZ', value=1., vary=False)    # Zooplankton maximum grazing rate (d^-1)
+
+# ZOO Feed Prefs
+parameters.add('zoo1_P1', value=.67, vary=False)  # Diatoms #P1
+parameters.add('zoo1_D1', value=.33, vary=False)# inter zoo feeding #D1
+#parameters.add('zoo1_Zint_feed1', value=0, vary=False)
+
+# CONVERT FEEDPREFS TO GRAZEPREF FOR CALCULATION OF GRAZING
+#parameters.add('zoo1_Zint_grazed1', value=parameters['zoo1_Zint_feed1'].value, vary=False)
+
+parameters.add('phyto1_Z1', value=parameters['zoo1_P1'].value, vary=False)
+parameters.add('det1_Z1', value=parameters['zoo1_D1'].value, vary=False)
 
 # DETRITUS (non-biotic pools)
 parameters.add('det_num', value=1)
-parameters.add('deltaD_N', value=0.05, vary=False)   # Nitrate Remineralization rate (d^-1)
+parameters.add('deltaD_N', value=0.06, vary=False)   # Nitrate Remineralization rate (d^-1)
 
 # PHYSICS
-parameters.add('kappa', value=0.1, vary=False)  # vary=False) # min=0.09, max=0.11) # Diffusive mixing across thermocline (m*d^-1)
+#parameters.add('kappa', value=0.1, vary=False)  # vary=False) # min=0.09, max=0.11) # Diffusive mixing across thermocline (m*d^-1)
 parameters.add('kw', value=0.04, vary=False)     # Light attenuation constant of water (m^-1)
 parameters.add('kc', value=0.03, vary=False)      # Light attenuation via phytoplankton pigment (m^-1)
 
-# MIKRO
-parameters.add('zoo1_P1', value=.7, vary=False)  # Diatoms
-parameters.add('zoo1_P2', value=.3, vary=False)
+#NEW EMPOWER:
+parameters.add('moP_quad', value=0.025, vary=False)    # Phytoplankton mortality (d^-1)
 
-# MESO
+parameters.add('wmix', value=0.13, vary=False)
+parameters.add('beta_feed', value=0.69, vary=False)
+parameters.add('kN_feed', value=0.75, vary=False)
+parameters.add('vD', value=6.43, vary=False)
 
-# inter zoo feeding
-# MIKRO
-parameters.add('zoo1_Zint_feed1', value=0, vary=False)
-
-# CONVERT FEEDPREFS TO GRAZEPREF FOR CALCULATION OF GRAZING
-parameters.add('zoo1_Zint_grazed1', value=parameters['zoo1_Zint_feed1'].value, vary=False)
-
-parameters.add('phyto1_Z1', value=parameters['zoo1_P1'].value, vary=False)
-parameters.add('phyto2_Z1', value=parameters['zoo1_P2'].value, vary=False)
 
 ######### MODEL EVALUATION CODE #############
 
@@ -431,9 +516,9 @@ physx = ms.physics
 
 
 N0 = 1
-P0 = 0.5
-Z0 = 0.1
-D0 = 0.1
+P0 = 1.5
+Z0 = 0.5
+D0 = 0.5
 
 initnut = [N0 for i in range(n.num)]
 initphy = [P0 for i in range(p.num)]
@@ -450,7 +535,7 @@ from scipy.integrate import odeint
 # INTEGRATE:
 tos = time.time()
 print('starting integration')
-outarray = odeint(ode, initcond, timedays, args=(ms,1))
+outarray = odeint(empower, initcond, timedays, args=(ms,1))
 tos1 = time.time()
 print('finished after %4.3f sec' % (tos1 - tos))
 
@@ -469,17 +554,18 @@ ax1.plot(timedays_ly,outarray_ly[:,0],label='N')
 ax1.set_ylim(bottom=0)
 
 ax2.set_title('P')
-ax2.plot(timedays_ly,outarray_ly[:,1],label='P1')
-ax2.plot(timedays_ly,outarray_ly[:,2],label='P2')
+ax2.plot(timedays_ly,outarray_ly[:,1],label='P')
+#ax2.plot(timedays_ly,outarray_ly[:,2],label='P2')
 ax2.legend()
 ax2.set_ylim(bottom=0)
 
 ax3.set_title('Z')
-ax3.plot(timedays_ly,outarray_ly[:,3],label='Z')
+ax3.plot(timedays_ly,outarray_ly[:,2],label='Z')
 ax3.set_ylim(bottom=0)
 
 ax4.set_title('D')
-ax4.plot(timedays_ly,outarray_ly[:,4],label='D')
+ax4.plot(timedays_ly,outarray_ly[:,3],label='D')
 ax4.set_ylim(bottom=0)
 
 plt.tight_layout()
+
