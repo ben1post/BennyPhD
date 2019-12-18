@@ -628,6 +628,7 @@ from matplotlib.ticker import MaxNLocator
 for axe in (ax1, ax2, ax3, ax4):
     for i in range(numcols):
         axe[i].get_yaxis().set_major_locator(MaxNLocator(nbins=4))
+        axe[i].tick_params(top=True, right=True)
 
 # PLOTTING
 timedays_ly = timedays[1:366]
@@ -662,7 +663,7 @@ ax2[0].scatter(np.arange(1, 13, 1) * 30 - 15, np.array(ms.physics.forcing.verif.
 
 
 Pall = outarray_ly[:,1]
-P_Max = np.max(Pall) + 0.5 * np.max(Pall)
+P_Max = np.max(Pall) + 0.9 * np.max(Pall)
 
 ax2[0].plot(timedays_ly, Pall, c=colors[4], lw=lws[1], label='Model')
 ax2[0].legend(fontsize='x-small')
@@ -693,27 +694,51 @@ ax1[muplot].set_title('model forcing')
 
 ax4[muplot].set_xlabel('Day in year')
 
-ax1[muplot].plot(timedays_ly, ms.physics.forcing.NOX.return_interpvalattime(timedays_ly), c=colors[5], lw=lws[0], alpha=alphas[0])
+NOX = ms.physics.forcing.NOX.return_interpvalattime(timedays_ly)
+NOXdat = ms.physics.forcing.NOX.forcingfile
+dayspermonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+dpm_cumsum = np.cumsum(dayspermonth) - 15 #- 15
+ax1[muplot].plot(timedays_ly, NOX, c=colors[5], lw=lws[0], alpha=alphas[0])
+ax1[muplot].scatter(dpm_cumsum,NOXdat[11:23], c=colors[5])
 ax1[muplot].set_ylabel('$N_0$ \n' '[µM]', multialignment='center', fontsize=10)
 ax1[muplot].set_ylim(0., N_Max)
 #ax1[muplot].invert_yaxis()
 
-MLD_max = np.max(ms.physics.forcing.MLD.return_interpvalattime(timedays_ly)) + 0.1 * np.max(ms.physics.forcing.MLD.return_interpvalattime(timedays_ly))
-ax2[muplot].plot(timedays_ly, ms.physics.forcing.MLD.return_interpvalattime(timedays_ly), c=colors[5], lw=lws[0], alpha=alphas[0])
+MLD = ms.physics.forcing.MLD.return_interpvalattime(timedays_ly)
+MLDdat = ms.physics.forcing.MLD.forcingfile
+MLD_max = np.max(MLD) + 0.1 * np.max(MLD)
+ax2[muplot].plot(timedays_ly, MLD, c=colors[5], lw=lws[0], alpha=alphas[0])
+ax2[muplot].scatter(dpm_cumsum,MLDdat[11:23], c=colors[5])
 ax2[muplot].set_ylabel('MLD \n' '[m]', multialignment='center', fontsize=10)
 ax2[muplot].set_ylim(0, MLD_max) # 400 for biotrans, 100 for Papa
 ax2[muplot].invert_yaxis()
 
-PAR_max = np.max(ms.physics.forcing.PAR.return_interpvalattime(timedays_ly)) + 0.1 * np.max(ms.physics.forcing.PAR.return_interpvalattime(timedays_ly))
-ax3[muplot].plot(timedays_ly, ms.physics.forcing.PAR.return_interpvalattime(timedays_ly), c=colors[5], lw=lws[0], alpha=alphas[0])
+PAR = ms.physics.forcing.PAR.return_interpvalattime(timedays_ly)
+PARdat = ms.physics.forcing.PAR.forcingfile
+PAR_max = np.max(PAR) + 0.1 * np.max(PAR)
+ax3[muplot].plot(timedays_ly, PAR, c=colors[5], lw=lws[0], alpha=alphas[0])
+ax3[muplot].scatter(dpm_cumsum,PARdat[11:23], c=colors[5])
 ax3[muplot].set_ylabel('PAR \n' '[E $m^{−2}$ $s^{−1}$]', multialignment='center', fontsize=10)
 ax3[muplot].set_ylim(0, PAR_max)
 # ax1[muplot].invert_yaxis()
 
-Tmld_max = np.max(ms.physics.forcing.SST.return_interpvalattime(timedays_ly)) + 0.1 * np.max(ms.physics.forcing.SST.return_interpvalattime(timedays_ly))
-ax4[muplot].plot(timedays_ly, ms.physics.forcing.SST.return_interpvalattime(timedays_ly), c=colors[5], lw=lws[0], alpha=alphas[0])
+Tmld = ms.physics.forcing.SST.return_interpvalattime(timedays_ly)
+Tmlddat = ms.physics.forcing.SST.forcingfile
+Tmld_max = np.max(Tmld) + 0.1 * np.max(Tmld)
+ax4[muplot].plot(timedays_ly, Tmld, c=colors[5], lw=lws[0], alpha=alphas[0])
+ax4[muplot].scatter(dpm_cumsum,Tmlddat[11:23], c=colors[5])
 ax4[muplot].set_ylabel('$T_{MLD}$ \n' '[°C]', multialignment='center', fontsize=10)
 ax4[muplot].set_ylim(0, Tmld_max)
 # ax1[muplot].invert_yaxis()
+
+# Defining custom 'xlim' and 'ylim' values.
+xlim = (0, 365)
+
+# Setting the values for all axes.
+plt.setp((ax1, ax2, ax3, ax4), xlim=xlim)
+
+f1.align_ylabels()
+
+plt.subplots_adjust(hspace=0.1)
 
 plt.tight_layout()

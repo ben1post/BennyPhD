@@ -11,34 +11,34 @@ import matplotlib.colors as pltcol
 #                      labels=['Remineralisation', 'Mixing', 'ZUnassimFeed'], baseline='zero')
 
 
-cmap = cm.get_cmap('seismic', 100)    # PiYG
+cmap = cm.get_cmap('hsv', 100)    # PiYG
 def HEXfromVal(val):
     rgb = cmap(val)[:3]
     return pltcol.rgb2hex(rgb)
 
-cNMixing = HEXfromVal(0)
+cNMixing = HEXfromVal(1)
 
-cPLinMort = HEXfromVal(5)
-cPQuadMort = HEXfromVal(8)
-cPMortality = HEXfromVal(6)
-cPZooGrazed = HEXfromVal(15)
-cPMixing = HEXfromVal(2)
+cPLinMort = HEXfromVal(70)
+cPQuadMort = HEXfromVal(75)
+cPMortality = HEXfromVal(72)
+cPZooGrazed = HEXfromVal(51)
+cPMixing = HEXfromVal(1)
 
 cPGains = HEXfromVal(20)
-cPNuts = HEXfromVal(18)
-cPTemps = HEXfromVal(19)
-cPLight = HEXfromVal(21)
+cPNuts = HEXfromVal(17)
+cPTemps = HEXfromVal(22)
+cPLight = HEXfromVal(34)
 
 cZGains = HEXfromVal(50)
 cZLinMort = HEXfromVal(70)
 cZQuadMort = HEXfromVal(75)
-cZMixing = HEXfromVal(80)
+cZMixing = HEXfromVal(1)
 
 cZUnassimFeedDetritus = HEXfromVal(52)
 
 cDZooGrazed = HEXfromVal(55)
-cDRemin = HEXfromVal(90)
-cDMixing = HEXfromVal(100)
+cDRemin = HEXfromVal(80)
+cDMixing = HEXfromVal(1)
 
 
 #P
@@ -101,7 +101,7 @@ def plotNfluxes(outarray, pfn, zn, i_plot, title):
     ax1[i_plot].set_ylabel('Nitrate [µM N]')
     ax2[i_plot].set_ylabel('Nitrate Fluxes [µM N / day]')
 
-    ax2[i_plot].legend(loc='lower right')
+    ax2[i_plot].legend(loc='lower right', fontsize='x-small')
     ax1[i_plot].legend()
 
     ax2[i_plot].set_xlabel('Time [days]')
@@ -183,8 +183,8 @@ def plotDetritusfluxes(outarray, pfn, zn, i_plot, title):
     ax1[i_plot].plot(timedays_ly, Det, label='Det', color='grey')
     ax1[i_plot].set_ylim(bottom=0)
 
-    ax2[i_plot].stackplot(timedays_ly, -DRemin, -DZooGrazed, -DMixing, labels=['D Remineralisation', 'D Zoograzing', 'Mixing'], baseline='zero')
-    ax2[i_plot].stackplot(timedays_ly, ZUnassimFeedDetritus, ZLinMort, PMortality, labels=['Zoo UnassimFeeding', 'ZLinear Mort', 'Phyto Mortality'], baseline='zero')
+    ax2[i_plot].stackplot(timedays_ly, -DRemin, -DZooGrazed, -DMixing, labels=['D Remineralisation', 'D Zoograzing', 'Mixing'], baseline='zero', colors=[cDRemin,cDZooGrazed,cDMixing])
+    ax2[i_plot].stackplot(timedays_ly, ZUnassimFeedDetritus, ZLinMort, PMortality, labels=['Zoo UnassimFeeding', 'ZLinear Mort', 'Phyto Mortality'], baseline='zero', colors=[cZUnassimFeedDetritus,cZLinMort,cPMortality])
     ax2[i_plot].plot(timedays_ly, -DRemin-DZooGrazed-DMixing+ZUnassimFeedDetritus+ZLinMort+PMortality, label = 'Total Flux', color='black')
     #ax2[i_plot].set_ylim(-0.09,0.09)
 
@@ -192,7 +192,7 @@ def plotDetritusfluxes(outarray, pfn, zn, i_plot, title):
     ax1[i_plot].set_ylabel('Detritus [µM N]')
     ax2[i_plot].set_ylabel('Detritus Fluxes [µM N / day]')
 
-    ax2[i_plot].legend(loc='lower right')
+    ax2[i_plot].legend(loc='lower right', fontsize='x-small')
     ax1[i_plot].legend()
 
     ax2[i_plot].set_xlabel('Time [days]')
@@ -239,8 +239,8 @@ def plotPhyfluxes(outarray, pfn, zn, i_plot, title):
     ax1[i_plot].plot(timedays_ly, P, label='P', color='grey')
     ax1[i_plot].set_ylim(bottom=0)
 
-    ax2[i_plot].stackplot(timedays_ly, -PLinMort, -PQuadMort, -PZooGrazed, -PMixing, labels=['Linear Mortality', 'Quad Mortality', 'Grazing', 'Mixing'], baseline='zero')
-    ax2[i_plot].stackplot(timedays_ly, PNuts, PTemps, PLight, labels=['Nutrient Gains', 'Temp Dependency', 'Light Harvesting'], baseline='zero')
+    ax2[i_plot].stackplot(timedays_ly, -PLinMort, -PQuadMort, -PZooGrazed, -PMixing, labels=['Linear Mortality', 'Quad Mortality', 'Grazing', 'Mixing'], baseline='zero', colors=[cPLinMort,cPQuadMort,cPZooGrazed,cPMixing])
+    ax2[i_plot].stackplot(timedays_ly, PNuts, PTemps, PLight, labels=['Nutrient Gains', 'Temp Dependency', 'Light Harvesting'], baseline='zero', colors=[cPNuts,cPTemps,cPLight])
     ax2[i_plot].plot(timedays_ly, PGains-PLosses, label = 'Total Flux', color='black')
     #ax2[i_plot].set_ylim(-0.09,0.14)
 
@@ -248,7 +248,7 @@ def plotPhyfluxes(outarray, pfn, zn, i_plot, title):
     ax1[i_plot].set_ylabel('Phytoplankton [µM N]')
     ax2[i_plot].set_ylabel('Phytoplankton Fluxes [µM N / day]')
 
-    ax2[i_plot].legend(loc='lower right')
+    ax2[i_plot].legend(loc='lower right', fontsize='x-small')
     ax1[i_plot].legend()
 
     ax2[i_plot].set_xlabel('Time [days]')
@@ -285,15 +285,15 @@ def plotZoofluxes(outarray, pfn, zn, i_plot, title):
     ax1[i_plot].plot(timedays_ly, Z, label='Z', color='grey')
     #ax1[i_plot].set_ylim(0, 0.7)
 
-    ax2[i_plot].stackplot(timedays_ly, ZGains, labels=['Assimilated Grazing'], baseline='zero')
-    ax2[i_plot].stackplot(timedays_ly, -ZLinMort, -ZQuadMort, -ZMixing, labels=['Linear Mortality','Quad Mortality', 'Mixing'], baseline='zero')
+    ax2[i_plot].stackplot(timedays_ly, ZGains, labels=['Assimilated Grazing'], baseline='zero', colors=[cZGains])
+    ax2[i_plot].stackplot(timedays_ly, -ZLinMort, -ZQuadMort, -ZMixing, labels=['Linear Mortality','Quad Mortality', 'Mixing'], baseline='zero', colors=[cZLinMort,cZQuadMort,cZMixing])
     ax2[i_plot].plot(timedays_ly, ZGains-ZLosses, label='Total Flux', color='black')
     #ax2[i_plot].set_ylim(-0.002,0.002)
 
     ax1[i_plot].set_ylabel('Zooplankton [µM N]')
     ax2[i_plot].set_ylabel('Zooplankton Fluxes [µM N / day]')
 
-    ax2[i_plot].legend(loc='lower right')
+    ax2[i_plot].legend(loc='lower right', fontsize='x-small')
     ax1[i_plot].legend()
 
     ax2[i_plot].set_xlabel('Time [days]')

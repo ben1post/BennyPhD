@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+w#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 
@@ -64,7 +64,7 @@ SiOH_monthly_median = SiOH.groupby('month').median()
 Zoo200BM_monthly_median = Zoo200BM.groupby('month').median()
 Zoo500BM_monthly_median = Zoo500BM.groupby('month').median()
 
-# COLOR SCHEME
+# COLOR SCHEMwE
 
 # color scheme
 
