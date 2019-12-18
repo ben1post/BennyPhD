@@ -300,9 +300,9 @@ class Physics:
 
     def omegaMix(self, MLD, type='std'):
         if type == 'std':
-            return (self.parameters['wmix'].value + MLD[1]) / MLD[0]
+            return (self.parameters['wmix'].value + max(MLD[1],0)) / MLD[0]
         elif type == 'D':
-            return (self.parameters['wmix'].value + MLD[1] + self.parameters['vD'].value) / MLD[0]
+            return (self.parameters['wmix'].value + max(MLD[1],0) + self.parameters['vD'].value) / MLD[0]
 
     def MLD(self,t):
         return np.array([self.forcing.MLD.return_interpvalattime(t), self.forcing.MLD.return_derivattime(t)])
@@ -341,16 +341,17 @@ class ModelSetup:
         phyto = x[n:n+p]
         zoo = x[n+p:n+p+z]
         det = x[n+p+z:n+p+z+d]
-        return nuts, phyto, zoo, det
+        rest = x[n+p+z+d:]
+        return nuts, phyto, zoo, det, rest
 
 
 # MODEL ODE
 def empower(x,t,modelsetup, q):
     """System of ODEs"""
 
-    N,P,Z,D = modelsetup.timestep_init(x)
-    # print(N,P,Z,D)
-
+    N,P,Z,D,outputlist = modelsetup.timestep_init(x)
+    #print(N,P,Z,D)
+    #print(x)
     # N = [Ni]
     # P = [P1]
     # Z = [Z1]
@@ -362,35 +363,82 @@ def empower(x,t,modelsetup, q):
     Tmld = physx.Tmld(t)
 
     Mix = physx.omegaMix(MLD)  # i.e. there is constant mixing & increased mix when MLD shallowing
+    #print('Mix',Mix)
     Mix_D = physx.omegaMix(MLD, type='D')  # i.e. there is constant mixing & increased mix when MLD shallowing
 
     # Grazing
     Gj = z.zoofeeding(P, Z, D, func='hollingtypeIII')  # feeding probability for all food
     ZooFeeding = z.fullgrazing(Gj, P, Z, D)
 
+    PTempDepGrow = p.tempdepgrowth(Tmld)
+    PNutUptake = p.uptake(N)
+    PLightHarv = p.lightharvesting(MLD[0], PAR, P) * 24/75  # (C to Chl)
     # Phytoplankton Fluxes
-    PGains = p.tempdepgrowth(Tmld) * p.uptake(N) * p.lightharvesting(MLD[0], PAR, P) * 24/75 # (C to Chl)
-    PMortality = p.mortality(P, type='linear') + p.mortality(P, type='quadratic')
-    PhytoLosses = p.zoograzing(Gj, P, Z, D) + PMortality + P * Mix
+    PGains = PTempDepGrow * PNutUptake * PLightHarv * P
+
+    PLinMort = p.mortality(P, type='linear')
+    PQuadMort = p.mortality(P, type='quadratic')
+    PMortality = PLinMort + PQuadMort
+    PZooGrazed = p.zoograzing(Gj, P, Z, D)
+    PMixing = P * Mix
+    PLosses = PZooGrazed + PMortality + PMixing
 
     # Zooplankton Fluxes
     ZGains = z.assimgrazing(ZooFeeding)
-    ZMortality = z.mortality(Z, type='linear')
-    ZLosses = ZMortality + z.mortality(Z, type='quadratic') + Z * Mix
+    ZLinMort = z.mortality(Z, type='linear')
+    ZQuadMort = z.mortality(Z, type='quadratic')
+    ZMixing = Z * Mix
+    ZLosses = ZLinMort + ZQuadMort + ZMixing
 
     # Detritus Fluxes
-    DGains = sum(z.unassimilatedgrazing(ZooFeeding, pool='D')) + sum(ZMortality) #+ sum(PMortality)
+    ZUnassimFeedDetritus = z.unassimilatedgrazing(ZooFeeding, pool='D')
+    DGains = sum(ZUnassimFeedDetritus) + sum(ZLinMort) + sum(PMortality)
     DRemin = d.remineralisation(D)
-    DLosses = d.zoograzing(Gj, D, Z) + DRemin + D * Mix_D
+    DZooGrazed = d.zoograzing(Gj, D, Z)
+    DMixing = D * Mix_D
+    DLosses = DZooGrazed + DRemin + DMixing
 
+    ZUnassimFeedNitrate = z.unassimilatedgrazing(ZooFeeding, pool='N')
+    NMixing = Mix * (N0 - N)
 
-    Px = PGains - PhytoLosses
-
-    Nx = - sum(PGains) + DRemin + sum(z.unassimilatedgrazing(ZooFeeding, pool='N')) + Mix * (N0 - N) # Nutrient draw down
+    Px = PGains - PLosses
+    Nx = - sum(PGains) + DRemin + sum(ZUnassimFeedNitrate) + NMixing# Nutrient draw down
     Zx = ZGains - ZLosses  # Zooplankton losses due to mortality and mixing
     Dx = DGains - DLosses   # Detritus
+
     out = [Nx, Px, Zx, Dx]
-    return np.concatenate(out)
+
+    outputlist[0] = PTempDepGrow
+    outputlist[1] = PNutUptake
+    outputlist[2] = PLightHarv
+    outputlist[3] = PGains
+
+    outputlist[4] = PLinMort
+    outputlist[5] = PQuadMort
+    outputlist[6] = PMortality
+    outputlist[7] = PZooGrazed
+    outputlist[22] = PMixing
+    outputlist[8] = PLosses
+
+    outputlist[9] = ZGains
+
+    outputlist[10] = ZLinMort
+    outputlist[11] = ZQuadMort
+    outputlist[12] = ZMixing
+    outputlist[13] = ZLosses
+
+    outputlist[14] = ZUnassimFeedDetritus
+    outputlist[15] = DGains
+
+    outputlist[16] = DRemin
+    outputlist[17] = DZooGrazed
+    outputlist[18] = DMixing
+    outputlist[19] = DLosses
+
+    outputlist[20] = NMixing
+    outputlist[21] = ZUnassimFeedNitrate
+
+    return np.concatenate([out,outputlist], axis=None) #,
 
 def ode(x,t,modelsetup, q):
     """System of ODEs"""
@@ -457,7 +505,7 @@ parameters.add('nuts1_nuttype', value=0)  # Nitrate
 parameters.add('phyto_num', value=1)
 parameters.add('v', value=0.01, vary=False)      # Sinking of Phytoplankton from Mixed Layer
 parameters.add('OptI', value=30, vary=False)    # Optimum irradiance (einstein*m^-2*d^-1)
-parameters.add('alpha', value=0.15, vary=False)  # initial slope of the P-I curve
+parameters.add('alpha', value=0.034, vary=False)  # initial slope of the P-I curve
 parameters.add('VpMax', value=2.5, vary=False)    # maximum photosynthetic rate
 
 parameters.add('moP', value=0.015, vary=False)    # Phytoplankton mortality (d^-1)
@@ -524,7 +572,8 @@ initnut = [N0 for i in range(n.num)]
 initphy = [P0 for i in range(p.num)]
 initzoo = [Z0 for i in range(z.num)]
 initdet = [D0 for i in range(d.num)]
-initcond = np.concatenate([initnut, initphy, initzoo, initdet], axis=None)
+initout = [0 for i in range(23)]
+initcond = np.concatenate([initnut, initphy, initzoo, initdet,initout], axis=None)
 
 timedays = np.arange(0., 5 * 365., 1.0)
 
@@ -541,10 +590,10 @@ print('finished after %4.3f sec' % (tos1 - tos))
 
 #print(outarray)
 
-
-timedays_ly = timedays#[1:366]
+"""
+timedays_ly = timedays[1:366]
 # truncate outarraySiNO to last year of 5:
-outarray_ly = outarray#[1460:1825]
+outarray_ly = outarray[1460:1825]
 
 numcols = 1
 f1, (ax1, ax2, ax3, ax4) = plt.subplots(4, numcols, sharex='col')#, sharey='row')
@@ -569,3 +618,102 @@ ax4.set_ylim(bottom=0)
 
 plt.tight_layout()
 
+"""
+numcols = 2
+f1, (ax1, ax2, ax3, ax4) = plt.subplots(4, numcols, sharex='col')#, sharey='row')
+
+
+plt.setp((ax1, ax2, ax3, ax4), xticks=[1,60,120,180,240,300,365])
+from matplotlib.ticker import MaxNLocator
+for axe in (ax1, ax2, ax3, ax4):
+    for i in range(numcols):
+        axe[i].get_yaxis().set_major_locator(MaxNLocator(nbins=4))
+
+# PLOTTING
+timedays_ly = timedays[1:366]
+outarray_ly = outarray[1460:1825]
+
+# color vectors
+#colors = ['#edc951', '#dddddd', '#00a0b0', '#343436', '#cc2a36']
+colors = ['#808080','#d55e00', '#cc79a7', '#0072b2', '#009e73', 'grey']
+alphas = [1., 0.8, 0.6, 0.4]
+lws = [2, 2.5, 4, 5.5]
+
+ax1[0].set_title('title')
+
+# Figure 1
+# N
+N_Max = np.max(ms.physics.forcing.NOX.return_interpvalattime(timedays)) + np.max(ms.physics.forcing.NOX.return_interpvalattime(timedays)) * 0.1
+ax1[0].scatter(np.arange(1, 13, 1) * 30 - 15, ms.physics.forcing.verif.N, label='WOA data')
+ax1[0].plot(timedays_ly, outarray_ly[:, 0], c=colors[1], lw=lws[0], alpha=alphas[0], label='Model')
+ax1[0].set_ylabel('Nutrients \n' '[µM N]', multialignment='center', fontsize=10)
+ax1[0].set_ylim(0, N_Max)
+ax1[0].legend(fontsize='x-small')
+
+
+ChlConv = True
+# Phyto
+CtoChla = 75  # g/g
+MolarMassC = 12.0107
+CtoNratioPhyto = 6.625
+muMolartoChlaconvfactor = CtoChla / MolarMassC / CtoNratioPhyto  # Chla as mg/m-3 to
+
+ax2[0].scatter(np.arange(1, 13, 1) * 30 - 15, np.array(ms.physics.forcing.verif.chla) * muMolartoChlaconvfactor, label='MODISaq data')
+
+
+Pall = outarray_ly[:,1]
+P_Max = np.max(Pall) + 0.5 * np.max(Pall)
+
+ax2[0].plot(timedays_ly, Pall, c=colors[4], lw=lws[1], label='Model')
+ax2[0].legend(fontsize='x-small')
+ax2[0].set_ylabel('Phytoplankton \n' '[µM N]', multialignment='center', fontsize=10)
+ax2[0].set_ylim(0, P_Max)
+
+# Z
+Zall = outarray_ly[:,2]
+Z_Max = np.max(Zall) + 0.1 * np.max(Zall)
+
+ax3[0].plot(timedays_ly, Zall, c=colors[4], lw=lws[1])
+ax3[0].set_ylabel('Zooplankton \n' '[µM N]', multialignment='center', fontsize=9)
+ax3[0].tick_params('y', labelsize=10)
+ax3[0].set_ylim(0, Z_Max)
+#ax4[i_plot].set_title('Zooplankton')
+
+D_Max = np.max(outarray_ly[:, 3]) + 0.2 * np.max(outarray_ly[:, 3])
+# D
+ax4[0].plot(timedays_ly, outarray_ly[:, 3], c=colors[1], lw=lws[0], alpha=alphas[0])
+ax4[0].set_ylabel('Detritus \n' '[µM N]', multialignment='center', fontsize=9)
+ax4[0].set_ylim(0,D_Max)
+ax4[0].set_xlabel('Day in year')
+# Legend
+
+## PHYSICS ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+muplot = 1
+ax1[muplot].set_title('model forcing')
+
+ax4[muplot].set_xlabel('Day in year')
+
+ax1[muplot].plot(timedays_ly, ms.physics.forcing.NOX.return_interpvalattime(timedays_ly), c=colors[5], lw=lws[0], alpha=alphas[0])
+ax1[muplot].set_ylabel('$N_0$ \n' '[µM]', multialignment='center', fontsize=10)
+ax1[muplot].set_ylim(0., N_Max)
+#ax1[muplot].invert_yaxis()
+
+MLD_max = np.max(ms.physics.forcing.MLD.return_interpvalattime(timedays_ly)) + 0.1 * np.max(ms.physics.forcing.MLD.return_interpvalattime(timedays_ly))
+ax2[muplot].plot(timedays_ly, ms.physics.forcing.MLD.return_interpvalattime(timedays_ly), c=colors[5], lw=lws[0], alpha=alphas[0])
+ax2[muplot].set_ylabel('MLD \n' '[m]', multialignment='center', fontsize=10)
+ax2[muplot].set_ylim(0, MLD_max) # 400 for biotrans, 100 for Papa
+ax2[muplot].invert_yaxis()
+
+PAR_max = np.max(ms.physics.forcing.PAR.return_interpvalattime(timedays_ly)) + 0.1 * np.max(ms.physics.forcing.PAR.return_interpvalattime(timedays_ly))
+ax3[muplot].plot(timedays_ly, ms.physics.forcing.PAR.return_interpvalattime(timedays_ly), c=colors[5], lw=lws[0], alpha=alphas[0])
+ax3[muplot].set_ylabel('PAR \n' '[E $m^{−2}$ $s^{−1}$]', multialignment='center', fontsize=10)
+ax3[muplot].set_ylim(0, PAR_max)
+# ax1[muplot].invert_yaxis()
+
+Tmld_max = np.max(ms.physics.forcing.SST.return_interpvalattime(timedays_ly)) + 0.1 * np.max(ms.physics.forcing.SST.return_interpvalattime(timedays_ly))
+ax4[muplot].plot(timedays_ly, ms.physics.forcing.SST.return_interpvalattime(timedays_ly), c=colors[5], lw=lws[0], alpha=alphas[0])
+ax4[muplot].set_ylabel('$T_{MLD}$ \n' '[°C]', multialignment='center', fontsize=10)
+ax4[muplot].set_ylim(0, Tmld_max)
+# ax1[muplot].invert_yaxis()
+
+plt.tight_layout()
