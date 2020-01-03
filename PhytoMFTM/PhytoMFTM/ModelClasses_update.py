@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import pandas
+#import pandas
 import numpy as np
-import scipy.interpolate as intrp
+#import scipy.interpolate as intrp
 from PhytoMFTM.AuxFuncs import sliceparams, sliceoffparams, checkreplaceparam
 from PhytoMFTM.ModelClasses import Forcing
-from lmfit import minimize, Parameters, Parameter, report_fit
+from lmfit import minimize, Parameters#, Parameter, report_fit
 
-from scipy.io import netcdf
-import os
+#from scipy.io import netcdf
+#import os
 
 
 class Nutrient:
@@ -642,10 +642,15 @@ lws = [2, 2.5, 4, 5.5]
 
 ax1[0].set_title('title')
 
+dayspermonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+dpm_cumsum = np.cumsum(dayspermonth) - np.array(dayspermonth)/2 #- 15
+print(timedays_ly)
+
+
 # Figure 1
 # N
 N_Max = np.max(ms.physics.forcing.NOX.return_interpvalattime(timedays)) + np.max(ms.physics.forcing.NOX.return_interpvalattime(timedays)) * 0.1
-ax1[0].scatter(np.arange(1, 13, 1) * 30 - 15, ms.physics.forcing.verif.N, label='WOA data')
+ax1[0].scatter(dpm_cumsum, ms.physics.forcing.verif.N, label='WOA data')
 ax1[0].plot(timedays_ly, outarray_ly[:, 0], c=colors[1], lw=lws[0], alpha=alphas[0], label='Model')
 ax1[0].set_ylabel('Nutrients \n' '[µM N]', multialignment='center', fontsize=10)
 ax1[0].set_ylim(0, N_Max)
@@ -659,7 +664,7 @@ MolarMassC = 12.0107
 CtoNratioPhyto = 6.625
 muMolartoChlaconvfactor = CtoChla / MolarMassC / CtoNratioPhyto  # Chla as mg/m-3 to
 
-ax2[0].scatter(np.arange(1, 13, 1) * 30 - 15, np.array(ms.physics.forcing.verif.chla) * muMolartoChlaconvfactor, label='MODISaq data')
+ax2[0].scatter(dpm_cumsum, np.array(ms.physics.forcing.verif.chla) * muMolartoChlaconvfactor, label='MODISaq data')
 
 
 Pall = outarray_ly[:,1]
@@ -696,10 +701,10 @@ ax4[muplot].set_xlabel('Day in year')
 
 NOX = ms.physics.forcing.NOX.return_interpvalattime(timedays_ly)
 NOXdat = ms.physics.forcing.NOX.forcingfile
-dayspermonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-dpm_cumsum = np.cumsum(dayspermonth) - 15 #- 15
+print(NOX)
+print(NOXdat)
 ax1[muplot].plot(timedays_ly, NOX, c=colors[5], lw=lws[0], alpha=alphas[0])
-ax1[muplot].scatter(dpm_cumsum,NOXdat[11:23], c=colors[5])
+ax1[muplot].scatter(dpm_cumsum, NOXdat[0:12], c=colors[5])
 ax1[muplot].set_ylabel('$N_0$ \n' '[µM]', multialignment='center', fontsize=10)
 ax1[muplot].set_ylim(0., N_Max)
 #ax1[muplot].invert_yaxis()
@@ -708,7 +713,7 @@ MLD = ms.physics.forcing.MLD.return_interpvalattime(timedays_ly)
 MLDdat = ms.physics.forcing.MLD.forcingfile
 MLD_max = np.max(MLD) + 0.1 * np.max(MLD)
 ax2[muplot].plot(timedays_ly, MLD, c=colors[5], lw=lws[0], alpha=alphas[0])
-ax2[muplot].scatter(dpm_cumsum,MLDdat[11:23], c=colors[5])
+ax2[muplot].scatter(dpm_cumsum, MLDdat[0:12], c=colors[5])
 ax2[muplot].set_ylabel('MLD \n' '[m]', multialignment='center', fontsize=10)
 ax2[muplot].set_ylim(0, MLD_max) # 400 for biotrans, 100 for Papa
 ax2[muplot].invert_yaxis()
@@ -717,7 +722,7 @@ PAR = ms.physics.forcing.PAR.return_interpvalattime(timedays_ly)
 PARdat = ms.physics.forcing.PAR.forcingfile
 PAR_max = np.max(PAR) + 0.1 * np.max(PAR)
 ax3[muplot].plot(timedays_ly, PAR, c=colors[5], lw=lws[0], alpha=alphas[0])
-ax3[muplot].scatter(dpm_cumsum,PARdat[11:23], c=colors[5])
+ax3[muplot].scatter(dpm_cumsum, PARdat[0:12], c=colors[5])
 ax3[muplot].set_ylabel('PAR \n' '[E $m^{−2}$ $s^{−1}$]', multialignment='center', fontsize=10)
 ax3[muplot].set_ylim(0, PAR_max)
 # ax1[muplot].invert_yaxis()
@@ -726,7 +731,7 @@ Tmld = ms.physics.forcing.SST.return_interpvalattime(timedays_ly)
 Tmlddat = ms.physics.forcing.SST.forcingfile
 Tmld_max = np.max(Tmld) + 0.1 * np.max(Tmld)
 ax4[muplot].plot(timedays_ly, Tmld, c=colors[5], lw=lws[0], alpha=alphas[0])
-ax4[muplot].scatter(dpm_cumsum,Tmlddat[11:23], c=colors[5])
+ax4[muplot].scatter(dpm_cumsum, Tmlddat[0:12], c=colors[5])
 ax4[muplot].set_ylabel('$T_{MLD}$ \n' '[°C]', multialignment='center', fontsize=10)
 ax4[muplot].set_ylim(0, Tmld_max)
 # ax1[muplot].invert_yaxis()

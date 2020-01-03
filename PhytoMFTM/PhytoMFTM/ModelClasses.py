@@ -59,7 +59,7 @@ class VerifData:
     def interplt(self,dat):
         dayspermonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
         dpm_3 = dayspermonth * 3
-        dpm_cumsum = np.cumsum(dpm_3) - 15
+        dpm_cumsum = np.cumsum(dpm_3) - np.array(dpm_3)/2
         dat_dpm = pandas.DataFrame(np.column_stack([dat*3, dpm_cumsum]), columns=['Value', 'yday'])
         tm_dat_conc = np.arange(0., 3 * 365., 1.0)
 
@@ -102,6 +102,7 @@ class WOAForcing:
                          np.logical_and(latgrid <= self.Lat + self.RangeBB, latgrid >= self.Lat - self.RangeBB)
             outforcing = list(np.nanmean(ncdat[:, selectarea], axis=1))
             return outforcing * 3
+
         elif self.varname == 'par':
             ncfile = netcdf.netcdf_file(self.fordir + '/PARclimatology_MODISaqua_L3_nc3.nc', 'r')
             nclat = ncfile.variables['lat'].data.copy()
@@ -123,7 +124,7 @@ class WOAForcing:
             longrid, latgrid = np.meshgrid(nclon, nclat)
             selectarea = np.logical_and(latgrid <= self.Lat + self.RangeBB, latgrid >= self.Lat - self.RangeBB) * \
                          np.logical_and(longrid <= self.Lon + self.RangeBB, longrid >= self.Lon - self.RangeBB)
-            outforcing = list(np.nanmean(ncdat[selectarea,:], axis=0))
+            outforcing = list(np.nanmean(ncdat[selectarea, :], axis=0))
             return outforcing * 3
 
         elif self.varname == 'p0x':
@@ -135,8 +136,9 @@ class WOAForcing:
             longrid, latgrid = np.meshgrid(nclon, nclat)
             selectarea = np.logical_and(latgrid <= self.Lat + self.RangeBB, latgrid >= self.Lat - self.RangeBB) * \
                          np.logical_and(longrid <= self.Lon + self.RangeBB, longrid >= self.Lon - self.RangeBB)
-            outforcing = list(np.nanmean(ncdat[selectarea,:], axis=0))
+            outforcing = list(np.nanmean(ncdat[selectarea, :], axis=0))
             return outforcing * 3
+
         elif self.varname == 'si0x':
             ncfile = netcdf.netcdf_file(self.fordir + '/Silicate_WOA_tmld_test02_nc3.nc', 'r')
             nclat = ncfile.variables['lat'].data.copy()
@@ -146,8 +148,9 @@ class WOAForcing:
             longrid, latgrid = np.meshgrid(nclon, nclat)
             selectarea = np.logical_and(latgrid <= self.Lat + self.RangeBB, latgrid >= self.Lat - self.RangeBB) * \
                          np.logical_and(longrid <= self.Lon + self.RangeBB, longrid >= self.Lon - self.RangeBB)
-            outforcing = list(np.nanmean(ncdat[selectarea,:], axis=0))
+            outforcing = list(np.nanmean(ncdat[selectarea, :], axis=0))
             return outforcing * 3
+
         elif self.varname == 'sst':
             ncfile = netcdf.netcdf_file(self.fordir + '/Temp_WOA_tmld_test02_nc3.nc', 'r')
             nclat = ncfile.variables['lat'].data.copy()
@@ -157,7 +160,7 @@ class WOAForcing:
             longrid, latgrid = np.meshgrid(nclon, nclat)
             selectarea = np.logical_and(latgrid <= self.Lat + self.RangeBB, latgrid >= self.Lat - self.RangeBB) * \
                          np.logical_and(longrid <= self.Lon + self.RangeBB, longrid >= self.Lon - self.RangeBB)
-            outforcing = list(np.nanmean(ncdat[selectarea,:], axis=0))
+            outforcing = list(np.nanmean(ncdat[selectarea, :], axis=0))
             return outforcing * 3
         else:
             return 'Please specify either mld, par, n0x or sst'
@@ -179,7 +182,7 @@ class IndForcing:
         if WOA == False:
             self.forcingfile = self.readconcforc(forcvar, filepath)
         else:
-            self.forcingfile = WOAForcing(Lat,Lon,RBB,forcvar).outForcing
+            self.forcingfile = WOAForcing(Lat, Lon, RBB, forcvar).outForcing
         self.interpolated = self.dailyinterp(self.forcingfile, self.kind, self.k, self.s)
         if kind == "spline":
             self.derivative = self.interpolated.derivative()
@@ -210,13 +213,15 @@ class IndForcing:
         -------
         The temporally interpolated environmental forcing.
         """
-        tmonth = np.linspace(-10.5, 24.473, 12 * 3)
-
+        # tmonth = np.linspace(-10.5, 24.473, 12 * 3)
+        dayspermonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+        dpm = dayspermonth * 3
+        dpm_cumsum = np.cumsum(dpm) - np.array(dpm)/2
         if kind == 'spline':
-            outintp = intrp.UnivariateSpline(tmonth, file, k=k, s=s)
+            outintp = intrp.UnivariateSpline(dpm_cumsum, file, k=k, s=s)
             return outintp
         elif kind == 'PWPoly':
-            outintp = intrp.PchipInterpolator(tmonth, file)
+            outintp = intrp.PchipInterpolator(dpm_cumsum, file)
             return outintp
         else:
             raise('Wrong interpolation type passed to dailyinterp function of IndForcing class')
@@ -227,7 +232,7 @@ class IndForcing:
 
         converts time in days to time in months
         """
-        newt = np.mod(time, 365.)*12./365.
+        newt = np.mod(time, 365.) + 365  # *12./365.
         return self.interpolated(newt)
 
     def return_derivattime(self, time):
@@ -236,13 +241,13 @@ class IndForcing:
 
         converts time in days to time in months, and the resulting derivative from per month to per day
         """
-        newt = np.mod(time, 365.) * 12. / 365.
+        newt = np.mod(time, 365.) + 365  # * 12. / 365.
 
         if self.forcingtype == "constantMLD" and self.forcvar == "MLD":
             # return 0 as derivative for constant MLD, remove mathematical inaccuracy
-            return self.derivative(newt) * 0.03
+            return self.derivative(newt)  # * 0.03
         else:
-            return self.derivative(newt) * 0.03
+            return self.derivative(newt)  # * 0.03
 
 class Forcing:
     """
