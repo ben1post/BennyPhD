@@ -503,17 +503,17 @@ parameters.add('nuts1_nuttype', value=0)  # Nitrate
 
 # PHYTOPLANKTON(s)
 parameters.add('phyto_num', value=1)
-parameters.add('v', value=0.01, vary=False)      # Sinking of Phytoplankton from Mixed Layer
-parameters.add('OptI', value=30, vary=False)    # Optimum irradiance (einstein*m^-2*d^-1)
+#parameters.add('v', value=0.01, vary=False)      # Sinking of Phytoplankton from Mixed Layer
+#parameters.add('OptI', value=30, vary=False)    # Optimum irradiance (einstein*m^-2*d^-1)
 parameters.add('alpha', value=0.034, vary=False)  # initial slope of the P-I curve
 parameters.add('VpMax', value=2.5, vary=False)    # maximum photosynthetic rate
 
 parameters.add('moP', value=0.015, vary=False)    # Phytoplankton mortality (d^-1)
 
-parameters.add('ratioSi', value=0, vary=False)  # Silicate ratio ## FALLBACK PARAM FOR OTHER PFTs
+#parameters.add('ratioSi', value=0, vary=False)  # Silicate ratio ## FALLBACK PARAM FOR OTHER PFTs
 parameters.add('U_N', value=0.85, vary=False)    # Nitrate Half Saturation Constant
-parameters.add('U_P', value=0, vary=False)    # Phosphate Half Saturation Constant
-parameters.add('U_Si', value=0, vary=False)   # Silicate Half Saturation Constant
+#parameters.add('U_P', value=0, vary=False)    # Phosphate Half Saturation Constant
+#parameters.add('U_Si', value=0, vary=False)   # Silicate Half Saturation Constant
 parameters.add('muP', value=0, vary=False)    # Phytoplankton maximum growth rate (d^-1)
 
 # ZOOPLANKTON(s)
@@ -747,3 +747,4 @@ f1.align_ylabels()
 plt.subplots_adjust(hspace=0.1)
 
 plt.tight_layout()
+plt.show()
