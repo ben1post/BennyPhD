@@ -179,8 +179,10 @@ class IndForcing:
         self.kind = kind
         self.forcingtype = forctype
         self.forcvar = forcvar
-        if WOA == False:
+        if (WOA == False) and (forctype != 'EMPOWER'):
             self.forcingfile = self.readconcforc(forcvar, filepath)
+        elif forctype == 'EMPOWER':
+            self.forcingfile = self.readEMPOWER(forcvar, filepath)
         else:
             self.forcingfile = WOAForcing(Lat, Lon, RBB, forcvar).outForcing
         self.interpolated = self.dailyinterp(self.forcingfile, self.kind, self.k, self.s)
@@ -189,6 +191,13 @@ class IndForcing:
 
 
         print(forcvar + ' forcing created')
+    def readEMPOWER(self, varname, filepath):
+        forc_all = pandas.read_csv(filepath)
+        forcing_monthly_median = forc_all.groupby('month').mean()
+        forcing_oneyear = list(forcing_monthly_median[varname])
+        forcing_list = forcing_oneyear * 3
+        return forcing_list
+
 
     def readconcforc(self, varname, filepath):
         """ read forcing from csv file and calculate monthly means """
@@ -384,6 +393,14 @@ class Forcing:
             self.PAR = IndForcing('par', 'X', k=5, s=5, kind="spline", forctype=forcingtype,
                                   WOA=True, Lat=lat, Lon=lon, RBB=rbb)
             self.verif = VerifData( Lat=lat, Lon=lon, RBB=rbb)
+            self.type = 'MLD'
+
+        elif forcingtype == 'EMPOWER':
+            self.MLD = IndForcing('MLD', 'Forcing/EMPOWER/EMPOWER-forcing-export.csv', k=5, s=100, kind="spline", forctype=forcingtype)
+            self.NOX = IndForcing('N0', 'Forcing/EMPOWER/EMPOWER-forcing-export.csv', k=5, s=None, kind="PWPoly", forctype=forcingtype)
+            self.SST = IndForcing('SST', 'Forcing/EMPOWER/EMPOWER-forcing-export.csv', k=5, s=None, kind="PWPoly", forctype=forcingtype)
+            self.PAR = IndForcing('PAR', 'Forcing/EMPOWER/EMPOWER-forcing-export.csv', k=5, s=None, kind="spline", forctype=forcingtype)
+            self.verif = VerifData(Lat=47, Lon=-20, RBB=2.5)
             self.type = 'MLD'
 
         else:

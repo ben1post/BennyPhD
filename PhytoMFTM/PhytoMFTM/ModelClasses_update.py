@@ -73,21 +73,23 @@ class Phytoplankton:
         Uptake = N[0] / (N[0] + self.U_N)
         return Uptake
 
-    def lightharvesting(self, MLD, PAR, P, type='Smith'):
+    def lightharvesting(self, MLD, PAR, P, VPT, type='Smith'):
         """Light - modification of phytoplankton growth rate"""
         if type == 'Steele':
             lighthrv = 1. / (self.kw * MLD) * \
                        (-np.exp(1. - PAR / self.OptI) - (
                            -np.exp((1. - (PAR * np.exp(-self.kw * MLD)) / self.OptI))))
             return lighthrv
+        # TODO: convert P to chlorophyll!
         if type == 'Smith':
+            PAR = PAR
             kPAR = self.kw + self.kc * sum(P)
             x_0 = self.alpha * PAR * np.exp(- kPAR * 0)
             x_H = self.alpha * PAR * np.exp(- kPAR * MLD)
-            VpH = (self.VpMax / (kPAR * MLD)) * \
+            VpH = (VPT / (kPAR * MLD)) * \
                   np.log(
-                      (x_0 + np.sqrt(self.VpMax ** 2 + x_0 ** 2)) /
-                      (x_H + np.sqrt(self.VpMax ** 2 + x_H ** 2))
+                      (x_0 + np.sqrt(VPT ** 2 + x_0 ** 2)) /
+                      (x_H + np.sqrt(VPT ** 2 + x_H ** 2))
                   )
             return VpH
 
@@ -282,10 +284,13 @@ class StateVariables:
 
 class Physics:
     """"""
-    def __init__(self,params,type):
+    def __init__(self,params,fxtype):
         self.parameters = params
-        self.type = type
-        self.forcing = Forcing('WOA2018', 47, -20, 1.5)
+        self.type = fxtype
+        if self.type == 'slab':
+            self.forcing = Forcing('WOA2018', 47, -20, 1.5)
+        elif self.type == 'EMPOWER':
+            self.forcing = Forcing('EMPOWER')
 
     def K(self, MLD, mix='h+'):
         if mix == 'h+':
@@ -326,7 +331,7 @@ class ModelSetup:
         self.detritus = StateVariables(params, 'det')
         self._classes = [self.nutrients, self.phytoplankton, self.zooplankton, self.detritus]
 
-        self.physics = Physics(params, 'slab')
+        self.physics = Physics(params, 'EMPOWER')  # 'slab' as fxtype instead
 
     @property
     def classes(self):
@@ -372,7 +377,7 @@ def empower(x,t,modelsetup, q):
 
     PTempDepGrow = p.tempdepgrowth(Tmld)
     PNutUptake = p.uptake(N)
-    PLightHarv = p.lightharvesting(MLD[0], PAR, P) * 24/75  # (C to Chl)
+    PLightHarv = p.lightharvesting(MLD[0], PAR, P, sum(PTempDepGrow)) * 24/75  # (C to Chl)
     # Phytoplankton Fluxes
     PGains = PTempDepGrow * PNutUptake * PLightHarv * P
 
@@ -440,57 +445,6 @@ def empower(x,t,modelsetup, q):
 
     return np.concatenate([out,outputlist], axis=None) #,
 
-def ode(x,t,modelsetup, q):
-    """System of ODEs"""
-
-    N,P,Z,D = modelsetup.timestep_init(x)
-#    print(N,P,Z,D)
-
-    # N = [Ni,P,Si]
-    # P = [P1,P2,P3]
-    # Z = [Z1,Z2,Z3]
-    # D = [D]
-
-    MLD = physx.MLD(t)  # MLD = [int_MLD, deriv_MLD]
-    N0 = physx.N0(t)  # N0 = [Ni0,P0,Si0]
-    PAR = physx.PAR(t)
-    Tmld = physx.Tmld(t)
-
-    K = physx.K(MLD)  # i.e. there is constant mixing & increased mix when MLD shallowing
-    K_Z = physx.K(MLD, mix='Z')
-
-    # Grazing
-    Gj = z.zoofeeding(P, Z, func='anderson')  # feeding probability for all food
-
-    ZooFeeding = z.fullgrazing(Gj, P, Z)
-
-
-    # Phytoplankton Fluxes
-    PGains = p.uptake(N) * p.lightharvesting(MLD[0], PAR, P) * p.tempdepgrowth(Tmld)
-    PMortality = p.mortality(P)
-    PhytoLosses = p.zoograzing(Gj, P, Z) + PMortality + p.sinking(MLD[0], P) + P * K
-
-    # Zooplankton Fluxes
-    ZGains = z.assimgrazing(ZooFeeding)
-    ZMortality = z.mortality(Z, type='linear')
-    ZLosses = ZMortality + z.mortality(Z, type='quadratic') + Z * K_Z
-
-    # Detritus Fluxes
-    DGains = sum(z.unassimilatedgrazing(ZooFeeding)) + sum(ZMortality) + sum(PMortality)
-    DRemin = d.remineralisation(D)
-    DLosses = DRemin + D * K
-
-    Px = PGains - PhytoLosses
-
-    Nx = DRemin + n.mixing(N0, N, K) - sum(PGains)  # Nutrient draw down
-
-    Zx = ZGains - ZLosses  # Zooplankton losses due to mortality and mixing
-
-    Dx = DGains - DLosses   # Detritus
-
-    out = [Nx, Px, Zx, Dx]
-    return np.concatenate(out)
-
 
 
 ######### PARAMETER SETUP #############
@@ -505,7 +459,7 @@ parameters.add('nuts1_nuttype', value=0)  # Nitrate
 parameters.add('phyto_num', value=1)
 #parameters.add('v', value=0.01, vary=False)      # Sinking of Phytoplankton from Mixed Layer
 #parameters.add('OptI', value=30, vary=False)    # Optimum irradiance (einstein*m^-2*d^-1)
-parameters.add('alpha', value=0.034, vary=False)  # initial slope of the P-I curve
+parameters.add('alpha', value=0.15, vary=False)  # initial slope of the P-I curve 0.034
 parameters.add('VpMax', value=2.5, vary=False)    # maximum photosynthetic rate
 
 parameters.add('moP', value=0.015, vary=False)    # Phytoplankton mortality (d^-1)
@@ -563,10 +517,10 @@ n,p,z,d = ms.classes
 physx = ms.physics
 
 
-N0 = 1
-P0 = 1.5
-Z0 = 0.5
-D0 = 0.5
+N0 = 10
+P0 = 0.1
+Z0 = 0.1
+D0 = 0.1
 
 initnut = [N0 for i in range(n.num)]
 initphy = [P0 for i in range(p.num)]
@@ -640,7 +594,7 @@ colors = ['#808080','#d55e00', '#cc79a7', '#0072b2', '#009e73', 'grey']
 alphas = [1., 0.8, 0.6, 0.4]
 lws = [2, 2.5, 4, 5.5]
 
-ax1[0].set_title('title')
+ax1[0].set_title('model output')
 
 dayspermonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 dpm_cumsum = np.cumsum(dayspermonth) - np.array(dayspermonth)/2 #- 15
