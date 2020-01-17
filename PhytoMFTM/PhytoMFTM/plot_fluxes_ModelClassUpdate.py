@@ -99,7 +99,7 @@ def plotNfluxes(outarray, pfn, zn, i_plot, title):
     ax2[i_plot].stackplot(timedays_ly, -PGains, labels=['P Growth'], baseline='zero', colors=[cPGains])
     ax2[i_plot].stackplot(timedays_ly, DRemin, NMixing,ZUnassimFeedNitrate, labels=['D Remineralisation','N Mixing','Z Unassimilated Feeding'], baseline='zero', colors=[cDRemin,cNMixing,cZUnassimFeedDetritus])
     ax2[i_plot].plot(timedays_ly, DRemin+NMixing+ZUnassimFeedNitrate-PGains, label = 'total growth/loss-rate', color=cTOTALFLUX)
-    ax2[i_plot].set_ylim(-0.3,0.3)
+    ax2[i_plot].set_ylim(-0.5,0.5)
 
 
     ax1[i_plot].set_ylabel('Nitrate [µM N]')
@@ -217,7 +217,7 @@ def plotPhyfluxes(outarray, pfn, zn, i_plot, title):
     ax2[i_plot].set_xlabel('Time [days]')
     ax2[i_plot].set_xlim(1,365)
     ax2[i_plot].set_xticks([1, 90, 180, 270, 365])
-    ax2[i_plot].set_ylim(-0.3,0.3)
+    ax2[i_plot].set_ylim(-0.5,0.5)
 
 def plotPhyLim(outarray, pfn, zn, i_plot, title):
     # PLOTTING
@@ -239,9 +239,9 @@ def plotPhyLim(outarray, pfn, zn, i_plot, title):
     ax1[i_plot].plot(timedays_ly, PTempDepGrow, label='VpT', color='grey')
     ax1[i_plot].set_ylim(bottom=0)
 
-    ax2[i_plot].plot(timedays_ly, PLightHarv, label='Light Lim', color=cPLight)
+    ax2[i_plot].plot(timedays_ly, PLightHarv, label='Light Limitation', color=cPLight)
 
-    ax2[i_plot].plot(timedays_ly, PNutUptake, label='Nut Lim', color=cPNuts)
+    ax2[i_plot].plot(timedays_ly, PNutUptake, label='N Limitation', color=cPNuts)
     ax2[i_plot].set_ylim(bottom=0)
 
     ax1[i_plot].set_ylabel('Maximum photosynth. rate [$d^{-1}$]')

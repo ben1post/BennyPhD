@@ -29,14 +29,14 @@ standardparams = Parameters()
 # standardparams.add('zoo_num', value=2, vary=False)
 
 # mld - related
-standardparams.add('kappa', value=0.15, vary=False) # vary=False) # min=0.09, max=0.11) # Diffusive mixing across thermocline (m*d^-1)
+standardparams.add('kappa', value=0.1, vary=False) # vary=False) # min=0.09, max=0.11) # Diffusive mixing across thermocline (m*d^-1)
 standardparams.add('deltaD_N', value=0.2, vary=False)   # Nitrate Remineralization rate (d^-1)
 
 standardparams.add('kw', value=0.04, vary=False)     # Light attenuation constant of water (m^-1)
 
 standardparams.add('kc', value=0.03, vary=False)      # Light attenuation via phytoplankton pigment (m^-1)
 standardparams.add('alpha', value=0.15, vary=False)  # initial slope of the P-I curve
-standardparams.add('VpMax', value=1., vary=False)    # maximum photosynthetic rate
+standardparams.add('VpMax', value=2.5, vary=False)    # maximum photosynthetic rate
 
 standardparams.add('v', value=0., vary=False)      # Sinking of Phytoplankton from Mixed Layer
 standardparams.add('OptI', value=30, vary=False)    # Optimum irradiance (einstein*m^-2*d^-1)
@@ -51,11 +51,12 @@ standardparams.add('muP', value=0, vary=False)    # Phytoplankton maximum growth
 
 # set up phytoplankton type 1 (e.g. DIATOMS)
 ptype1 = Parameters()
-ptype1.add('pt1_ratioSi', value=1., vary=False)  # Silicate ratio
-ptype1.add('pt1_U_Si', value=0.5, vary=False)   # Silicate Half Saturation Constant
-ptype1.add('pt1_U_N', value=0.9, vary=False)    # Nitrate Half Saturation Constant
-ptype1.add('pt1_muP', value=1.074, vary=False)    # Phytoplankton maximum growth rate (d^-1)
+ptype1.add('pt1_ratioSi', value=0., vary=False)  # Silicate ratio
+ptype1.add('pt1_U_Si', value=3.5, vary=False)   # Silicate Half Saturation Constant
+ptype1.add('pt1_U_N', value=1.5, vary=False)    # Nitrate Half Saturation Constant
+ptype1.add('pt1_muP', value=1.5, vary=False)    # Phytoplankton maximum growth rate (d^-1)
 
+"""
 # set up phytoplankton type 2 (e.g. Haptos)
 ptype2 = Parameters()
 #ptype2.add('pt2_OptI', value=30, vary=False)    # Optimum irradiance (einstein*m^-2*d^-1)
@@ -76,10 +77,10 @@ ptype4.add('pt4_muP', value=0.3, vary=False)    # Phytoplankton maximum growth r
 ptype5 = Parameters()
 ptype5.add('pt5_U_N', value=1.84, vary=False)    # Nitrate Half Saturation Constant
 ptype5.add('pt5_muP', value=0.51, vary=False)    # Phytoplankton maximum growth rate (d^-1)
-
+"""
 # z - related
 #z grazing related
-standardparams.add('moZ', value=0.07, vary=False)        # Zooplankton mortality (d^-1)
+standardparams.add('moZ', value=0.1, vary=False)        # Zooplankton mortality (d^-1)
 standardparams.add('deltaZ', value=0.75, vary=False)    # Zooplankton Grazing assimilation coefficient (-)
 standardparams.add('deltaLambda', value=0.75, vary=False)    # Zooplankton Inter-Grazing assimilation coefficient (-)
 standardparams.add('muIntGraze', value=0.1, vary=False)  # InterZooGrazing maximum grazing rate
@@ -91,11 +92,19 @@ standardparams.add('muZ', value=0, vary=False)    # Zooplankton maximum grazing 
 
 # set up zooplankton type 1 (e.g. MIKRO zooplankton)
 ztype1 = Parameters()
-ztype1.add('zt1_muZ', value=0.5, min=.2, max=1.5)    # Zooplankton maximum grazing rate (d^-1)
+ztype1.add('zt1_muZ', value=.7, vary=False)    # Zooplankton maximum grazing rate (d^-1)
 
-ztype1.add('zt1_Kp', value=1., min=.2, max=1.5)       # Zooplankton Grazing saturation constant (-)
-ztype1.add('zt1_pred', value=0.06, min=.001, max=0.2)    # quadratic higher order predation rate on zooplankton
+ztype1.add('zt1_Kp', value=1., vary=False)       # Zooplankton Grazing saturation constant (-)
+ztype1.add('zt1_pred', value=0.1, vary=False)    # quadratic higher order predation rate on zooplankton
 
+
+ztype1.add('zt1_P1', value=1, vary=False)  # Diatoms
+
+ztype1.add('zt1_Zint_feed1', value=0, vary=False)
+ztype1.add('zt1_Zint_grazed1', value=ztype1['zt1_Zint_feed1'].value, vary=False)
+
+ptype1.add('pt1_Z1', value=ztype1['zt1_P1'].value, vary=False)
+"""
 # set up zooplankton type 2 (e.g. MESO zooplankton)
 ztype2 = Parameters()
 ztype2.add('zt2_muZ', value=0.5, min=.2, max=1.5)    # Zooplankton maximum grazing rate (d^-1)
@@ -103,13 +112,15 @@ ztype2.add('zt2_muZ', value=0.5, min=.2, max=1.5)    # Zooplankton maximum grazi
 ztype2.add('zt2_Kp', value=1.3, min=.2, max=1.5)       # Zooplankton Grazing saturation constant (-)
 ztype2.add('zt2_pred', value=ztype1['zt1_pred'].value, vary=False)    # quadratic higher order predation rate on zooplankton
 
-"""
+
+
 add feeding pref params!
 Z1P1
 Z1P2
 Z2P1
 Z2P2
-"""
+
+
 # MIKRO
 ztype1.add('zt1_P1', value=0, vary=False)  # Diatoms
 ztype1.add('zt1_P2', value=0.25, vary=False)  # Hapto
@@ -153,12 +164,14 @@ ptype4.add('pt4_Z2', value=ztype2['zt2_P4'].value, vary=False)
 ptype5.add('pt5_Z1', value=ztype1['zt1_P5'].value, vary=False)
 ptype5.add('pt5_Z2', value=ztype2['zt2_P5'].value, vary=False)
 
-
+"""
 
 # READ THE VERIFICATION DATA
 # read yearly data (for comparison to model) from Cariaco
 NO3NO2 = pandas.read_csv('ValidationData/Old/NewVerifDATA/NO2NO3_r1.csv')
 SiOH = pandas.read_csv('ValidationData/Old/NewVerifDATA/SiOH_r1.csv')
+
+Tchla = pandas.read_csv('ValidationData/Tchla_r1.csv')
 
 DIATOM = pandas.read_csv('ValidationData/Old/NewVerifDATA/Diatoms_r1.csv')
 HAPTO = pandas.read_csv('ValidationData/Old/NewVerifDATA/Hapto_r1.csv')
@@ -203,6 +216,8 @@ def returnintverifdat(DF):
 ###########--interpolate verification data---######
 NO3NO2_int = returnintverifdat(NO3NO2)
 SiOH_int = returnintverifdat(SiOH)
+
+Tchla_int = returnintverifdat(Tchla)
 
 DIATOM_int = returnintverifdat(DIATOM)
 HAPTO_int = returnintverifdat(HAPTO)
@@ -258,10 +273,10 @@ def setupinitcond(pfn,zn):
 timedays_model = np.arange(0., 5 * 365., 1.0)
 
 
-standardparams.add('pfun_num', value=5, vary=False)
-standardparams.add('zoo_num', value=2, vary=False)
-all_params = (standardparams + ptype1 + ptype2 + ptype3 + ptype4 + ptype5 + ztype1 + ztype2)
-initialcond = setupinitcond(5, 2)
+standardparams.add('pfun_num', value=1, vary=False)
+standardparams.add('zoo_num', value=1, vary=False)
+all_params = (standardparams + ptype1 + ztype1) # + ptype2 + ptype3 + ptype4 + ptype5 + ztype2)
+initialcond = setupinitcond(1, 1)
 
 fx = Forcing('constantMLD')
 
@@ -406,6 +421,6 @@ print(result.residual)
 
 # out5P2Z_2 = callmodelrun(5,2,'varMLDconstNuts')
 
-outarray = callmodelrun(5,2,'constantMLD')
+outarray = callmodelrun(1,1,'constantMLD')
 result = 0
 

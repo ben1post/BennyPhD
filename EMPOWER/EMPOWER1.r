@@ -242,7 +242,7 @@ Y[11] <<- Pmort+Pmort2
 Y[12] <<- N0
 Y[13] <<- noonparnow*daylnow/24.0 
 Y[14] <<- VpT
-Y[15] <<- 2
+Y[15] <<- daylnow
 Y[16] <<- 1
 Y[17] <<- 0
 Y[18] <<- 0

@@ -21,30 +21,34 @@ def phytomftm_extendedoutput_forcing(x, t, paras, pClass, zClass, forcing):
     outputlist = [x[3+zn+pfn+i] for i in range(20)]
 
     # Interpolations of Forcings
-    int_MLD = forcing.MLD.return_interpvalattime(t)
+    int_MLD = 100 #forcing.MLD.return_interpvalattime(t)
     int_NOX = forcing.NOX.return_interpvalattime(t)
     #if int_NOX < 0. : int_NOX = 0.  # do not allow negative Nitrate values
     int_SIOX = forcing.SiOX.return_interpvalattime(t)
     #if int_SIOX < 0.: int_SIOX = 0.  # do not allow negative Silicate values
     int_PAR = forcing.PAR.return_interpvalattime(t)
     int_SST = forcing.SST.return_interpvalattime(t)
-
+    #print(int_MLD,int_NOX,int_SST)
     # Derivatives of Forcings
     deriv_MLD = forcing.MLD.return_derivattime(t)
+
+    int_X21 = forcing.X21.return_interpvalattime(t)
 
     # Non-Phytoplankton related processes
     # Mixing Processes
     if forcing.type == 'MLD':
-        K = (paras['kappa'].value + max(deriv_MLD, 0)) / int_MLD  # i.e. there is constant mixing & increased loss with MLD shallowing
-        K_Z = deriv_MLD / int_MLD  # i.e. concentration varies with the MLD depth
+        #K = (paras['kappa'].value + max(deriv_MLD, 0)) / int_MLD  # i.e. there is constant mixing & increased loss with MLD shallowing
+        K = paras['kappa'].value / int_X21 * 100
+        K_Z = 0 #deriv_MLD / int_MLD  # i.e. concentration varies with the MLD depth
         U = 0 #i.e. there is no mixing via U, the upwelling parameter for box models
         Sink = 0
 
     elif forcing.type == 'box':
         K = 0  # i.e. there is no modification of mixing due to K
         K_Z = 0  # since there is no change in modeled depth, no losses due to MLD changes
-        U = (paras['kappa'].value + max(deriv_MLD, 0)) / int_MLD  # max(deriv_MLD, 0)) / int_MLD # upwelling according to MLD
+        U = 0.1/ int_X21 * 100#(paras['kappa'].value + max(deriv_MLD, 0)) / int_MLD  #  max(deriv_MLD, 0)) / int_MLD # upwelling according to MLD
         Sink = 0.005  # 0.5 m per day
+
 
     elif forcing.type == 'box_constantKappa':
         K = 0  # i.e. there is no modification of mixing due to K
@@ -86,8 +90,8 @@ def phytomftm_extendedoutput_forcing(x, t, paras, pClass, zClass, forcing):
     Si_Uptake = [p[i].si_uptake(Si) for i in range(pfn)]
 
     # Light and Temperature
-    # LightHarvesting = [p[i].lightharvesting(int_MLD, int_PAR) for i in range(pfn)]
-    LightHarvesting = [p[i].smithpi(int_MLD, int_PAR, P) for i in range(pfn)]
+    LightHarvesting = [p[i].lightharvesting(int_MLD, int_PAR) for i in range(pfn)]
+    # LightHarvesting = [p[i].smithpi(int_MLD, int_PAR, P) for i in range(pfn)]
     TemperatureDepGrowth = [p[i].tempdepgrowth(int_SST) for i in range(pfn)]
     # Phytoplankton Growth
     Gains = [p[i].gains(N_Uptake[i], Si_Uptake[i], LightHarvesting[i], TemperatureDepGrowth[i], P[i]) for i in range(pfn)]
@@ -121,7 +125,7 @@ def phytomftm_extendedoutput_forcing(x, t, paras, pClass, zClass, forcing):
     zoo = [AssimilatedGrazing[j] - InterZooPredation[j] - ZooMixing[j] - ZooMortality[j] - HigherOrderPredation[j] for j in range(zn)]   # Zooplankton losses due to mortality and mixing
 
     #print(phy)
-    outputlist[0] = int_MLD                 - outputlist[0]
+    outputlist[0] = U                 - outputlist[0]
     outputlist[1] = NMixing                 - outputlist[1]
     outputlist[2] = K                       - outputlist[2]
     outputlist[3] = sum(Gains)              - outputlist[3]

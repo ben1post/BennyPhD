@@ -13,7 +13,7 @@ import lmfit
 # Fitting
 from lmfit import minimize, Parameters, Parameter, report_fit
 
-from PhDPropPlots.runModel_BioticEnvMixing import outarray, timedays_model , result#, out5P2Zconstant, out5P2Z, out5P2Z_2
+from PhDPropPlots.runModel_NPZD_BioticEnvMixing import outarray, timedays_model , result #, out5P2Zconstant, out5P2Z, out5P2Z_2
 
 
 
@@ -35,6 +35,11 @@ out5P2Z_3 = outarray
 NO3NO2 = pandas.read_csv('ValidationData/Old/NewVerifDATA/NO2NO3_r1.csv')
 SiOH = pandas.read_csv('ValidationData/Old/NewVerifDATA/SiOH_r1.csv')
 
+Tchla = pandas.read_csv('ValidationData/Tchla_r1.csv')
+
+Tchla = Tchla[Tchla['spec']=='Tchla']
+#Tchla2 = Tchla2[Tchla2['spec']=='Tchla']
+
 DIATOM = pandas.read_csv('ValidationData/Old/NewVerifDATA/Diatoms_r1.csv')
 HAPTO = pandas.read_csv('ValidationData/Old/NewVerifDATA/Hapto_r1.csv')
 DINO = pandas.read_csv('ValidationData/Old/NewVerifDATA/Dino_r1.csv')
@@ -53,6 +58,7 @@ PN = pandas.read_csv('ValidationData/Old/NewVerifDATA/PN_r1.csv')
 NO3NO2 = NO3NO2.assign(month = pandas.to_datetime(NO3NO2['yday'], format='%j').dt.month)
 SiOH = SiOH.assign(month = pandas.to_datetime(SiOH['yday'], format='%j').dt.month)
 
+Tchla= Tchla.assign(month = pandas.to_datetime(Tchla['yday'], format='%j').dt.month)
 DIATOM = DIATOM.assign(month = pandas.to_datetime(DIATOM['yday'], format='%j').dt.month)
 HAPTO = HAPTO.assign(month = pandas.to_datetime(HAPTO['yday'], format='%j').dt.month)
 DINO = DINO.assign(month = pandas.to_datetime(DINO['yday'], format='%j').dt.month)
@@ -67,6 +73,8 @@ PN = PN.assign(month = pandas.to_datetime(PN['yday'], format='%j').dt.month)
 
 NO3NO2_monthly_median = NO3NO2.groupby('month').median()
 SiOH_monthly_median = SiOH.groupby('month').median()
+
+Tchla_monthly_median = Tchla.groupby('month').median()
 
 DIATOM_monthly_median = DIATOM.groupby('month').median()
 HAPTO_monthly_median = HAPTO.groupby('month').median()
@@ -107,13 +115,13 @@ mcolors.get_named_colors_mapping().update(c)
 def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
     numplots = 4
 
-    f1, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, numplots, sharex='col', gridspec_kw={'width_ratios':[1, .5, 1, .5]})
+    f1, (ax1, ax2, ax5) = plt.subplots(3, numplots, sharex='col', gridspec_kw={'width_ratios':[1, .5, 1, .5]})
     # N / Si / Pdt / Pc / Pdn / Pn / Zmu / Zlambda / D
     # PLOTTING
-
-    plt.setp((ax1, ax2, ax3, ax4, ax5), xticks=[1,60,120,180,240,300,360])
+    plt.tight_layout()
+    plt.setp((ax1, ax2, ax5), xticks=[1,60,120,180,240,300,360])
     from matplotlib.ticker import MaxNLocator
-    for axe in (ax1, ax2, ax3, ax4, ax5):
+    for axe in (ax1, ax2, ax5):
         for i in range(numplots):
             axe[i].get_yaxis().set_major_locator(MaxNLocator(nbins=4))
 
@@ -129,7 +137,8 @@ def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
     modeldepth = 100
     CtoNratioPhyto = 6.625
     CtoChla = 50
-    muMolartoChlaconvfactor = modeldepth * CtoNratioPhyto / CtoChla # µM N m^-2 * C N^-1 / C chla^-1 = µM chla m^-2
+    # model output is: µM N - convert to ng m^⁻2 / µM is µmol/l, *1000 = mol/l
+    muMolartoChlaconvfactor = 1000 * 1000 * modeldepth * CtoNratioPhyto / CtoChla * 891 / 1000000000 #* 90 # µM N m^-2 * C N^-1 / C chla^-1 = µM chla m^-2 to ng m^-2
 
     # mg dry weight per cubic meter to µM of N
     mggramstograms = 1/1000
@@ -149,16 +158,17 @@ def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
     # Figure 1
 
     ax1[0].plot(timedays, outarray_ly[:, 3 + zn + 0] * muMolartoChlaconvfactor, c="Phyto")
-    ax1[0].set_ylabel('Diatoms \n' '[mg Chl m$^{-2}$]', multialignment='center', fontsize=9)
+    ax1[0].set_ylabel('P \n' '[ng Chl m$^{-2}$]', multialignment='center', fontsize=9)
     # ax1_tx = ax1[0].twinx()
-    ax1[0].scatter(DIATOM['yday'].values, DIATOM['Value'].values, c="Phyto", s=4.3)
+    ax1[0].scatter(Tchla['yday'].values, Tchla['Value'].values, c="Phyto", s=4.3)
+    ax1[0].plot(Tchla_monthly_median['yday'].values, Tchla_monthly_median['Value'].values)
 
     #    ([DIATOM['Value'].values, outarray_ly[:, 3 + zn + 0] * muMolartoChlaconvfactor], widths=0.7, labels=['Data', 'Model'])
 
     # 2. pmol per cell [Marchetti and Harrison 2007]
     # values of abundance are organisms per ml
     # to convert pmol per cell per ml to µM = * abundance / 1000
-
+    """
     ax2[0].plot(timedays, outarray_ly[:, 3 + zn + 1] * muMolartoChlaconvfactor, c="Phyto")
     ax2[0].set_ylabel('Hapto \n' '[mg Chl m$^{-2}$]', multialignment='center', fontsize=9)
     #ax2_tx = ax2[0].twinx()
@@ -178,11 +188,11 @@ def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
     ax5[0].set_ylabel('Others \n' '[mg Chl m$^{-2}$]', multialignment='center', fontsize=9)
     #ax5_tx = ax5[0].twinx()
     ax5[0].scatter(OTHERS['yday'].values, OTHERS['Value'].values, c="Phyto", s=4.3)
-
+    """
     ## BOXPLoT COLUMN 1
-    boxplotdata_diatom = [DIATOM['Value'].values, outarray_ly[:, 3 + zn + 0] * muMolartoChlaconvfactor]
+    boxplotdata_diatom = [Tchla['Value'].values, outarray_ly[:, 3 + zn + 0] * muMolartoChlaconvfactor]
     ax1[1].boxplot(boxplotdata_diatom, widths=0.7)
-
+    """
     boxplotdata_hapto = [HAPTO['Value'].values, outarray_ly[:, 3 + zn + 1] * muMolartoChlaconvfactor]
     ax2[1].boxplot(boxplotdata_hapto, widths=0.7)
 
@@ -194,10 +204,10 @@ def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
 
     boxplotdata_others = [OTHERS['Value'].values, outarray_ly[:, 3 + zn + 4] * muMolartoChlaconvfactor]
     ax5[1].boxplot(boxplotdata_others, widths=0.7)
-
+    """
     #Boxplot labels column 1:
-    ax5[1].set_xticks([1, 2])
-    ax5[1].set_xticklabels(['Data','Model'])
+    ax2[1].set_xticks([1, 2])
+    ax2[1].set_xticklabels(['Data','Model'])
 
 
     # N
@@ -215,21 +225,21 @@ def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
     ax2[2].set_ylabel('Silicate \n' '[µM]', multialignment='center', fontsize=10)
 
     i=3
-    ax3[2].plot(timedays, outarray_ly[:, 3 + 0], c="MikroZ", lw=lws[0], alpha=alphas[0])
-    ax3[2].scatter(Zoo200BM['yday'].values, Zoo200BM['Value'].values * mgDWtomuMolarZOO, c="MikroZ", s=4.3)
-
+    ax2[0].plot(timedays, outarray_ly[:, 3 + 0], c="MikroZ", lw=lws[0], alpha=alphas[0])
+    ax2[0].scatter(Zoo200BM['yday'].values, (Zoo200BM['Value'].values+Zoo500BM['Value'].values) * mgDWtomuMolarZOO, c="MikroZ", s=4.3)
+    """
     ax4[2].plot(timedays, outarray_ly[:, 3 + 1], c="MesoZ", lw=lws[0], alpha=alphas[0])
     ax4[2].scatter(Zoo500BM['yday'].values, Zoo500BM['Value'].values * mgDWtomuMolarZOO, c="MesoZ", s=4.3)
-
-    ax3[2].set_ylabel('Micro Z \n' '[µM N]', multialignment='center', fontsize=9)
-    ax3[2].set_ylim(0,2)
-    ax3[3].set_ylim(0,2)
-
+    """
+    ax2[0].set_ylabel('Z \n' '[µM N]', multialignment='center', fontsize=9)
+    ax2[0].set_ylim(0,2)
+    ax2[0].set_ylim(0,2)
+    """
     ax4[2].set_ylabel('Meso Z \n' '[µM N]', multialignment='center', fontsize=9)
     ax4[2].set_ylim(0, 2)
     ax4[3].set_ylim(0, 2)
     ax2[2].tick_params('y', labelsize=10)
-
+    """
     # D
     ax5[2].plot(timedays, outarray_ly[:, 2], c="De", lw=lws[0], alpha=alphas[0])
     ax5[2].set_ylabel('Detritus \n' '[µM N]', multialignment='center', fontsize=9)
@@ -239,6 +249,10 @@ def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
     ax5[3].set_ylim(0,5)
     # ax5[i_plot].set_title('Detritus')
     # ax5[i_plot].set_ylim(0,0.15)
+
+    ax5[0].plot(timedays, outarray_ly[:, 3 + zn + pfn + 0], c="grey", lw=lws[0], alpha=alphas[0])
+    ax5[0].set_ylim(bottom=0)
+    #ax5[2].set_ylabel('Detritus \n' '[µM N]', multialignment='center', fontsize=9)
 
 
     ## BOXPLoT COLUMN 2
@@ -250,11 +264,11 @@ def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
     ax2[3].boxplot(boxplotdata_silicate, widths=0.7)
 
     boxplotdata_microz = [Zoo200BM['Value'].values * mgDWtomuMolarZOO, outarray_ly[:, 3 + 0]]
-    ax3[3].boxplot(boxplotdata_microz, widths=0.7)
-
+    ax2[1].boxplot(boxplotdata_microz, widths=0.7)
+    """
     boxplotdata_mesoz = [Zoo500BM['Value'].values * mgDWtomuMolarZOO, outarray_ly[:, 3 + 1]]
     ax4[3].boxplot(boxplotdata_mesoz, widths=0.7)
-
+    """
     boxplotdata_detritus = [PN['Value'].values * mugperlitertomuMolarPN, outarray_ly[:, 2]]
     ax5[3].boxplot(boxplotdata_detritus, widths=0.7)
 
@@ -275,7 +289,7 @@ def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
     ax5[2].yaxis.set_label_position('right')
     ax5[2].yaxis.tick_right()
     """
-    for axe in (ax1, ax2, ax3, ax4, ax5):
+    for axe in (ax1, ax2, ax5):
         for i in [1,3]:
             axe[i].yaxis.set_major_formatter(plt.NullFormatter())
 
@@ -287,16 +301,18 @@ def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
 
     # Legend
     f1.align_ylabels()
-    #f1.delaxes(ax = ax1[0])
+    f1.delaxes(ax = ax5[1])
+    f1.delaxes(ax = ax2[2])
+    f1.delaxes(ax = ax2[3])
     plt.margins(x=0)
     #adjustFigAspect(fig, aspect=.5)
     #plt.tight_layout()
-    plt.subplots_adjust(hspace=0)#,wspace=0)
+    #plt.subplots_adjust(hspace=0)#,wspace=0)
     #plt.savefig('FirstNaiveOutputCARIACO.png')
 
 
 def plotMODELFORCINGoutput(outarray, outarray2, outarray3, pfn, zn):
-    f2, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 3, gridspec_kw = {'height_ratios':[1, 3, 1, 3, 1]}, sharex='col')#, sharey='row')
+    f2, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 3, gridspec_kw={'height_ratios':[1, 3, 1, 3, 1]}, sharex='col')#, sharey='row')
 
 
     # N / Si / Pdt / Pc / Pdn / Pn / Zmu / Zlambda / D
@@ -480,6 +496,6 @@ def plotMODELFORCINGoutput(outarray, outarray2, outarray3, pfn, zn):
     #plt.savefig('PhysicalEnv_CARIACO_firstTESTS.pdf', dpi=300)
 
 
-plotDATAvsYEARoutput(out5P2Z_3, 5, 2, 1, 'hey')
+plotDATAvsYEARoutput(out5P2Z_3, 1, 1, 1, 'hey')
 
 #plotMODELFORCINGoutput(out5P2Z, out5P2Z_2, out5P2Z_3, 5, 2)

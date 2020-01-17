@@ -188,6 +188,7 @@ class IndForcing:
         self.interpolated = self.dailyinterp(self.forcingfile, self.kind, self.k, self.s)
         if kind == "spline":
             self.derivative = self.interpolated.derivative()
+            self.derivative2 = self.interpolated.derivative(n=2)
 
 
         print(forcvar + ' forcing created')
@@ -310,6 +311,8 @@ class Forcing:
             self.SiOX = IndForcing('SiOH', 'Forcing/constantMLD/SiOH_R1.csv', k=5, s=None, kind="PWPoly", forctype=forcingtype)
             self.SST = IndForcing('SST', 'Forcing/constantMLD/SST_R1.csv', k=5, s=None, kind="spline", forctype=forcingtype)
             self.PAR = IndForcing('PAR', 'Forcing/constantMLD/PAR_R1.csv', k=5, s=None, kind="spline", forctype=forcingtype)
+            self.X21 = IndForcing('depth', 'Forcing/X21Iso/X21Iso_r1.csv', k=3, s=1000, kind="spline",
+                                  forctype=forcingtype)
             self.type = 'box'
 
         elif forcingtype == 'flowthrough':
@@ -397,6 +400,8 @@ class Forcing:
 
         elif forcingtype == 'EMPOWER':
             self.MLD = IndForcing('MLD', 'Forcing/EMPOWER/EMPOWER-forcing-export.csv', k=5, s=100, kind="spline", forctype=forcingtype)
+            self.X21 = IndForcing('depth', 'Forcing/X21Iso/X21Iso_r1.csv', k=5, s=100, kind="spline",
+                                  forctype=forcingtype)
             self.NOX = IndForcing('N0', 'Forcing/EMPOWER/EMPOWER-forcing-export.csv', k=5, s=None, kind="PWPoly", forctype=forcingtype)
             self.SST = IndForcing('SST', 'Forcing/EMPOWER/EMPOWER-forcing-export.csv', k=5, s=None, kind="PWPoly", forctype=forcingtype)
             self.PAR = IndForcing('PAR', 'Forcing/EMPOWER/EMPOWER-forcing-export.csv', k=5, s=None, kind="spline", forctype=forcingtype)
@@ -497,7 +502,7 @@ class PhytoType:
         return VpH
 
     def tempdepgrowth(self, int_SST):
-        tdp = 1 # np.exp(0.063 * int_SST) ##############################################################################
+        tdp = np.exp(0.063 * int_SST) ##############################################################################
         return tdp
 
     def gains(self, nuptake, siuptake, lighthrv, tempdepgro, P):

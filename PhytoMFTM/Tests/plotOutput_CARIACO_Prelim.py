@@ -1,4 +1,4 @@
-w#!/usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 
@@ -11,7 +11,7 @@ import pandas
 # Fitting
 from lmfit import minimize, Parameters, Parameter, report_fit
 
-from Tests.runModel_CARIACO_Prelim import out5P2Z, timedays_model #, out5P2Zconstant
+from Tests.runModel_CARIACO_Prelim import timedays_model, out5P2Zconstant # , out5P2Z,
 
 
 # make all plots larger and more visible on dark background:
@@ -22,19 +22,19 @@ from Tests.runModel_CARIACO_Prelim import out5P2Z, timedays_model #, out5P2Zcons
 
 
 # read yearly data (for comparison to model) from Cariaco
-NO3NO2 = pandas.read_csv('ValidationData/NewVerifDATA/NO2NO3_r1.csv')
-SiOH = pandas.read_csv('ValidationData/NewVerifDATA/SiOH_r1.csv')
+NO3NO2 = pandas.read_csv('ValidationData/Old/NewVerifDATA/NO2NO3_r1.csv')
+SiOH = pandas.read_csv('ValidationData/Old/NewVerifDATA/SiOH_r1.csv')
 
-DIATOM = pandas.read_csv('ValidationData/NewVerifDATA/Diatoms_r1.csv')
-HAPTO = pandas.read_csv('ValidationData/NewVerifDATA/Hapto_r1.csv')
-DINO = pandas.read_csv('ValidationData/NewVerifDATA/Dino_r1.csv')
-CYANO = pandas.read_csv('ValidationData/NewVerifDATA/Cyano_r1.csv')
-OTHERS = pandas.read_csv('ValidationData/NewVerifDATA/Others_r1.csv')
+DIATOM = pandas.read_csv('ValidationData/Old/NewVerifDATA/Diatoms_r1.csv')
+HAPTO = pandas.read_csv('ValidationData/Old/NewVerifDATA/Hapto_r1.csv')
+DINO = pandas.read_csv('ValidationData/Old/NewVerifDATA/Dino_r1.csv')
+CYANO = pandas.read_csv('ValidationData/Old/NewVerifDATA/Cyano_r1.csv')
+OTHERS = pandas.read_csv('ValidationData/Old/NewVerifDATA/Others_r1.csv')
 
-Zoo200BM = pandas.read_csv('ValidationData/200BIOMASS_above_R2.csv')
-Zoo500BM = pandas.read_csv('ValidationData/500BIOMASS_above_R2.csv')
+Zoo200BM = pandas.read_csv('ValidationData/Old/200BIOMASS_above_R2.csv')
+Zoo500BM = pandas.read_csv('ValidationData/Old/500BIOMASS_above_R2.csv')
 
-PN = pandas.read_csv('ValidationData/NewVerifDATA/PN_r1.csv')
+PN = pandas.read_csv('ValidationData/Old/NewVerifDATA/PN_r1.csv')
 # zooplankton biomass is in [mg/m^3 dry weight]
 # for now, a 10% N content of the dry weight of all Zooplankton is assumed,
 # [Gorsky et al. 1988] "C and N composition of some northwestern Mediterranean zooplankton and micronekton species"
@@ -147,13 +147,12 @@ def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
     ax5_tx = ax5[0].twinx()
     ax5_tx.scatter(OTHERS['yday'].values, OTHERS['Value'].values / 100, c="Phyto", s=4.3)
 
-
     i=3
     ax3[1].plot(timedays, outarray_ly[:, 3 + 0], c="MikroZ", lw=lws[0], alpha=alphas[0])
-    ax3[1].scatter(Zoo200BM['yday'].values, Zoo200BM['abundance'].values *0.1*0.071394, c="MikroZ", s=4.3)
+    ax3[1].scatter(Zoo200BM['yday'].values, Zoo200BM['Value'].values *0.1*0.071394, c="MikroZ", s=4.3)
 
     ax4[1].plot(timedays, outarray_ly[:, 3 + 1], c="MesoZ", lw=lws[0], alpha=alphas[0])
-    ax4[1].scatter(Zoo500BM['yday'].values, Zoo500BM['abundance'].values *0.1*0.071394, c="MesoZ", s=4.3)
+    ax4[1].scatter(Zoo500BM['yday'].values, Zoo500BM['Value'].values *0.1*0.071394, c="MesoZ", s=4.3)
 
     ax3[1].set_ylabel('Mikro Z \n' '[µM N]', multialignment='center', fontsize=9)
 
@@ -187,9 +186,10 @@ def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
     # Legend
     f1.align_ylabels()
     #f1.delaxes(ax = ax1[0])
-    #plt.margins(x=0)
+    plt.margins(x=0)
     #adjustFigAspect(fig, aspect=.5)
-    plt.tight_layout()
+    #plt.tight_layout()
+    plt.subplots_adjust(hspace=0)
     #plt.savefig('FirstNaiveOutputCARIACO.png')
 
 
@@ -232,14 +232,16 @@ def plotMODELFORCINGoutput(outarray, pfn, zn):
     #f1.delaxes(ax = ax1[0])
     #plt.margins(x=0)
     #adjustFigAspect(fig, aspect=.5)
-    plt.tight_layout()
+    #plt.tight_layout()
+
+    plt.subplots_adjust(hspace=0,wspace=0)
     #plt.savefig('FirstNaiveOutputCARIACO.png')
 
 
-plotDATAvsYEARoutput(out5P2Z, 5, 2, 1, '5P2Z')
+#plotDATAvsYEARoutput(out5P2Z, 5, 2, 1, '5P2Z')
 
-plotMODELFORCINGoutput(out5P2Z, 5, 2)
+#plotMODELFORCINGoutput(out5P2Z, 5, 2)
 
-#plotDATAvsYEARoutput(out5P2Zconstant, 5, 2, 1, '5P2Z')
+plotDATAvsYEARoutput(out5P2Zconstant, 5, 2, 1, '5P2Z')
 
-#plotMODELFORCINGoutput(out5P2Zconstant, 5, 2)
+plotMODELFORCINGoutput(out5P2Zconstant, 5, 2)

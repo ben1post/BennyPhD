@@ -188,8 +188,8 @@ def paramsout(pfn,zn):
 
 def setupinitcond(pfn,zn):
     # initialize parameters:
-    N0 = 2  # Initial Nitrate concentration (mmol*m^-3)
-    Si0 = 2  # Initial Silicate concentration (mmol*m^-3)
+    N0 = 2.0  # Initial Nitrate concentration (mmol*m^-3)
+    Si0 = 2.0  # Initial Silicate concentration (mmol*m^-3)
     Z0 = 0.01 / zn  # Initial Zooplankton concentration (mmol*m^-3)
     D0 = 0.01  # Initial Detritus concentration (mmol*m^-3)
     P0 = 0.01 / pfn  # Initial Phytoplankton concentration (mmol*m^-3)
@@ -229,7 +229,7 @@ def callmodelrun(pfn,zn, forcing):
          print('4P2Z - prelim model')
          all_params = (standardparams + ptype1 + ptype2 + ptype3 + ptype4 + ztype1 + ztype2)
     elif pfn == 5 and zn == 2:
-         print('4P2Z - prelim model')
+         print('5P2Z - prelim model')
          all_params = (standardparams + ptype1 + ptype2 + ptype3 + ptype4 + ptype5 + ztype1 + ztype2)
     elif pfn == 2 and zn == 2:
          print('2P2Z')
@@ -249,9 +249,9 @@ def callmodelrun(pfn,zn, forcing):
 
     #all_params = (standardparams)
     parameters = all_params
-    initialcond = setupinitcond(pfn,zn)
+    initialcond = setupinitcond(pfn, zn)
     print(initialcond)
-    out = runmodel(parameters,initialcond, forcing)
+    out = runmodel(parameters, initialcond, forcing)
 
     return out
 
@@ -259,6 +259,6 @@ def callmodelrun(pfn,zn, forcing):
 
 timedays_model = np.arange(0., 5 * 365., 1.0)
 
-out5P2Z = callmodelrun(5,2,'variableMLD')
+#out5P2Z = callmodelrun(5, 2, 'variableMLD')
 
-#out5P2Zconstant = callmodelrun(5,2,'varMLDconstNuts')
+out5P2Zconstant = callmodelrun(5,2,'varMLDconstNuts')

@@ -8,8 +8,6 @@ from PhytoMFTM.AuxFuncs import sliceparams, sliceoffparams, checkreplaceparam
 from PhytoMFTM.ModelClasses import Forcing
 from lmfit import minimize, Parameters#, Parameter, report_fit
 
-#from scipy.io import netcdf
-#import os
 
 
 class Nutrient:
@@ -349,6 +347,101 @@ class ModelSetup:
         rest = x[n+p+z+d:]
         return nuts, phyto, zoo, det, rest
 
+def cariaco(x,t,modelsetup, q):
+    """System of ODEs"""
+
+    N, P, Z, D, outputlist = modelsetup.timestep_init(x)
+    #print(N,P,Z,D)
+    #print(x)
+    # N = [Ni]
+    # P = [P1]
+    # Z = [Z1]
+    # D = [D]
+
+    MLD = physx.MLD(t)  # MLD = [int_MLD, deriv_MLD]
+    N0 = physx.N0(t)  # N0 = [Ni0,P0,Si0]
+    #Si0 = physx.Si0(t)
+    PAR = physx.PAR(t)
+    Tmld = physx.Tmld(t)
+
+    Mix = physx.omegaMix(MLD)  # i.e. there is constant mixing & increased mix when MLD shallowing
+    #print('Mix',Mix)
+    Mix_D = physx.omegaMix(MLD, type='D')  # i.e. there is constant mixing & increased mix when MLD shallowing
+
+    # Grazing
+    Gj = z.zoofeeding(P, Z, D, func='hollingtypeIII')  # feeding probability for all food
+    ZooFeeding = z.fullgrazing(Gj, P, Z, D)
+
+    PTempDepGrow = p.tempdepgrowth(Tmld)
+    PNutUptake = p.uptake(N)
+    PLightHarv = p.lightharvesting(MLD[0], PAR, P, sum(PTempDepGrow)) * 24/75  # (C to Chl)
+    # Phytoplankton Fluxes
+    PGains = PTempDepGrow * PNutUptake * PLightHarv * P
+
+    PLinMort = p.mortality(P, type='linear')
+    PQuadMort = p.mortality(P, type='quadratic')
+    PMortality = PLinMort + PQuadMort
+    PZooGrazed = p.zoograzing(Gj, P, Z, D)
+    PMixing = P * Mix
+    PLosses = PZooGrazed + PMortality + PMixing
+
+    # Zooplankton Fluxes
+    ZGains = z.assimgrazing(ZooFeeding)
+    ZLinMort = z.mortality(Z, type='linear')
+    ZQuadMort = z.mortality(Z, type='quadratic')
+    ZMixing = Z * Mix
+    ZLosses = ZLinMort + ZQuadMort + ZMixing
+
+    # Detritus Fluxes
+    ZUnassimFeedDetritus = z.unassimilatedgrazing(ZooFeeding, pool='D')
+    DGains = sum(ZUnassimFeedDetritus) + sum(ZLinMort) + sum(PMortality)
+    DRemin = d.remineralisation(D)
+    DZooGrazed = d.zoograzing(Gj, D, Z)
+    DMixing = D * Mix_D
+    DLosses = DZooGrazed + DRemin + DMixing
+
+    ZUnassimFeedNitrate = z.unassimilatedgrazing(ZooFeeding, pool='N')
+    NMixing = Mix * (N0 - N)
+
+    Px = PGains - PLosses
+    Nx = - sum(PGains) + DRemin + sum(ZUnassimFeedNitrate) + NMixing# Nutrient draw down
+    Zx = ZGains - ZLosses  # Zooplankton losses due to mortality and mixing
+    Dx = DGains - DLosses   # Detritus
+
+    out = [Nx, Px, Zx, Dx]
+
+    outputlist[0] = PTempDepGrow
+    outputlist[1] = PNutUptake
+    outputlist[2] = PLightHarv
+    outputlist[3] = PGains
+
+    outputlist[4] = PLinMort
+    outputlist[5] = PQuadMort
+    outputlist[6] = PMortality
+    outputlist[7] = PZooGrazed
+    outputlist[22] = PMixing
+    outputlist[8] = PLosses
+
+    outputlist[9] = ZGains
+
+    outputlist[10] = ZLinMort
+    outputlist[11] = ZQuadMort
+    outputlist[12] = ZMixing
+    outputlist[13] = ZLosses
+
+    outputlist[14] = ZUnassimFeedDetritus
+    outputlist[15] = DGains
+
+    outputlist[16] = DRemin
+    outputlist[17] = DZooGrazed
+    outputlist[18] = DMixing
+    outputlist[19] = DLosses
+
+    outputlist[20] = NMixing
+    outputlist[21] = ZUnassimFeedNitrate
+
+    return np.concatenate([out,outputlist], axis=None) #,
+
 
 # MODEL ODE
 def empower(x,t,modelsetup, q):
@@ -449,64 +542,140 @@ def empower(x,t,modelsetup, q):
 
 ######### PARAMETER SETUP #############
 
-parameters = Parameters()
+# set up basic parameters of model:
+standardparams = Parameters()
 
-# NUTRIENT(s)
-parameters.add('nuts_num', value=1)
-parameters.add('nuts1_nuttype', value=0)  # Nitrate
+# number of phytoplankton func types
+# standardparams.add('pfun_num', value=4, vary=False)
+# number of zooplankton groups
+# standardparams.add('zoo_num', value=2, vary=False)
 
-# PHYTOPLANKTON(s)
-parameters.add('phyto_num', value=1)
-#parameters.add('v', value=0.01, vary=False)      # Sinking of Phytoplankton from Mixed Layer
-#parameters.add('OptI', value=30, vary=False)    # Optimum irradiance (einstein*m^-2*d^-1)
-parameters.add('alpha', value=0.15, vary=False)  # initial slope of the P-I curve 0.034
-parameters.add('VpMax', value=2.5, vary=False)    # maximum photosynthetic rate
+# mld - related
+standardparams.add('kappa', value=0.15, vary=False) # vary=False) # min=0.09, max=0.11) # Diffusive mixing across thermocline (m*d^-1)
+standardparams.add('deltaD_N', value=0.2, vary=False)   # Nitrate Remineralization rate (d^-1)
 
-parameters.add('moP', value=0.015, vary=False)    # Phytoplankton mortality (d^-1)
+standardparams.add('kw', value=0.04, vary=False)     # Light attenuation constant of water (m^-1)
 
-#parameters.add('ratioSi', value=0, vary=False)  # Silicate ratio ## FALLBACK PARAM FOR OTHER PFTs
-parameters.add('U_N', value=0.85, vary=False)    # Nitrate Half Saturation Constant
-#parameters.add('U_P', value=0, vary=False)    # Phosphate Half Saturation Constant
-#parameters.add('U_Si', value=0, vary=False)   # Silicate Half Saturation Constant
-parameters.add('muP', value=0, vary=False)    # Phytoplankton maximum growth rate (d^-1)
+standardparams.add('kc', value=0.03, vary=False)      # Light attenuation via phytoplankton pigment (m^-1)
+standardparams.add('alpha', value=0.15, vary=False)  # initial slope of the P-I curve
+standardparams.add('VpMax', value=1., vary=False)    # maximum photosynthetic rate
 
-# ZOOPLANKTON(s)
-parameters.add('zoo_num', value=1)
-parameters.add('moZ', value=0.02, vary=False)        # Zooplankton mortality (d^-1)
-parameters.add('deltaZ', value=0.75, vary=False)    # Zooplankton Grazing assimilation coefficient (-)
+standardparams.add('v', value=0., vary=False)      # Sinking of Phytoplankton from Mixed Layer
+standardparams.add('OptI', value=30, vary=False)    # Optimum irradiance (einstein*m^-2*d^-1)
 
-parameters.add('Kp', value=0.5, vary=False)     # Zooplankton Grazing saturation constant (-)
-parameters.add('pred', value=0.34, vary=False)  # quadratic higher order predation rate on zooplankton
-parameters.add('muZ', value=1., vary=False)    # Zooplankton maximum grazing rate (d^-1)
+# p - related
+standardparams.add('moP', value=0.1, vary=False)    # Phytoplankton mortality (d^-1)
 
-# ZOO Feed Prefs
-parameters.add('zoo1_P1', value=.67, vary=False)  # Diatoms #P1
-parameters.add('zoo1_D1', value=.33, vary=False)# inter zoo feeding #D1
-#parameters.add('zoo1_Zint_feed1', value=0, vary=False)
+standardparams.add('ratioSi', value=0, vary=False)  # Silicate ratio ## FALLBACK PARAM FOR OTHER PFTs
+standardparams.add('U_N', value=0, vary=False)    # Nitrate Half Saturation Constant
+standardparams.add('U_Si', value=0, vary=False)   # Silicate Half Saturation Constant
+standardparams.add('muP', value=0, vary=False)    # Phytoplankton maximum growth rate (d^-1)
+
+# set up phytoplankton type 1 (e.g. DIATOMS)
+ptype1 = Parameters()
+ptype1.add('pt1_ratioSi', value=1., vary=False)  # Silicate ratio
+ptype1.add('pt1_U_Si', value=0.5, vary=False)   # Silicate Half Saturation Constant
+ptype1.add('pt1_U_N', value=0.9, vary=False)    # Nitrate Half Saturation Constant
+ptype1.add('pt1_muP', value=1.074, vary=False)    # Phytoplankton maximum growth rate (d^-1)
+
+# set up phytoplankton type 2 (e.g. Haptos)
+ptype2 = Parameters()
+#ptype2.add('pt2_OptI', value=30, vary=False)    # Optimum irradiance (einstein*m^-2*d^-1)
+ptype2.add('pt2_U_N', value=1.5, vary=False)    # Nitrate Half Saturation Constant
+ptype2.add('pt2_muP', value=0.51, vary=False)    # Phytoplankton maximum growth rate (d^-1)
+
+# set up phytoplankton type 3 (e.g. Cyanos)
+ptype3 = Parameters()
+ptype3.add('pt3_U_N', value=2.5, vary=False)    # Nitrate Half Saturation Constant
+ptype3.add('pt3_muP', value=.4, vary=False)    # Phytoplankton maximum growth rate (d^-1)
+
+# set up phytoplankton type 4 (e.g. Dinos)
+ptype4 = Parameters()
+ptype4.add('pt4_U_N', value=1.5, vary=False)    # Nitrate Half Saturation Constant
+ptype4.add('pt4_muP', value=0.3, vary=False)    # Phytoplankton maximum growth rate (d^-1)
+
+# set up phytoplankton type 5 (e.g. Others)
+ptype5 = Parameters()
+ptype5.add('pt5_U_N', value=1.84, vary=False)    # Nitrate Half Saturation Constant
+ptype5.add('pt5_muP', value=0.51, vary=False)    # Phytoplankton maximum growth rate (d^-1)
+
+# z - related
+#z grazing related
+standardparams.add('moZ', value=0.07, vary=False)        # Zooplankton mortality (d^-1)
+standardparams.add('deltaZ', value=0.75, vary=False)    # Zooplankton Grazing assimilation coefficient (-)
+standardparams.add('deltaLambda', value=0.75, vary=False)    # Zooplankton Inter-Grazing assimilation coefficient (-)
+standardparams.add('muIntGraze', value=0.1, vary=False)  # InterZooGrazing maximum grazing rate
+standardparams.add('kIntGraze', value=0.5, vary=False)  # InterZooGrazing saturation constant
+
+standardparams.add('Kp', value=0, vary=False)     # Zooplankton Grazing saturation constant (-)
+standardparams.add('pred', value=0, vary=False)  # quadratic higher order predation rate on zooplankton
+standardparams.add('muZ', value=0, vary=False)    # Zooplankton maximum grazing rate (d^-1)
+
+# set up zooplankton type 1 (e.g. MIKRO zooplankton)
+ztype1 = Parameters()
+ztype1.add('zt1_muZ', value=0.5, min=.2, max=1.5)    # Zooplankton maximum grazing rate (d^-1)
+
+ztype1.add('zt1_Kp', value=1., min=.2, max=1.5)       # Zooplankton Grazing saturation constant (-)
+ztype1.add('zt1_pred', value=0.06, min=.001, max=0.2)    # quadratic higher order predation rate on zooplankton
+
+# set up zooplankton type 2 (e.g. MESO zooplankton)
+ztype2 = Parameters()
+ztype2.add('zt2_muZ', value=0.5, min=.2, max=1.5)    # Zooplankton maximum grazing rate (d^-1)
+
+ztype2.add('zt2_Kp', value=1.3, min=.2, max=1.5)       # Zooplankton Grazing saturation constant (-)
+ztype2.add('zt2_pred', value=ztype1['zt1_pred'].value, vary=False)    # quadratic higher order predation rate on zooplankton
+
+"""
+add feeding pref params!
+Z1P1
+Z1P2
+Z2P1
+Z2P2
+"""
+# MIKRO
+ztype1.add('zt1_P1', value=0, vary=False)  # Diatoms
+ztype1.add('zt1_P2', value=0.25, vary=False)  # Hapto
+ztype1.add('zt1_P3', value=0.25, vary=False)  # Cyano
+ztype1.add('zt1_P4', value=0.25, vary=False)  # Dino
+ztype1.add('zt1_P5', value=0.25, vary=False)  # Others
+# MESO
+ztype2.add('zt2_P1', value=1/6, vary=False)
+ztype2.add('zt2_P2', value=1/6, vary=False)
+ztype2.add('zt2_P3', value=1/6, vary=False)
+ztype2.add('zt2_P4', value=1/6, vary=False)
+ztype2.add('zt2_P5', value=1/6, vary=False)
+
+# inter zoo feeding
+# MIKRO
+ztype1.add('zt1_Zint_feed1', value=0, vary=False)
+ztype1.add('zt1_Zint_feed2', value=0, vary=False)
+# MESO
+ztype2.add('zt2_Zint_feed1', value=1/6, vary=False)
+ztype2.add('zt2_Zint_feed2', value=0, vary=False)
 
 # CONVERT FEEDPREFS TO GRAZEPREF FOR CALCULATION OF GRAZING
-#parameters.add('zoo1_Zint_grazed1', value=parameters['zoo1_Zint_feed1'].value, vary=False)
+ztype1.add('zt1_Zint_grazed1', value=ztype1['zt1_Zint_feed1'].value, vary=False)
+ztype1.add('zt1_Zint_grazed2', value=ztype2['zt2_Zint_feed1'].value, vary=False)
 
-parameters.add('phyto1_Z1', value=parameters['zoo1_P1'].value, vary=False)
-parameters.add('det1_Z1', value=parameters['zoo1_D1'].value, vary=False)
+ztype2.add('zt2_Zint_grazed1', value=ztype1['zt1_Zint_feed2'].value, vary=False)
+ztype2.add('zt2_Zint_grazed2', value=ztype2['zt2_Zint_feed2'].value, vary=False)
 
-# DETRITUS (non-biotic pools)
-parameters.add('det_num', value=1)
-parameters.add('deltaD_N', value=0.06, vary=False)   # Nitrate Remineralization rate (d^-1)
+ptype1.add('pt1_Z1', value=ztype1['zt1_P1'].value, vary=False)
+ptype1.add('pt1_Z2', value=ztype2['zt2_P1'].value, vary=False)
 
-# PHYSICS
-#parameters.add('kappa', value=0.1, vary=False)  # vary=False) # min=0.09, max=0.11) # Diffusive mixing across thermocline (m*d^-1)
-parameters.add('kw', value=0.04, vary=False)     # Light attenuation constant of water (m^-1)
-parameters.add('kc', value=0.03, vary=False)      # Light attenuation via phytoplankton pigment (m^-1)
+ptype2.add('pt2_Z1', value=ztype1['zt1_P2'].value, vary=False)
+ptype2.add('pt2_Z2', value=ztype2['zt2_P2'].value, vary=False)
 
-#NEW EMPOWER:
-parameters.add('moP_quad', value=0.025, vary=False)    # Phytoplankton mortality (d^-1)
+ptype3.add('pt3_Z1', value=ztype1['zt1_P3'].value, vary=False)
+ptype3.add('pt3_Z2', value=ztype2['zt2_P3'].value, vary=False)
 
-parameters.add('wmix', value=0.13, vary=False)
-parameters.add('beta_feed', value=0.69, vary=False)
-parameters.add('kN_feed', value=0.75, vary=False)
-parameters.add('vD', value=6.43, vary=False)
+ptype4.add('pt4_Z1', value=ztype1['zt1_P4'].value, vary=False)
+ptype4.add('pt4_Z2', value=ztype2['zt2_P4'].value, vary=False)
 
+ptype5.add('pt5_Z1', value=ztype1['zt1_P5'].value, vary=False)
+ptype5.add('pt5_Z2', value=ztype2['zt2_P5'].value, vary=False)
+
+parameters = standardparams + ptype1 + ztype1 #+ ztype2 + ptype2 + ptype3 + ptype4 + ptype5
 
 ######### MODEL EVALUATION CODE #############
 
@@ -517,7 +686,7 @@ n,p,z,d = ms.classes
 physx = ms.physics
 
 
-N0 = 10
+N0 = 5
 P0 = 0.1
 Z0 = 0.1
 D0 = 0.1
@@ -544,35 +713,7 @@ print('finished after %4.3f sec' % (tos1 - tos))
 
 #print(outarray)
 
-"""
-timedays_ly = timedays[1:366]
-# truncate outarraySiNO to last year of 5:
-outarray_ly = outarray[1460:1825]
 
-numcols = 1
-f1, (ax1, ax2, ax3, ax4) = plt.subplots(4, numcols, sharex='col')#, sharey='row')
-
-ax1.set_title('N')
-ax1.plot(timedays_ly,outarray_ly[:,0],label='N')
-ax1.set_ylim(bottom=0)
-
-ax2.set_title('P')
-ax2.plot(timedays_ly,outarray_ly[:,1],label='P')
-#ax2.plot(timedays_ly,outarray_ly[:,2],label='P2')
-ax2.legend()
-ax2.set_ylim(bottom=0)
-
-ax3.set_title('Z')
-ax3.plot(timedays_ly,outarray_ly[:,2],label='Z')
-ax3.set_ylim(bottom=0)
-
-ax4.set_title('D')
-ax4.plot(timedays_ly,outarray_ly[:,3],label='D')
-ax4.set_ylim(bottom=0)
-
-plt.tight_layout()
-
-"""
 numcols = 2
 f1, (ax1, ax2, ax3, ax4) = plt.subplots(4, numcols, sharex='col')#, sharey='row')
 
