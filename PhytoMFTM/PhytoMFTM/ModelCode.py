@@ -38,7 +38,7 @@ def phytomftm_extendedoutput_forcing(x, t, paras, pClass, zClass, forcing):
     # Mixing Processes
     if forcing.type == 'MLD':
         #K = (paras['kappa'].value + max(deriv_MLD, 0)) / int_MLD  # i.e. there is constant mixing & increased loss with MLD shallowing
-        K = paras['kappa'].value / int_X21 * 100
+        K = paras['kappa'].value / int_X21 * 10
         K_Z = 0 #deriv_MLD / int_MLD  # i.e. concentration varies with the MLD depth
         U = 0 #i.e. there is no mixing via U, the upwelling parameter for box models
         Sink = 0
@@ -46,7 +46,7 @@ def phytomftm_extendedoutput_forcing(x, t, paras, pClass, zClass, forcing):
     elif forcing.type == 'box':
         K = 0  # i.e. there is no modification of mixing due to K
         K_Z = 0  # since there is no change in modeled depth, no losses due to MLD changes
-        U = 0.1/ int_X21 * 100#(paras['kappa'].value + max(deriv_MLD, 0)) / int_MLD  #  max(deriv_MLD, 0)) / int_MLD # upwelling according to MLD
+        U = 0.1/ int_X21 * 10#(paras['kappa'].value + max(deriv_MLD, 0)) / int_MLD  #  max(deriv_MLD, 0)) / int_MLD # upwelling according to MLD
         Sink = 0.005  # 0.5 m per day
 
 

@@ -134,7 +134,7 @@ ax4[1].plot(timedays_model, mixing(X21))
 #ax4[1].set_ylim(0,1)
 ax4[1].set_ylim(bottom=0)
 #ax4[1].invert_yaxis()
-#ax4[1].set_title('21°C - Isopleth (interpolated)')
+ax4[1].set_title('New Mixing Term')
 
 plt.show()
 
