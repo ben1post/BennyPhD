@@ -311,7 +311,7 @@ class Forcing:
             self.SiOX = IndForcing('SiOH', 'Forcing/constantMLD/SiOH_R1.csv', k=5, s=None, kind="PWPoly", forctype=forcingtype)
             self.SST = IndForcing('SST', 'Forcing/constantMLD/SST_R1.csv', k=5, s=None, kind="spline", forctype=forcingtype)
             self.PAR = IndForcing('PAR', 'Forcing/constantMLD/PAR_R1.csv', k=5, s=None, kind="spline", forctype=forcingtype)
-            self.X21 = IndForcing('depth', 'Forcing/X21Iso/X21Iso_r1.csv', k=3, s=1000, kind="spline",
+            self.X21 = IndForcing('depth', 'Forcing/X21Iso/X21Iso_r1.csv', k=3, s=2500, kind="spline",
                                   forctype=forcingtype)
             self.type = 'box'
 

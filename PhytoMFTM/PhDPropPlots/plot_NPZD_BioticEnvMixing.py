@@ -252,7 +252,7 @@ def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
 
     ax5[0].plot(timedays, outarray_ly[:, 3 + zn + pfn + 0], c="grey", lw=lws[0], alpha=alphas[0])
     ax5[0].set_ylim(bottom=0)
-    #ax5[2].set_ylabel('Detritus \n' '[µM N]', multialignment='center', fontsize=9)
+    ax5[0].set_ylabel('Mixing term', multialignment='center', fontsize=9)
 
 
     ## BOXPLoT COLUMN 2
@@ -300,7 +300,7 @@ def plotDATAvsYEARoutput(outarray, pfn, zn, i_plot, title):
 
 
     # Legend
-    f1.align_ylabels()
+    #f1.align_ylabels()
     f1.delaxes(ax = ax5[1])
     f1.delaxes(ax = ax2[2])
     f1.delaxes(ax = ax2[3])
@@ -497,5 +497,5 @@ def plotMODELFORCINGoutput(outarray, outarray2, outarray3, pfn, zn):
 
 
 plotDATAvsYEARoutput(out5P2Z_3, 1, 1, 1, 'hey')
-
+plt.show()
 #plotMODELFORCINGoutput(out5P2Z, out5P2Z_2, out5P2Z_3, 5, 2)
