@@ -2,15 +2,14 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-
+from phydra.aux import sliceparams
+from phydra.classes import Nutrient, Phytoplankton, Zooplankton, Detritus
+from phydra.forcing import Forcing
 
 # TODO:
-#  - put sliceparams and similar functions into core.py, import here.
 #  - dynamically create list of state variables
 #  - add to forcing.py, import necessary functions here.
 #  -
-
-
 
 class StateVariables:
     """"""
@@ -45,13 +44,13 @@ class StateVariables:
 
 class Physics:
     """ This can be defined in core, but draws from forcing.py"""
-    def __init__(self,params,fxtype):
+    def __init__(self,params, phsxtype, fxtype, time):
         self.parameters = params
-        self.type = fxtype
-        if self.type == 'slab':
-            self.forcing = Forcing('WOA2018', 47, -20, 1.5)
-        elif self.type == 'EMPOWER':
+        self.type = phsxtype
+        if self.type == 'EMPOWER':
             self.forcing = Forcing('EMPOWER')
+        elif self.type == 'Box':
+            self.forcing = Forcing(fxtype, time)
 
     def K(self, MLD, mix='h+'):
         if mix == 'h+':
@@ -70,8 +69,17 @@ class Physics:
         elif type == 'D':
             return (self.parameters['wmix'].value + max(MLD[1],0) + self.parameters['vD'].value) / MLD[0]
 
+    def wMix(self, X258, type='std'):
+        if type == 'std':
+            return (self.parameters['wmix'].value + max(-X258[1], 0)) / 100  # box depth
+        elif type == 'D':
+            return (self.parameters['wmix'].value + max(-X258[1], 0) + self.parameters['vD'].value) / 100  # box depth
+
     def MLD(self,t):
         return np.array([self.forcing.MLD.return_interpvalattime(t), self.forcing.MLD.return_derivattime(t)])
+
+    def X258(self, t):
+        return np.array([self.forcing.X258.return_interpvalattime(t), self.forcing.X258.return_derivattime(t)])
 
     def N0(self, t):
         return self.forcing.NOX.return_interpvalattime(t)
@@ -85,14 +93,14 @@ class Physics:
 
 class ModelSetup:
     """this needs to be dynamically collected, right?"""
-    def __init__(self, params):
+    def __init__(self, params, physics='Box', forcing='aggTS', time='regime1'):
         self.nutrients = StateVariables(params, 'nuts')
         self.phytoplankton = StateVariables(params, 'phyto')
         self.zooplankton = StateVariables(params, 'zoo')
         self.detritus = StateVariables(params, 'det')
         self._classes = [self.nutrients, self.phytoplankton, self.zooplankton, self.detritus]
 
-        self.physics = Physics(params, 'EMPOWER')  # 'slab' as fxtype instead
+        self.physics = Physics(params, physics, forcing, time)  # 'slab' as fxtype instead
 
     @property
     def classes(self):

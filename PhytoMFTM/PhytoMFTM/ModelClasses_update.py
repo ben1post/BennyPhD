@@ -538,7 +538,7 @@ from scipy.integrate import odeint
 # INTEGRATE:
 tos = time.time()
 print('starting integration')
-outarray = odeint(empower, initcond, timedays, args=(ms,1))
+outarray = odeint(empower, initcond, timedays, args=(ms, 1))
 tos1 = time.time()
 print('finished after %4.3f sec' % (tos1 - tos))
 

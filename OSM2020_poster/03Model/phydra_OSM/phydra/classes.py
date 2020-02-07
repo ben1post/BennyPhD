@@ -2,14 +2,11 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-
+from phydra.aux import checkreplaceparam
 
 # TODO:
-#  - import parameter aux. funcs
 #  - make sure all CARIACO functions are represented here
 #  -
-
-
 
 class Nutrient:
     """"""
@@ -32,6 +29,7 @@ class Nutrient:
             return 'Silicate'
         if self.nuttype == 3:
             return 'Iron'
+
 
 class Phytoplankton:
     """"""
@@ -79,6 +77,7 @@ class Phytoplankton:
                        (-np.exp(1. - PAR / self.OptI) - (
                            -np.exp((1. - (PAR * np.exp(-self.kw * MLD)) / self.OptI))))
             return lighthrv
+
         # TODO: convert P to chlorophyll!
         if type == 'Smith':
             PAR = PAR
@@ -94,7 +93,7 @@ class Phytoplankton:
 
     def tempdepgrowth(self, Tmld):
         """"""
-        #tdp = np.exp(0.063 * Tmld)
+        # tdp = np.exp(0.063 * Tmld)
         tdp = self.VpMax * 1.066 ** Tmld
         return tdp
 
@@ -118,6 +117,7 @@ class Phytoplankton:
         """"""
         Sink = self.v / MLD * P[self.num]  # Phytoplankton sinking as a function of MLD and sinking rate
         return Sink
+
 
 class Zooplankton:
     """"""
@@ -152,8 +152,8 @@ class Zooplankton:
         self.feedpref = [checkreplaceparam(allpars, slicedpars, string) for string in self.phylist]
         self.detfeedpref = [checkreplaceparam(allpars, slicedpars, string) for string in self.detlist]
         print('D feedpref',self.detfeedpref,'P feedpref',self.feedpref)
-#        self.interfeedpref = [checkreplaceparam(allpars, slicedpars, string) for string in self.zoointlistfeed]
-#        self.intergrazedpref = [checkreplaceparam(allpars, slicedpars, string) for string in self.zoointlistgrazed]
+        # self.interfeedpref = [checkreplaceparam(allpars, slicedpars, string) for string in self.zoointlistfeed]
+        # self.intergrazedpref = [checkreplaceparam(allpars, slicedpars, string) for string in self.zoointlistgrazed]
 
         self.beta_feed = checkreplaceparam(allpars, slicedpars, 'beta_feed')
         self.kN_feed = checkreplaceparam(allpars, slicedpars, 'kN_feed')
