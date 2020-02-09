@@ -201,7 +201,7 @@ class CARIACOVerifData:
         self.NO2NO3 = self.readniskin('NO3_NO2_USF', boxordep='box')
         self.PN = self.readniskin('PON_ug_kg', boxordep='box')
         self.Zoo = self.readZoo('BIOMASS_200')
-        self.pad = True
+        #self.pad = True
         self.padHPLC = self.readHPLC('Tchla')
         self.padFluorChla = self.readniskin('Chlorophyll', boxordep='box')
         self.padNO2NO3 = self.readniskin('NO3_NO2_USF', boxordep='box')
@@ -224,12 +224,12 @@ class CARIACOVerifData:
             print(df_all.columns)
             raise Exception('Variable {} is not found in HPLC dataframe'.format(varname))
 
+        df_all.date = pandas.to_datetime(df_all.date)
         df_series = df_val.set_index(df_val['date'])
 
         if self.pad:
             data_pd = df_series
-            data_pd.date = pandas.to_datetime(data_pd.date)
-            data_pd.fillna(data_pd.groupby([data_pd.date.dt.year, data_pd.date.dt.month]).transform('mean'), inplace=True)
+            data_pd.fillna(data_pd.groupby(data_pd.month).transform('mean'), inplace=True)
             df_series = data_pd
 
         if self.forctype == 'aggTS':
@@ -257,12 +257,12 @@ class CARIACOVerifData:
             print(df_all.columns)
             raise Exception('Variable {} is not found in niskin df'.format(varname))
 
+        df_all.date = pandas.to_datetime(df_all.date)
         df_series = df_val.set_index(df_val['date'])
 
         if self.pad:
             data_pd = df_series
-            data_pd.date = pandas.to_datetime(data_pd.date)
-            data_pd.fillna(data_pd.groupby([data_pd.date.dt.year, data_pd.date.dt.month]).transform('mean'), inplace=True)
+            data_pd.fillna(data_pd.groupby(data_pd.month).transform('mean'), inplace=True)
             df_series = data_pd
 
         if self.forctype == 'aggTS':
@@ -285,13 +285,12 @@ class CARIACOVerifData:
             print(df_all.columns)
             raise Exception('Variable {} is not found in ZOO dataframe'.format(varname))
 
+        df_all.date = pandas.to_datetime(df_all.date)
         df_series = df_val.set_index(df_val['date'])
 
         if self.pad:
             data_pd = df_series
-            data_pd.date = pandas.to_datetime(data_pd.date)
-            data_pd.fillna(data_pd.groupby([data_pd.date.dt.year, data_pd.date.dt.month]).transform('mean'), inplace=True)
-            print('heee',data_pd)
+            data_pd.fillna(data_pd.groupby(data_pd.month).transform('mean'), inplace=True)
             df_series = data_pd
 
         if self.forctype == 'aggTS':

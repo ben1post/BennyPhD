@@ -52,7 +52,7 @@ def plotstuff(ms,outarray, zuplot, muplot, regime):
     # N
     N_Max = 20  # np.max(ms.physics.forcing.NOX.return_interpvalattime(timedays)) + np.max(ms.physics.forcing.NOX.return_interpvalattime(timedays)) * 0.1
     ax1[zuplot].scatter(N['yday'], N['NO3_NO2_USF_Box'], label='data', alpha=0.5)
-    ax1[zuplot].scatter(dpm_cumsum, Nmean, label='mean', alpha=1)
+    ax1[zuplot].plot(dpm_cumsum, Nmean, label='mean data', alpha=1)
     ax1[zuplot].plot(timedays_ly, outarray_ly[:, 0], c=colors[1], lw=lws[0], alpha=alphas[0], label='Model')
     ax1[0].set_ylabel('Nutrients \n' '[µM N]', multialignment='center')
     ax1[zuplot].set_ylim(0, N_Max)
@@ -79,8 +79,8 @@ def plotstuff(ms,outarray, zuplot, muplot, regime):
 
     chla2mean = ms.physics.forcing.verif.returnMeanVerifPerMonth(chla2,'Tchla')
 
-    ax2[zuplot].scatter(dpm_cumsum, np.array(chlamean) * muMolartoChlaconvfactor, label='mean FlChla', alpha=1)
-    ax2[zuplot].scatter(dpm_cumsum, np.array(chla2mean) * muMolartoChlaconvfactor / 100, label='mean HPLC', alpha=1)
+    ax2[zuplot].plot(dpm_cumsum, np.array(chlamean) * muMolartoChlaconvfactor, label='mean FlChla', alpha=1)
+    ax2[zuplot].plot(dpm_cumsum, np.array(chla2mean) * muMolartoChlaconvfactor / 100, label='mean HPLC', alpha=1)
 
     Pall = outarray_ly[:,1]
     P_Max = 2 # np.max(Pall) + 0.9 * np.max(Pall)
@@ -100,12 +100,12 @@ def plotstuff(ms,outarray, zuplot, muplot, regime):
     mgDWtomuMolarZOO = mggramstograms / Cperdryweight / molarmassCarbon / CtonNratioZoo * 1000 # µM
 
     ZBM = ms.physics.forcing.verif.padZoo
-    print(ZBM)
+    #print(ZBM)
     ZBMmean = ms.physics.forcing.verif.returnMeanVerifPerMonth(ZBM, 'BIOMASS_200')
 
-    print(ZBMmean)
+    #print(ZBMmean)
     ax3[zuplot].scatter(ZBM['yday'], ZBM['BIOMASS_200'] * muMolartoChlaconvfactor * mgDWtomuMolarZOO, label='200 µM', alpha=0.5)
-    ax3[zuplot].scatter(dpm_cumsum, np.array(ZBMmean) * muMolartoChlaconvfactor * mgDWtomuMolarZOO, label='mean',
+    ax3[zuplot].plot(dpm_cumsum, np.array(ZBMmean) * muMolartoChlaconvfactor * mgDWtomuMolarZOO, label='mean data',
                         alpha=1)
 
     # Z
@@ -129,9 +129,9 @@ def plotstuff(ms,outarray, zuplot, muplot, regime):
 
     PNmean = ms.physics.forcing.verif.returnMeanVerifPerMonth(PN, 'PON_ug_kg_Box')
 
-    print(np.array(PNmean),dpm_cumsum)
+    #print(np.array(PNmean),dpm_cumsum)
 
-    ax4[zuplot].scatter(dpm_cumsum, np.array(PNmean) /14.0067 , label='PN data', alpha=0.5)
+    ax4[zuplot].plot(dpm_cumsum, np.array(PNmean) /14.0067 , label='mean data', alpha=0.5)
     ax4[zuplot].scatter(PN['yday'], PN['PON_ug_kg_Box'] /14.0067 , label='PN data', alpha=0.5)
 
     D_Max = 1.5 #np.max(outarray_ly[:, 3]) + 0.2 * np.max(outarray_ly[:, 3])
