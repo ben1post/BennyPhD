@@ -15,10 +15,10 @@ class Nutrient:
         self.nuttype = checkreplaceparam(allpars, slicedpars, 'nuttype')
         self.type = self.returnnuttype()
 
-    def mixing(self, N0, N, K):
+    def mixing(self, N0, N, Mix):
         """"""
         # TODO this only works for Nitrate as of now
-        return K * (N0 - N[self.num])
+        return Mix * (N0[self.num] - N[self.num])
 
     def returnnuttype(self):
         if self.nuttype == 0:
@@ -40,23 +40,23 @@ class Phytoplankton:
         self.OptI = checkreplaceparam(allpars, slicedpars, 'OptI')
 
         self.U_N = checkreplaceparam(allpars, slicedpars, 'U_N')
-        self.U_P = checkreplaceparam(allpars, slicedpars, 'U_P')
-        self.U_Si = checkreplaceparam(allpars, slicedpars, 'U_Si')
+        #self.U_P = checkreplaceparam(allpars, slicedpars, 'U_P')
+        #self.U_Si = checkreplaceparam(allpars, slicedpars, 'U_Si')
 
         self.v = checkreplaceparam(allpars, slicedpars, 'v')
 
         self.muP = checkreplaceparam(allpars, slicedpars, 'muP')
         self.moP = checkreplaceparam(allpars, slicedpars, 'moP')
-        self.moP_quad = checkreplaceparam(allpars, slicedpars, 'moP_quad')
+        #self.moP_quad = checkreplaceparam(allpars, slicedpars, 'moP_quad')
 
-        self.ratioSi = checkreplaceparam(allpars, slicedpars, 'ratioSi')
+        #self.ratioSi = checkreplaceparam(allpars, slicedpars, 'ratioSi')
 
         self.pfn = allpars['phyto_num'].value
         self.zn = allpars['zoo_num'].value
 
         self.kc = checkreplaceparam(allpars, slicedpars, 'kc')
-        self.alpha = checkreplaceparam(allpars, slicedpars, 'alpha')
-        self.VpMax = checkreplaceparam(allpars, slicedpars, 'VpMax')
+        #self.alpha = checkreplaceparam(allpars, slicedpars, 'alpha')
+        #self.VpMax = checkreplaceparam(allpars, slicedpars, 'VpMax')
 
         self.zoolist = ['Z'+str(j+1) for j in range(self.zn)]
         self.grazepref = [checkreplaceparam(allpars, slicedpars, string) for string in self.zoolist]
@@ -70,31 +70,32 @@ class Phytoplankton:
         Uptake = N[0] / (N[0] + self.U_N)
         return Uptake
 
-    def lightharvesting(self, MLD, PAR, P, VPT, type='Smith'):
+    def lightharvesting(self, ModDep, PAR, P, type='Steele'):
         """Light - modification of phytoplankton growth rate"""
         if type == 'Steele':
-            lighthrv = 1. / (self.kw * MLD) * \
+            kPAR = self.kw + self.kc * sum(P)
+
+            lighthrv = 1. / (kPAR * ModDep) * \
                        (-np.exp(1. - PAR / self.OptI) - (
-                           -np.exp((1. - (PAR * np.exp(-self.kw * MLD)) / self.OptI))))
+                           -np.exp((1. - (PAR * np.exp(-kPAR * ModDep)) / self.OptI))))
             return lighthrv
 
-        # TODO: convert P to chlorophyll!
-        if type == 'Smith':
-            PAR = PAR
-            kPAR = self.kw + self.kc * sum(P)
-            x_0 = self.alpha * PAR * np.exp(- kPAR * 0)
-            x_H = self.alpha * PAR * np.exp(- kPAR * MLD)
-            VpH = (VPT / (kPAR * MLD)) * \
-                  np.log(
-                      (x_0 + np.sqrt(VPT ** 2 + x_0 ** 2)) /
-                      (x_H + np.sqrt(VPT ** 2 + x_H ** 2))
-                  )
-            return VpH/VPT
+        #if type == 'Smith':
+        #    PAR = PAR
+        #    kPAR = self.kw + self.kc * sum(P)
+        #    x_0 = self.alpha * PAR * np.exp(- kPAR * 0)
+        #    x_H = self.alpha * PAR * np.exp(- kPAR * MLD)
+        #    VpH = (VPT / (kPAR * MLD)) * \
+        #          np.log(
+        #              (x_0 + np.sqrt(VPT ** 2 + x_0 ** 2)) /
+        #              (x_H + np.sqrt(VPT ** 2 + x_H ** 2))
+        #          )
+        #    return VpH/VPT
 
     def tempdepgrowth(self, Tmld):
-        """"""
-        # tdp = np.exp(0.063 * Tmld)
-        tdp = self.VpMax * 1.066 ** Tmld
+        """Eppley modification of growth rate due to temperature"""
+        tdp = Tmld/(27+Tmld) # np.exp(0.063 * Tmld)
+        #tdp = self.VpMax * 1.066 ** Tmld
         return tdp
 
     def mortality(self, P, type='linear'):
@@ -113,9 +114,9 @@ class Phytoplankton:
         GrazingPerZ = sum(Grazing)
         return GrazingPerZ
 
-    def sinking(self, MLD, P):
+    def sinking(self, ModDep, P):
         """"""
-        Sink = self.v / MLD * P[self.num]  # Phytoplankton sinking as a function of MLD and sinking rate
+        Sink = self.v / ModDep * P[self.num]  # Phytoplankton sinking as a function of MLD and sinking rate
         return Sink
 
 
@@ -236,9 +237,14 @@ class Detritus:
         self.num = num
         self.deltaD = checkreplaceparam(allpars, slicedpars, 'deltaD_N')
 
+        self.vD = checkreplaceparam(allpars, slicedpars, 'vD')
+
         self.zn = allpars['zoo_num'].value
         self.zoolist = ['Z' + str(j + 1) for j in range(self.zn)]
         self.detgrazepref = [checkreplaceparam(allpars, slicedpars, string) for string in self.zoolist]
+
+    def sinking(self, D, ModDep):
+        return D[self.num] * self.vD / ModDep
 
     def remineralisation(self, D):
         return D[self.num] * self.deltaD

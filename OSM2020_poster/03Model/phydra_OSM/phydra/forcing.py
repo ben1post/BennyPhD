@@ -4,73 +4,12 @@
 import pandas
 import numpy as np
 import scipy.interpolate as intrp
-#from phydra.aux import sliceparams, sliceoffparams, checkreplaceparam
 
 from scipy.io import netcdf
 import os
 
 # TODO:
-#  - read new TS forcing
-#  - add (old) aggTS Regimes to run model in both regimes at CARIACO
 #  - read new full TS forcing
-
-class VerifData:
-    """
-    initializes and reads verification data, contained in ncdf files
-    """
-    def __init__(self, Lat, Lon, RBB):
-        self.Lat = Lat
-        self.Lon = Lon
-        self.RangeBB = RBB
-        self.fordir = os.path.split(os.path.realpath(__file__))[0]
-        self.chla = self.readchla()
-        self.chlaint = self.interplt(self.chla)
-        self.N = self.readnutrientaboveMLD('n0')
-        self.Nint = self.interplt(self.N)
-
-        print('VerifData forcing created')
-
-    def readchla(self):
-        ncfile = netcdf.netcdf_file(self.fordir + '/ChlAclimatology_MODISaqua_L3_nc3.nc', 'r')
-        nclat = ncfile.variables['lat'].data.copy()
-        nclon = ncfile.variables['lon'].data.copy()
-        ncdat = ncfile.variables['chlor_a'].data.copy()
-        ncfile.close()
-        longrid, latgrid = np.meshgrid(nclon, nclat)
-        selectarea = np.logical_and(longrid <= self.Lon + self.RangeBB, longrid >= self.Lon - self.RangeBB) * \
-                     np.logical_and(latgrid <= self.Lat + self.RangeBB, latgrid >= self.Lat - self.RangeBB)
-        outforcing = list(np.nanmean(ncdat[:, selectarea], axis=1))
-        return outforcing
-
-    def readnutrientaboveMLD(self,var):
-        if var == 'n0':
-            ncfile = netcdf.netcdf_file(self.fordir + '/NitrateAboveMLD_WOA_tmld_test01_nc3.nc', 'r')
-        elif var == 'p0':
-            ncfile = netcdf.netcdf_file(self.fordir + '/Phosphate_WOA_tmld_test03_nc3.nc', 'r')
-        elif var == 'si0':
-            ncfile = netcdf.netcdf_file(self.fordir + '/SilicateAboveMLD_WOA_tmld_test02_nc3.nc', 'r')
-
-        nclat = ncfile.variables['lat'].data.copy()
-        nclon = ncfile.variables['lon'].data.copy()
-        ncdat = ncfile.variables[var].data.copy()
-        ncfile.close()
-        longrid, latgrid = np.meshgrid(nclon, nclat)
-        selectarea = np.logical_and(latgrid <= self.Lat + self.RangeBB, latgrid >= self.Lat - self.RangeBB) * \
-                     np.logical_and(longrid <= self.Lon + self.RangeBB, longrid >= self.Lon - self.RangeBB)
-        outforcing = list(np.nanmean(ncdat[selectarea, :], axis=0))
-        return outforcing
-
-    def interplt(self,dat):
-        dayspermonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-        dpm_3 = dayspermonth * 3
-        dpm_cumsum = np.cumsum(dpm_3) - np.array(dpm_3)/2
-        dat_dpm = pandas.DataFrame(np.column_stack([dat*3, dpm_cumsum]), columns=['Value', 'yday'])
-        tm_dat_conc = np.arange(0., 3 * 365., 1.0)
-
-        dat_pad = dat_dpm.set_index('yday').reindex(tm_dat_conc).reset_index()
-        dat_int = dat_pad.Value.interpolate().values[365:365+365]
-        return dat_int
-
 
 class CARIACOdata:
     """
@@ -85,44 +24,82 @@ class CARIACOdata:
         self.forcingtype = forctype
         self.forcvar = forcvar
 
+        if data == 'niskin':
+            if boxordep == 'box':
+                varname = forcvar + '_Box'
+            elif boxordep == 'depth':
+                varname = forcvar + '_AtDepth'
+        else: varname = forcvar
+        self.varname = varname
+
         self.forcingfile = self.readCariaco(forcvar, data=data, time=time, boxordep=boxordep, forctype=forctype)
+        self.rawforcing = self.readCariaco(forcvar, data=data, time=time, boxordep=boxordep, forctype=forctype, get='full')
+        #print(self.forcingfile)
+        if forctype == 'aggTS':
+            self.interpolated = self.dailyinterp(self.forcingfile, self.kind, self.k, self.s)
+            if kind == "spline":
+                self.derivative = self.interpolated.derivative()
+                self.derivative2 = self.interpolated.derivative(n=2)
 
-        self.interpolated = self.dailyinterp(self.forcingfile, self.kind, self.k, self.s)
+        elif forctype == 'fullTS':
+            self.interpolated_df = self.fullinterp(varname=forcvar, data=data, boxordep=boxordep)
+            self.interpolated = self.dailyinterp(self.forcingfile, self.kind, self.k, self.s)
 
-        if kind == "spline":
-            self.derivative = self.interpolated.derivative()
-            self.derivative2 = self.interpolated.derivative(n=2)
         print(forcvar + ' forcing created')
 
-    def readCariaco(self, varname, data, time, boxordep, forctype):  # self
+    def readCariaco(self, varname, data, time, boxordep, forctype,get=None):
         """read data and return either aggregated regimes or full time series"""
         if data == 'niskin':
             df_all = pandas.read_csv('Data/NewestData/BoxVSatDepth_02.csv')
-            if boxordep == 'box': varname = varname + '_Box'
-            elif boxordep == 'depth': varname = varname + '_AtDepth'
+            if boxordep == 'box':
+                varname = varname + '_Box'
+            elif boxordep == 'depth':
+                varname = varname + '_AtDepth'
+        elif data == 'SeaWiFS':
+            df_all = pandas.read_csv('Data/NewestData/PARXSeaWiFS_03.csv')
+        elif data == 'x25.8':
+            df_all = pandas.read_csv('Data/NewestData/x258_02.csv')
 
-        elif data == 'SeaWiFS': df_all = pandas.read_csv('Data/NewestData/PARXSeaWiFS_02.csv')
-
-        elif data == 'x25.8': df_all = pandas.read_csv('Data/NewestData/x258_02.csv')
+        df_val = df_all[['date', 'month', 'yday', varname]]
+        df_series = df_val.set_index(df_val['date'])
 
         if forctype == 'aggTS':
-            df_val = df_all[['date', 'month', 'yday', varname]]
             if time == 'regime1':
-                df_series = df_val.set_index(df_val['date'])
                 df_series_cut = df_series.loc['1996-01-01':'2000-10-30']
                 df_val = df_series_cut
-                print(df_val)
+                #print(df_val)
             elif time == 'regime2':
-                df_series = df_val.set_index(df_val['date'])
                 df_series_cut = df_series.loc['2006-06-30':'2010-12-31']
                 df_val = df_series_cut
-                print(df_val)
+                #print(df_val)
+            if get == 'full':
+                return df_val
             df_monthly_mean = df_val.groupby('month').mean()
             # print(niskin_monthly_mean)
             forcing_oneyear = list(df_monthly_mean[varname])
             forcing_list = forcing_oneyear * 3
+            return forcing_list
 
-        return forcing_list
+        elif forctype == 'fullTS':
+            return df_series
+
+    def fullinterp(self, data, varname, boxordep):
+        """test"""
+        if data == 'niskin':
+            if boxordep == 'box':
+                varname = varname + '_Box'
+            elif boxordep == 'depth':
+                varname = varname + '_AtDepth'
+
+        df = self.forcingfile.copy()
+        df['datetime'] = pandas.to_datetime(df['date'])
+        df.index = df['datetime']
+        #print(df.head(4))
+        df_interpol = df.resample('D').mean()
+        #print(df_interpol.head(4))
+        df_interpol[varname] = df_interpol[varname].interpolate()
+        #print(df_interpol.head(4))
+        return df_interpol
 
     def dailyinterp(self, file, kind, k, s):
         """
@@ -140,34 +117,45 @@ class CARIACOdata:
         The temporally interpolated environmental forcing.
         """
         # tmonth = np.linspace(-10.5, 24.473, 12 * 3)
-        dayspermonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-        dpm = dayspermonth * 3
-        dpm_cumsum = np.cumsum(dpm) - np.array(dpm) / 2
-        if kind == 'spline':
-            outintp = intrp.UnivariateSpline(dpm_cumsum, file, k=k, s=s)
-            return outintp
-        elif kind == 'PWPoly':
-            outintp = intrp.PchipInterpolator(dpm_cumsum, file)
+        if self.forcingtype == 'aggTS':
+            dayspermonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+            dpm = dayspermonth * 3
+            dpm_cumsum = np.cumsum(dpm) - np.array(dpm) / 2
+            if kind == 'spline':
+                outintp = intrp.UnivariateSpline(dpm_cumsum, file, k=k, s=s)
+                return outintp
+            elif kind == 'PWPoly':
+                outintp = intrp.PchipInterpolator(dpm_cumsum, file)
+                return outintp
+        elif self.forcingtype == 'fullTS':
+            numrows = np.arange(1,self.interpolated_df.shape[0],1)
+            print('fix me!',numrows, self.interpolated_df[self.varname].values)
+            outintp = intrp.UnivariateSpline(numrows, np.array(self.interpolated_df[self.varname].values), k=k, s=s)
             return outintp
         else:
             raise ('Wrong interpolation type passed to dailyinterp function of IndForcing class')
 
-    def return_interpvalattime(self, time):
-        """
-        Method to return interpolated value of forcing.
 
-        converts time in days to time in months
-        """
-        newt = np.mod(time, 365.) + 365  # *12./365.
-        return self.interpolated(newt)
+    def return_interpvalattime(self, t):
+        if self.forcingtype == 'fullTS':
+            print(self.interpolated)
+        else:
+            """
+            Method to return interpolated value of forcing.
 
-    def return_derivattime(self, time):
+            converts time in days to time in months
+            """
+            newt = np.mod(t, 365.) + 365  # *12./365.
+            return self.interpolated(newt)
+
+
+    def return_derivattime(self, t):
         """
         Method to return derivative (slope) of interpolated value of forcing.
 
         converts time in days to time in months, and the resulting derivative from per month to per day
         """
-        newt = np.mod(time, 365.) + 365  # * 12. / 365.
+        newt = np.mod(t, 365.) + 365  # * 12. / 365.
 
         if self.forcingtype == "constantMLD" and self.forcvar == "MLD":
             # return 0 as derivative for constant MLD, remove mathematical inaccuracy
@@ -183,11 +171,140 @@ class Forcing:
     """
     def __init__(self, forcingtype, time):
         if forcingtype == 'aggTS':
-            self.X258 = CARIACOdata('x258depth', data='x25.8', boxordep='depth', time=time, k=5, s=100, kind="spline", forctype=forcingtype)
-            self.NOX = CARIACOdata('NO3_NO2_USF', data='niskin', time=time, k=5, s=None, kind="PWPoly", forctype=forcingtype)
-            self.SST = CARIACOdata('Temperature', data='niskin', time=time, k=5, s=None, kind="spline", forctype=forcingtype)
-            self.PAR = CARIACOdata('value', data='SeaWiFS', time=time, k=5, s=None, kind="spline", forctype=forcingtype)
+            self.X258 = CARIACOdata('x258depth', data='x25.8', time=time, k=3, s=2000, kind="spline", forctype=forcingtype)
+            self.NOX = CARIACOdata('NO3_NO2_USF', data='niskin', time=time, boxordep='depth', k=50, s=None, kind="PWPoly", forctype=forcingtype)
+            self.SST = CARIACOdata('Temperature', data='niskin', time=time, k=2, s=5, kind="spline", forctype=forcingtype)
+            self.PAR = CARIACOdata('PAR', data='SeaWiFS', time=time, k=5, s=None, kind="spline", forctype=forcingtype)
+            self.verif = CARIACOVerifData(time=time, forctype=forcingtype)
+            self.type = 'Box'
+
+        elif forcingtype == 'fullTS':
+            self.X258 = CARIACOdata('x258depth', data='x25.8', time=time, k=3, s=2000, kind="spline", forctype=forcingtype)
+            self.NOX = CARIACOdata('NO3_NO2_USF', data='niskin', time=time, boxordep='depth', k=50, s=None, kind="PWPoly", forctype=forcingtype)
+            self.SST = CARIACOdata('Temperature', data='niskin', time=time, k=2, s=5, kind="spline", forctype=forcingtype)
+            self.PAR = CARIACOdata('PAR', data='SeaWiFS', time=time, k=5, s=None, kind="spline", forctype=forcingtype)
+            self.verif = CARIACOVerifData(time=time, forctype=forcingtype)
             self.type = 'Box'
 
         else:
             raise('wrong forcingtype passed to Forcing class')
+
+
+class CARIACOVerifData:
+    """initializes and reads verification data from CARIACO time series"""
+    def __init__(self, time, forctype):
+        self.pad = False
+        self.time = time
+        self.forctype = forctype
+        self.HPLC = self.readHPLC('Tchla')
+        self.FluorChla = self.readniskin('Chlorophyll', boxordep='box')
+        self.NO2NO3 = self.readniskin('NO3_NO2_USF', boxordep='box')
+        self.PN = self.readniskin('PON_ug_kg', boxordep='box')
+        self.Zoo = self.readZoo('BIOMASS_200')
+        self.pad = True
+        self.padHPLC = self.readHPLC('Tchla')
+        self.padFluorChla = self.readniskin('Chlorophyll', boxordep='box')
+        self.padNO2NO3 = self.readniskin('NO3_NO2_USF', boxordep='box')
+        self.padPN = self.readniskin('PON_ug_kg', boxordep='box')
+        self.padZoo = self.readZoo('BIOMASS_200')
+
+        print('Verification data created')
+
+    def returnMeanVerifPerMonth(self, dataset, varname):
+        df_monthly_mean = dataset.groupby('month').mean()
+
+        verif_oneyear = list(df_monthly_mean[varname])
+        return verif_oneyear
+
+    def readHPLC(self, varname):
+        df_all = pandas.read_csv('Data/NewestData/HPLCPinckneyTotAndSpec_03.csv')
+        try:
+            df_val = df_all[['date', 'month', 'yday', varname]]
+        except:
+            print(df_all.columns)
+            raise Exception('Variable {} is not found in HPLC dataframe'.format(varname))
+
+        df_series = df_val.set_index(df_val['date'])
+
+        if self.pad:
+            data_pd = df_series
+            data_pd.date = pandas.to_datetime(data_pd.date)
+            data_pd.fillna(data_pd.groupby([data_pd.date.dt.year, data_pd.date.dt.month]).transform('mean'), inplace=True)
+            df_series = data_pd
+
+        if self.forctype == 'aggTS':
+            if self.time == 'regime1':
+                df_series_cut = df_series.loc['1996-01-01':'2000-10-30']
+                df_val = df_series_cut
+            elif self.time == 'regime2':
+                df_series_cut = df_series.loc['2006-06-30':'2010-12-31']
+                df_val = df_series_cut
+        if self.forctype == 'fullTS':
+            df_val = df_series
+
+        return df_val
+
+
+    def readniskin(self, varname, boxordep):
+        df_all = pandas.read_csv('Data/NewestData/BoxVSatDepth_02.csv')
+        if boxordep == 'box':
+            varname = varname + '_Box'
+        elif boxordep == 'depth':
+            varname = varname + '_AtDepth'
+        try:
+            df_val = df_all[['date', 'month', 'yday', varname]]
+        except:
+            print(df_all.columns)
+            raise Exception('Variable {} is not found in niskin df'.format(varname))
+
+        df_series = df_val.set_index(df_val['date'])
+
+        if self.pad:
+            data_pd = df_series
+            data_pd.date = pandas.to_datetime(data_pd.date)
+            data_pd.fillna(data_pd.groupby([data_pd.date.dt.year, data_pd.date.dt.month]).transform('mean'), inplace=True)
+            df_series = data_pd
+
+        if self.forctype == 'aggTS':
+            if self.time == 'regime1':
+                df_series_cut = df_series.loc['1996-01-01':'2000-10-30']
+                df_val = df_series_cut
+            elif self.time == 'regime2':
+                df_series_cut = df_series.loc['2006-06-30':'2010-12-31']
+                df_val = df_series_cut
+        if self.forctype == 'fullTS':
+            df_val = df_series
+        return df_val
+
+    def readZoo(self, varname):
+        df_all = pandas.read_csv('Data/NewestData/ZooplanktonData_05.csv')
+        #print(df_all.head(10))
+        try:
+            df_val = df_all[['date', 'month', 'yday', varname]]
+        except:
+            print(df_all.columns)
+            raise Exception('Variable {} is not found in ZOO dataframe'.format(varname))
+
+        df_series = df_val.set_index(df_val['date'])
+
+        if self.pad:
+            data_pd = df_series
+            data_pd.date = pandas.to_datetime(data_pd.date)
+            data_pd.fillna(data_pd.groupby([data_pd.date.dt.year, data_pd.date.dt.month]).transform('mean'), inplace=True)
+            print('heee',data_pd)
+            df_series = data_pd
+
+        if self.forctype == 'aggTS':
+            if self.time == 'regime1':
+                #print(df_series.head(10))
+                df_series_cut = df_series.loc['1996-01-01':'2000-10-30']
+                df_val = df_series_cut
+            elif self.time == 'regime2':
+                df_series_cut = df_series.loc['2006-06-30':'2010-12-31']
+                df_val = df_series_cut
+
+        if self.forctype == 'fullTS':
+            df_val = df_series
+
+
+        return df_val

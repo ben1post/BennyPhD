@@ -18,13 +18,13 @@ class StateVariables:
         self.num = params[SVtype + '_num'].value
         self.allpars = params
         self.svs = self.createlistofsvs()
-        print(self.type,self.num,'created')
+        print(self.type, self.num,'created')
 
     def __getattr__(self, key):
         """ This function is necessary for the StateVariables class to
         pass functions to the contained state variables when called within the ODE"""
         def fn(*args,**kwargs):
-            return np.array([getattr(x, key)(*args,**kwargs) for x in self.svs])
+            return np.array([getattr(x, key)(*args, **kwargs) for x in self.svs])
         return fn
 
     def sv(self, *args):
@@ -51,6 +51,7 @@ class Physics:
             self.forcing = Forcing('EMPOWER')
         elif self.type == 'Box':
             self.forcing = Forcing(fxtype, time)
+            self.BoxDepth = 100
 
     def K(self, MLD, mix='h+'):
         if mix == 'h+':
@@ -71,9 +72,7 @@ class Physics:
 
     def wMix(self, X258, type='std'):
         if type == 'std':
-            return (self.parameters['wmix'].value + max(-X258[1], 0)) / 100  # box depth
-        elif type == 'D':
-            return (self.parameters['wmix'].value + max(-X258[1], 0) + self.parameters['vD'].value) / 100  # box depth
+            return (self.parameters['wmix'].value + max(-X258[1], 0)) / self.BoxDepth
 
     def MLD(self,t):
         return np.array([self.forcing.MLD.return_interpvalattime(t), self.forcing.MLD.return_derivattime(t)])
@@ -82,7 +81,8 @@ class Physics:
         return np.array([self.forcing.X258.return_interpvalattime(t), self.forcing.X258.return_derivattime(t)])
 
     def N0(self, t):
-        return self.forcing.NOX.return_interpvalattime(t)
+        # TODO: figure out a better way to deal with nutrients (add more!?)
+        return [self.forcing.NOX.return_interpvalattime(t)]
 
     def PAR(self, t):
         return self.forcing.PAR.return_interpvalattime(t)
@@ -115,5 +115,5 @@ class ModelSetup:
         phyto = x[n:n+p]
         zoo = x[n+p:n+p+z]
         det = x[n+p+z:n+p+z+d]
-        rest = x[n+p+z+d:]
-        return nuts, phyto, zoo, det, rest
+        _ = x[n+p+z+d:]
+        return nuts, phyto, zoo, det, _

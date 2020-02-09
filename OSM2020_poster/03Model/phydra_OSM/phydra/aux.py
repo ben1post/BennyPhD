@@ -31,5 +31,5 @@ def checkreplaceparam(stdpardict, functypepardict, parsuffix):
         try:
             return next(v for k, v in stdpardict.items() if k.endswith(parsuffix))
         except StopIteration:
-            return 'Parameter not defined or not passed to class'
-            # raise Exception('Parameter {} is not found in Parameters passed to SV class'.format(parsuffix))
+            #return 'Parameter not defined or not passed to class'
+            raise Exception('Parameter {} is not found in Parameters passed to SV class'.format(parsuffix))
