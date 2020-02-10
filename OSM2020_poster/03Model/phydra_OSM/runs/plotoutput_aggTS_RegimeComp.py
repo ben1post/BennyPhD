@@ -4,7 +4,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from runs.modelrun_aggTS import timedays, outarray1, outarray2, ms1, ms2
+from runs.modelrun_aggTS_RegimeComp import timedays, outarray1, outarray2, ms1, ms2
 
 # TODO:
 #  - import necessary functions & objects

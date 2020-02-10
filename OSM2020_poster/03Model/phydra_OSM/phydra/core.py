@@ -44,13 +44,13 @@ class StateVariables:
 
 class Physics:
     """ This can be defined in core, but draws from forcing.py"""
-    def __init__(self,params, phsxtype, fxtype, time):
+    def __init__(self,params, phsxtype, fxtype, time, pad):
         self.parameters = params
         self.type = phsxtype
         if self.type == 'EMPOWER':
             self.forcing = Forcing('EMPOWER')
         elif self.type == 'Box':
-            self.forcing = Forcing(fxtype, time)
+            self.forcing = Forcing(fxtype, time, pad)
             self.BoxDepth = 100
 
     def K(self, MLD, mix='h+'):
@@ -93,14 +93,14 @@ class Physics:
 
 class ModelSetup:
     """this needs to be dynamically collected, right?"""
-    def __init__(self, params, physics='Box', forcing='aggTS', time='regime1'):
+    def __init__(self, params, physics='Box', forcing='aggTS', time='regime1', pad=False):
         self.nutrients = StateVariables(params, 'nuts')
         self.phytoplankton = StateVariables(params, 'phyto')
         self.zooplankton = StateVariables(params, 'zoo')
         self.detritus = StateVariables(params, 'det')
         self._classes = [self.nutrients, self.phytoplankton, self.zooplankton, self.detritus]
 
-        self.physics = Physics(params, physics, forcing, time)  # 'slab' as fxtype instead
+        self.physics = Physics(params, physics, forcing, time, pad)  # 'slab' as fxtype instead
 
     @property
     def classes(self):

@@ -73,11 +73,11 @@ parameters.add('vD', value=1., vary=False)
 
 ######### MODEL EVALUATION CODE #############
 
-ms = ModelSetup(parameters, physics='Box', forcing='aggTS', time='regime1')
+ms1 = ModelSetup(parameters, physics='Box', forcing='aggTS', time='regime1')
 
-n, p, z, d = ms.classes
+n, p, z, d = ms1.classes
 
-physx = ms.physics
+physx = ms1.physics
 
 N0 = 5
 P0 = 0.1
@@ -96,8 +96,17 @@ timedays = np.arange(0., 5 * 365., 1.0)
 # INTEGRATE:
 tos = time.time()
 print('starting integration')
-outarray = odeint(cariaco, initcond, timedays, args=(ms, None))  # for some reason need to pass 2 args
+outarray1 = odeint(cariaco, initcond, timedays, args=(ms1, None))  # for some reason need to pass 2 args
 tos1 = time.time()
 print('finished after %4.3f sec' % (tos1 - tos))
 
 #print(outarray)
+
+ms2 = ModelSetup(parameters, physics='Box', forcing='aggTS', time='regime2')
+
+# INTEGRATE:
+tos = time.time()
+print('starting integration')
+outarray2 = odeint(cariaco, initcond, timedays, args=(ms2, None))  # for some reason need to pass 2 args
+tos1 = time.time()
+print('finished after %4.3f sec' % (tos1 - tos))
