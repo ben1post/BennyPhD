@@ -110,14 +110,14 @@ def plotstuff(ms,outarray, zuplot, muplot, regime):
 
     # Z
     Zall = outarray_ly[:,2]
-    Z_Max = 0.5 #np.max(Zall) + 0.1 * np.max(Zall)
+    Z_Max = 1. #np.max(Zall) + 0.1 * np.max(Zall)
 
-    ax3[zuplot].plot(timedays_ly, Zall, c=colors[4], lw=lws[1])
+    ax3[zuplot].plot(timedays_ly, Zall, c=colors[4], lw=lws[1], label='model')
     ax3[0].set_ylabel('Zooplankton \n' '[µM N]', multialignment='center')
     ax3[zuplot].tick_params('y')
     ax3[zuplot].set_ylim(0, Z_Max)
     #ax4[i_plot].set_title('Zooplankton')
-
+    ax3[zuplot].legend(fontsize='x-small')
 
 
     # convert PN in µg/L to µM of Detritus!
@@ -132,7 +132,7 @@ def plotstuff(ms,outarray, zuplot, muplot, regime):
     #print(np.array(PNmean),dpm_cumsum)
 
     ax4[zuplot].plot(dpm_cumsum, np.array(PNmean) /14.0067 , label='mean data', alpha=0.5)
-    ax4[zuplot].scatter(PN['yday'], PN['PON_ug_kg_Box'] /14.0067 , label='PN data', alpha=0.5)
+    ax4[zuplot].scatter(PN['yday'], PN['PON_ug_kg_Box'] /14.0067 , label='PON data', alpha=0.5)
 
     D_Max = 1.5 #np.max(outarray_ly[:, 3]) + 0.2 * np.max(outarray_ly[:, 3])
     # D
@@ -141,6 +141,8 @@ def plotstuff(ms,outarray, zuplot, muplot, regime):
     ax4[zuplot].set_ylim(0, D_Max)
     ax4[zuplot].set_xlabel('Day in year')
     # Legend
+    ax4[zuplot].legend(fontsize='x-small')
+
 
     ## PHYSICS ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
     ax1[muplot].set_title(regime + 'forcing')

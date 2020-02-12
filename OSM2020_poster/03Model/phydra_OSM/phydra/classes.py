@@ -14,6 +14,7 @@ class Nutrient:
         self.num = num
         self.nuttype = checkreplaceparam(allpars, slicedpars, 'nuttype')
         self.type = self.returnnuttype()
+        print(self.type, self.num,'created')
 
     def mixing(self, N0, N, Mix):
         """"""
@@ -34,6 +35,10 @@ class Nutrient:
 class Phytoplankton:
     """"""
     def __init__(self, allpars, slicedpars, num):
+        #print(num+1)
+        #print('ALL',allpars)
+        #print('slice',slicedpars)
+        self.type ='phyto'
         self.num = num
 
         self.kw = checkreplaceparam(allpars, slicedpars, 'kw')
@@ -46,6 +51,7 @@ class Phytoplankton:
         self.v = checkreplaceparam(allpars, slicedpars, 'v')
 
         self.muP = checkreplaceparam(allpars, slicedpars, 'muP')
+        print(self.muP)
         self.moP = checkreplaceparam(allpars, slicedpars, 'moP')
         #self.moP_quad = checkreplaceparam(allpars, slicedpars, 'moP_quad')
 
@@ -60,6 +66,8 @@ class Phytoplankton:
 
         self.zoolist = ['Z'+str(j+1) for j in range(self.zn)]
         self.grazepref = [checkreplaceparam(allpars, slicedpars, string) for string in self.zoolist]
+
+        print(self.type, self.num,'created')
 
     def growth(self):
         return self.muP
@@ -124,6 +132,7 @@ class Zooplankton:
     """"""
     def __init__(self, allpars, slicedpars, num):
         self.num = num
+        self.type ='zoo'
         # zooplankton
         self.moZ = checkreplaceparam(allpars, slicedpars, 'moZ')
         self.muZ = checkreplaceparam(allpars, slicedpars, 'muZ')
@@ -158,6 +167,9 @@ class Zooplankton:
 
         self.beta_feed = checkreplaceparam(allpars, slicedpars, 'beta_feed')
         self.kN_feed = checkreplaceparam(allpars, slicedpars, 'kN_feed')
+
+
+        print(self.type, self.num,'created')
 
     def zoofeeding(self, P, Z, D, func='anderson'):
         if func == 'anderson':
@@ -235,6 +247,7 @@ class Zooplankton:
 class Detritus:
     def __init__(self, allpars, slicedpars, num):
         self.num = num
+        self.type ='det'
         self.deltaD = checkreplaceparam(allpars, slicedpars, 'deltaD_N')
 
         self.vD = checkreplaceparam(allpars, slicedpars, 'vD')
@@ -242,6 +255,9 @@ class Detritus:
         self.zn = allpars['zoo_num'].value
         self.zoolist = ['Z' + str(j + 1) for j in range(self.zn)]
         self.detgrazepref = [checkreplaceparam(allpars, slicedpars, string) for string in self.zoolist]
+
+
+        print(self.type, self.num,'created')
 
     def sinking(self, D, ModDep):
         return D[self.num] * self.vD / ModDep

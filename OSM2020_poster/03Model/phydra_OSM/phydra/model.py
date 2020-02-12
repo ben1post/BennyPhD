@@ -71,19 +71,19 @@ def cariaco(x,t,modelsetup, q):
     Zx = ZGains - ZLosses  # Zooplankton losses due to mortality and mixing
     Dx = DGains - DLosses   # Detritus
 
-    out = [Nx, Px, Zx, Dx]
+    out = np.concatenate((Nx, Px, Zx, Dx), axis=None)
 
-    outputlist[0] = PTempDepGrow
-    outputlist[1] = PNutUptake
-    outputlist[2] = PLightHarv
-    outputlist[3] = PGains
+    outputlist[0] = sum(PTempDepGrow)
+    outputlist[1] = sum(PNutUptake)
+    outputlist[2] = sum(PLightHarv)
+    outputlist[3] = sum(PGains)
 
     outputlist[4] = 0 #PLinMort
     outputlist[5] = 0 #PQuadMort
-    outputlist[6] = PMortality
-    outputlist[7] = PZooGrazed
-    outputlist[22] = PSinking #PMixing
-    outputlist[8] = PLosses
+    outputlist[6] = sum(PMortality)
+    outputlist[7] = sum(PZooGrazed)
+    outputlist[22] = sum(PSinking) #PMixing
+    outputlist[8] = sum(PLosses)
 
     outputlist[9] = ZGains
 
@@ -103,7 +103,7 @@ def cariaco(x,t,modelsetup, q):
     outputlist[20] = NMixing
     outputlist[21] = ZUnassimFeedNitrate
 
-    return np.concatenate([out,outputlist], axis=None)
+    return np.concatenate((out, outputlist), axis=None)
 
 # MODEL ODE
 def empower(x,t,modelsetup, q):

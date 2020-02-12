@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-from phydra.aux import sliceparams
+from phydra.aux import sliceparams, sliceoffparams
 from phydra.classes import Nutrient, Phytoplankton, Zooplankton, Detritus
 from phydra.forcing import Forcing
 
@@ -13,12 +13,15 @@ from phydra.forcing import Forcing
 
 class StateVariables:
     """"""
-    def __init__(self,params, SVtype):
+    # TODO: AS OF NOW PFT params need to be situatied in dict AFTER stdparams, this needs to be fixed
+    def __init__(self, params, SVtype):
         self.type = SVtype
         self.num = params[SVtype + '_num'].value
+
         self.allpars = params
+
         self.svs = self.createlistofsvs()
-        print(self.type, self.num,'created')
+
 
     def __getattr__(self, key):
         """ This function is necessary for the StateVariables class to
