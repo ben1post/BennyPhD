@@ -8,11 +8,13 @@ from phydra.forcing import Forcing
 
 # TODO:
 #  - dynamically create list of state variables
-#  - add to forcing.py, import necessary functions here.
 #  -
 
 class StateVariables:
-    """"""
+    """Composite class that handles all instances of classes in phydra.classes
+    contains list of instances of respective class, and handles calling function on each instance,
+    when called within system of ODEs
+    """
     # TODO: AS OF NOW PFT params need to be situatied in dict AFTER stdparams, this needs to be fixed
     def __init__(self, params, SVtype):
         self.type = SVtype
@@ -24,14 +26,14 @@ class StateVariables:
 
 
     def __getattr__(self, key):
-        """ This function is necessary for the StateVariables class to
-        pass functions to the contained state variables when called within the ODE"""
+        """This function is necessary for the StateVariables class to
+        pass functions to the contained state variable(s) when called within the ODE"""
         def fn(*args,**kwargs):
             return np.array([getattr(x, key)(*args, **kwargs) for x in self.svs])
         return fn
 
     def sv(self, *args):
-        """ dynamically create list here!"""
+        """Called by createlistofsvs function below, handles creating correct instance based on parameters passed"""
         if self.type == 'nuts':
             return Nutrient(*args)
         elif self.type == 'phyto':
@@ -42,11 +44,13 @@ class StateVariables:
             return Detritus(*args)
 
     def createlistofsvs(self):
+        """Function to create list of class instances, e.g. 2 Phytoplankton class instances"""
         return [self.sv(self.allpars, sliceparams(self.allpars, self.type + str(i + 1)), i) for i in range(self.num)]
 
 
 class Physics:
-    """ This can be defined in core, but draws from forcing.py"""
+    """Composite class handles model forcing, contains forcing and verification data,
+    actual forcing & verification is defined in phydra.forcing module"""
     def __init__(self,params, phsxtype, fxtype, time, pad):
         self.parameters = params
         self.type = phsxtype
@@ -95,7 +99,9 @@ class Physics:
 
 
 class ModelSetup:
-    """this needs to be dynamically collected, right?"""
+    """Composite class containing all relevant classes related to model setup,
+    can be passed to ode function and to plotting scripts to access state variables, forcing and verification data"""
+
     def __init__(self, params, physics='Box', forcing='aggTS', time='regime1', pad=False):
         self.nutrients = StateVariables(params, 'nuts')
         self.phytoplankton = StateVariables(params, 'phyto')

@@ -9,7 +9,8 @@ from scipy.io import netcdf
 import os
 
 # TODO:
-#  - read new full TS forcing
+#  - add missing nutrients
+#  - add HPLC functype data
 
 class CARIACOdata:
     """

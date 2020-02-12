@@ -4,12 +4,9 @@
 import numpy as np
 from phydra.aux import checkreplaceparam
 
-# TODO:
-#  - make sure all CARIACO functions are represented here
-#  -
 
 class Nutrient:
-    """"""
+    """Nutrient class, stores parameters and handles processes related to nutrients"""
     def __init__(self, allpars, slicedpars, num):
         self.num = num
         self.nuttype = checkreplaceparam(allpars, slicedpars, 'nuttype')
@@ -33,11 +30,9 @@ class Nutrient:
 
 
 class Phytoplankton:
-    """"""
+    """Phytoplankton class, stores parameters and handles processes related to phytoplankton"""
     def __init__(self, allpars, slicedpars, num):
-        #print(num+1)
-        #print('ALL',allpars)
-        #print('slice',slicedpars)
+
         self.type ='phyto'
         self.num = num
 
@@ -51,7 +46,7 @@ class Phytoplankton:
         self.v = checkreplaceparam(allpars, slicedpars, 'v')
 
         self.muP = checkreplaceparam(allpars, slicedpars, 'muP')
-        print(self.muP)
+
         self.moP = checkreplaceparam(allpars, slicedpars, 'moP')
         #self.moP_quad = checkreplaceparam(allpars, slicedpars, 'moP_quad')
 
@@ -70,6 +65,7 @@ class Phytoplankton:
         print(self.type, self.num,'created')
 
     def growth(self):
+        """returns growth rate"""
         return self.muP
 
     def uptake(self, N):
@@ -107,7 +103,7 @@ class Phytoplankton:
         return tdp
 
     def mortality(self, P, type='linear'):
-        """"""
+        """calculates mortality rate"""
         if type == 'linear':
             mortal = self.moP * P[self.num]
             return mortal
@@ -116,20 +112,20 @@ class Phytoplankton:
             return mortal
 
     def zoograzing(self, Gj, P, Z, D):
-        """"""
+        """returns grazed biomass of instance of phytoplankton class"""
         # take the general grazing term from each zooplankton, multiply by phyto fraction and sum
         Grazing = [Gj[j] * (self.grazepref[j] * P[self.num] ** 2) * Z[j] for j in range(self.zn)]
         GrazingPerZ = sum(Grazing)
         return GrazingPerZ
 
     def sinking(self, ModDep, P):
-        """"""
+        """calculates sinking rate of phytoplankton"""
         Sink = self.v / ModDep * P[self.num]  # Phytoplankton sinking as a function of MLD and sinking rate
         return Sink
 
 
 class Zooplankton:
-    """"""
+    """Zooplankton class, stores parameters and handles processes related to zooplankton"""
     def __init__(self, allpars, slicedpars, num):
         self.num = num
         self.type ='zoo'
@@ -168,10 +164,10 @@ class Zooplankton:
         self.beta_feed = checkreplaceparam(allpars, slicedpars, 'beta_feed')
         self.kN_feed = checkreplaceparam(allpars, slicedpars, 'kN_feed')
 
-
         print(self.type, self.num,'created')
 
     def zoofeeding(self, P, Z, D, func='anderson'):
+        """Function that calculates the array of grazing probability"""
         if func == 'anderson':
             FrhoP = sum([self.feedpref[i] * P[i] ** 2 for i in range(self.pfn)])
             #FrhoZ = sum([self.interfeedpref[j] * Z[j] ** 2 for j in range(self.zn)])
@@ -211,22 +207,24 @@ class Zooplankton:
             print('no grazing formulation given, wrong func key')
 
     def fullgrazing(self, Gj, P, Z, D):
+        """Function that calculates specific grazing uptake by instance of zooplankton class"""
         # phytouptake + zooplankton per zooplankton for each phyto
         IprobP = [Gj[self.num] * (self.feedpref[i] * P[i] ** 2) for i in range(self.pfn)]  # grazeprob per each PFT
         IprobD = [Gj[self.num] * (self.detfeedpref[j] * D[j] ** 2) for j in range(self.dn)]
         Iprob = IprobP + IprobD
-        #perhaps here = multiply by Z before summing Iprobs!
         Itots = sum(Iprob)
         Itot = Itots * Z[self.num]
         #print('Itots', Itots,Z, 'IprobP', IprobP, P, 'IprobD', IprobD, D)
         return Itot
 
     def assimgrazing(self, ZooFeeding):
+        """Function tha calculates assimilated biomass of grazed biomass"""
         # AssimGrazing = self.deltaZ * ZooFeeding[self.num]
         AssimGrazing = self.beta_feed * self.kN_feed * ZooFeeding[self.num]
         return AssimGrazing
 
     def unassimilatedgrazing(self, ZooFeeding, pool='N'):
+        """Function tha calculates UNassimilated biomass of grazed biomass"""
         #UnAsGraze = (1. - self.deltaZ) * ZooFeeding[self.num]
         if pool == 'N':
             UnAsGraze = self.beta_feed * (1-self.kN_feed) * ZooFeeding[self.num]
@@ -236,6 +234,7 @@ class Zooplankton:
             return UnAsGraze
 
     def mortality(self, Z, type='linear'):
+        """calculates mortality rate"""
         if type == 'linear':
             total_moZ = self.moZ * Z[self.num]
             return total_moZ
@@ -245,6 +244,7 @@ class Zooplankton:
 
 
 class Detritus:
+    """Detritus class, stores parameters and handles processes related to detritus"""
     def __init__(self, allpars, slicedpars, num):
         self.num = num
         self.type ='det'
@@ -256,17 +256,18 @@ class Detritus:
         self.zoolist = ['Z' + str(j + 1) for j in range(self.zn)]
         self.detgrazepref = [checkreplaceparam(allpars, slicedpars, string) for string in self.zoolist]
 
-
         print(self.type, self.num,'created')
 
     def sinking(self, D, ModDep):
+        """Function calculates sinking rate"""
         return D[self.num] * self.vD / ModDep
 
     def remineralisation(self, D):
+        """Function calculates remineralisation rate"""
         return D[self.num] * self.deltaD
 
     def zoograzing(self, Gj, D, Z):
-        """"""
+        """returns grazed biomass of instance of detritus class"""
         # take the general grazing term from each zooplankton, multiply by phyto fraction and sum
         Grazing = [Gj[j] * (self.detgrazepref[j] * D[self.num] ** 2) * Z[j] for j in range(self.zn)]
         GrazingPerZ = sum(Grazing)

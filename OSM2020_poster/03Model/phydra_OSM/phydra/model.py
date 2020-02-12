@@ -3,13 +3,9 @@
 
 import numpy as np
 
-# TODO:
-#  - import modelsetup (not necessary?)
 
 def cariaco(x,t,modelsetup, q):
-    """System of ODEs"""
-    # TODO: add sinking parameter to all components, instead of only for Detritus? or keep it like dat?
-
+    """System of ODEs - model structure adapted to CARIACO time series setting"""
     N, P, Z, D, outputlist = modelsetup.timestep_init(x)
 
     n, p, z, d = modelsetup.classes
@@ -107,7 +103,7 @@ def cariaco(x,t,modelsetup, q):
 
 # MODEL ODE
 def empower(x,t,modelsetup, q):
-    """System of ODEs"""
+    """System of ODEs - model setup for EMPOWER-like NPZD model implementation"""
 
     N, P, Z, D, outputlist = modelsetup.timestep_init(x)
     n, p, z, d = modelsetup.classes
