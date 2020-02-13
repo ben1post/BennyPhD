@@ -21,8 +21,9 @@ def cariaco(x,t,modelsetup, q):
     # D = [D]
 
     X258 = physx.X258(t)  # X258 = [int_X258, deriv_X258]
-    N0 = physx.N0(t)  # N0 = [Ni0,P0,Si0]
-    #Si0 = physx.Si0(t)
+    Ni0 = physx.N0(t) # N0 = [Ni0,P0,Si0]
+    Si0 = physx.Si0(t)
+    NUT0 = [Ni0, Si0]
     PAR = physx.PAR(t)
     Tmld = physx.Tmld(t)
 
@@ -60,10 +61,14 @@ def cariaco(x,t,modelsetup, q):
     DLosses = DZooGrazed + DRemin + DSinking
 
     ZUnassimFeedNitrate = z.unassimilatedgrazing(ZooFeeding, pool='N')
-    NMixing = n.mixing(N0, N, Mix)  # Mix * (N0 - N)
+    NUTMixing = n.mixing(NUT0, N, Mix)  # Mix * (N0 - N)
+    NMixing = NUTMixing[0]
+    SiMixing = NUTMixing[1]
 
     Px = PGains - PLosses
-    Nx = - sum(PGains) + DRemin + sum(ZUnassimFeedNitrate) + NMixing# Nutrient draw down
+    Nix = - sum(PGains) + DRemin + sum(ZUnassimFeedNitrate) + NMixing# Nutrient draw down
+    Six = - PGains[0] + SiMixing
+    Nx = [Nix, Six]
     Zx = ZGains - ZLosses  # Zooplankton losses due to mortality and mixing
     Dx = DGains - DLosses   # Detritus
 
@@ -96,7 +101,7 @@ def cariaco(x,t,modelsetup, q):
     outputlist[18] = DSinking #DMixing
     outputlist[19] = DLosses
 
-    outputlist[20] = NMixing
+    outputlist[20] = NMixing[0]
     outputlist[21] = ZUnassimFeedNitrate
 
     return np.concatenate((out, outputlist), axis=None)

@@ -51,13 +51,13 @@ class StateVariables:
 class Physics:
     """Composite class handles model forcing, contains forcing and verification data,
     actual forcing & verification is defined in phydra.forcing module"""
-    def __init__(self,params, phsxtype, fxtype, time, pad):
+    def __init__(self,params, phsxtype, fxtype, time, pad, extendstart):
         self.parameters = params
         self.type = phsxtype
         if self.type == 'EMPOWER':
             self.forcing = Forcing('EMPOWER')
         elif self.type == 'Box':
-            self.forcing = Forcing(fxtype, time, pad)
+            self.forcing = Forcing(fxtype, time, pad, extendstart)
             self.BoxDepth = 100
 
     def K(self, MLD, mix='h+'):
@@ -91,6 +91,10 @@ class Physics:
         # TODO: figure out a better way to deal with nutrients (add more!?)
         return [self.forcing.NOX.return_interpvalattime(t)]
 
+    def Si0(self, t):
+        # TODO: figure out a better way to deal with nutrients (add more!?)
+        return [self.forcing.SiOH.return_interpvalattime(t)]
+
     def PAR(self, t):
         return self.forcing.PAR.return_interpvalattime(t)
 
@@ -102,14 +106,14 @@ class ModelSetup:
     """Composite class containing all relevant classes related to model setup,
     can be passed to ode function and to plotting scripts to access state variables, forcing and verification data"""
 
-    def __init__(self, params, physics='Box', forcing='aggTS', time='regime1', pad=False):
+    def __init__(self, params, physics='Box', forcing='aggTS', time='regime1', pad=False, extendstart=False):
         self.nutrients = StateVariables(params, 'nuts')
         self.phytoplankton = StateVariables(params, 'phyto')
         self.zooplankton = StateVariables(params, 'zoo')
         self.detritus = StateVariables(params, 'det')
         self._classes = [self.nutrients, self.phytoplankton, self.zooplankton, self.detritus]
 
-        self.physics = Physics(params, physics, forcing, time, pad)  # 'slab' as fxtype instead
+        self.physics = Physics(params, physics, forcing, time, pad, extendstart)  # 'slab' as fxtype instead
 
     @property
     def classes(self):

@@ -17,7 +17,7 @@ class CARIACOdata:
     initializes and reads new forcing & verification data of full time series & supplies this to model
     either aggregated per regime or as full time series
     """
-    def __init__(self, forcvar, data='niskin', time='regime1', k=3, s=None, kind="spline", boxordep='box', forctype='aggTS', pad=False):
+    def __init__(self, forcvar, data='niskin', time='regime1', k=3, s=None, kind="spline", boxordep='box', forctype='aggTS', pad=False, extendstart=False):
         """# parameters for interpolation"""
         self.k = k
         self.s = s
@@ -25,6 +25,7 @@ class CARIACOdata:
         self.forcingtype = forctype
         self.forcvar = forcvar
         self.pad = pad
+        self.extendstart = extendstart
         self.time = time
 
         if data == 'niskin':
@@ -54,6 +55,44 @@ class CARIACOdata:
 
         print(forcvar + ' forcing created')
 
+    def returnModelOut_nospinup(self, outarray):
+        if self.forcingtype == 'fullTS':
+            if self.pad:
+                if self.extendstart:
+                    #8767 vs 7737
+                    return outarray[8767-7737:8767]
+        print('No need to remove spinup phase')
+        return outarray
+
+    def returnTimeDays_nospinup(self, timedays):
+        if self.forcingtype == 'fullTS':
+            if self.pad:
+                if self.extendstart:
+                    #8767 vs 7737
+                    return timedays[:7737]
+        print('No need to remove spinup phase')
+        return timedays
+
+    def returnModelOut_Regime(self, outarray, timedays, regime, spinup=False):
+        if not spinup:
+            if regime == 1:
+                b4_reg1_df = self.interpolated_df.loc[:'1996-01-01']
+                reg1_df = self.interpolated_df.loc['1996-01-01':'2000-10-30']
+                a = len(b4_reg1_df)
+                b = len(reg1_df)
+                out = outarray[a:a+b]
+                time = timedays[:b]
+                return [out,time]
+            elif regime == 2:
+                b4_reg2_df = self.interpolated_df.loc[:'2006-01-01']
+                reg2_df = self.interpolated_df.loc['2006-01-01':'2010-12-31']
+                a = len(b4_reg2_df)
+                b = len(reg2_df)
+                out = outarray[a:a+b]
+                time = timedays[:b]
+                return [out, time]
+
+
     def readCariaco(self, varname, data, time, boxordep, forctype, get=None):
         """read data and return either aggregated regimes or full time series"""
         if data == 'niskin':
@@ -62,7 +101,6 @@ class CARIACOdata:
                 varname = varname + '_Box'
             elif boxordep == 'depth':
                 varname = varname + '_AtDepth'
-                # TODO: remove this later? perhaps need to get full Nutrient forcing (i.e. +notUSF)
                 df_all[varname] = np.nanmean(df_all[varname])
         elif data == 'SeaWiFS':
             df_all = pandas.read_csv('Data/NewestData/PARXSeaWiFS_03.csv')
@@ -73,10 +111,31 @@ class CARIACOdata:
         df_val = df_all[['date', 'month', 'yday', varname]]
         df_series = df_val.set_index(df_val['date'])
 
+        if self.extendstart:
+            new_row = pandas.DataFrame({'date':pandas.to_datetime(['1993-01-01']), 'month': 1, 'yday': 1, varname: np.NaN})
+            new_row = new_row.set_index(new_row['date'])
+
+            df_X = pandas.concat([new_row, df_series])
+
+            df_X_M = df_X.resample('M').mean()
+            df_series = df_X_M
+
+
+            if self.forcvar == 'x258depth' and self.pad == False:
+
+                data_pd = df_series
+                data_pd.fillna(data_pd.groupby(data_pd.index.month).transform('mean'), inplace=True)
+
+                df_series_cut = data_pd.loc['1993-01-01':'1995-11-08']
+                df_series_rest = df_series.loc['1995-11-08':]
+                df_series = pandas.concat([df_series_cut, df_series_rest])
+
         if self.pad:
             data_pd = df_series
-            data_pd.fillna(data_pd.groupby(data_pd.month).transform('mean'), inplace=True)
+            data_pd.fillna(data_pd.groupby(data_pd.index.month).transform('mean'), inplace=True)
             df_series = data_pd
+
+
 
         if self.forcingtype == 'aggTS':
             if self.time == 'regime1':
@@ -105,8 +164,8 @@ class CARIACOdata:
                 varname = varname + '_AtDepth'
 
         df = self.forcingfile.copy()
-        df_days = df.resample('D').mean()
 
+        df_days = df.resample('D').mean()
         df_days[varname] = df_days[varname].interpolate()
         return df_days
 
@@ -181,20 +240,22 @@ class Forcing:
     Class to initialze all other forcings, and read files,
     call interpolation on subclasses
     """
-    def __init__(self, forcingtype, time, pad):
+    def __init__(self, forcingtype, time, pad, extendstart):
         if forcingtype == 'aggTS':
             self.X258 = CARIACOdata('x258depth', data='x25.8', time=time, k=3, s=2000, kind="spline", forctype=forcingtype, pad=pad)
             self.NOX = CARIACOdata('NO3_NO2_USF', data='niskin', time=time, boxordep='depth', k=50, s=None, kind="PWPoly", forctype=forcingtype, pad=pad)
+            self.SiOH = CARIACOdata('SiO4_USF', data='niskin', time=time, boxordep='depth', k=50, s=None, kind="PWPoly", forctype=forcingtype, pad=pad)
             self.SST = CARIACOdata('Temperature', data='niskin', time=time, k=2, s=5, kind="spline", forctype=forcingtype, pad=pad)
             self.PAR = CARIACOdata('PAR', data='SeaWiFS', time=time, k=5, s=None, kind="spline", forctype=forcingtype, pad=pad)
             self.verif = CARIACOVerifData(time=time, forctype=forcingtype, pad=pad)
             self.type = 'Box'
 
         elif forcingtype == 'fullTS':
-            self.X258 = CARIACOdata('x258depth', data='x25.8', time=time, k=3, s=1000000, kind="spline", forctype=forcingtype, pad=False)
-            self.NOX = CARIACOdata('NO3_NO2_USF', data='niskin', time=time, boxordep='depth', k=2, s=100, kind="PWPoly", forctype=forcingtype, pad=pad)
-            self.SST = CARIACOdata('Temperature', data='niskin', time=time, k=2, s=5, kind="spline", forctype=forcingtype, pad=pad)
-            self.PAR = CARIACOdata('PAR', data='SeaWiFS', time=time, k=5, s=None, kind="spline", forctype=forcingtype, pad=pad)
+            self.X258 = CARIACOdata('x258depth', data='x25.8', time=time, k=3, s=2000000, kind="spline", forctype=forcingtype, pad=True, extendstart=extendstart)
+            self.NOX = CARIACOdata('NO3_NO2_USF', data='niskin', time=time, boxordep='depth', k=2, s=100, kind="PWPoly", forctype=forcingtype, pad=pad, extendstart=extendstart)
+            self.SiOH = CARIACOdata('SiO4_USF', data='niskin', time=time, boxordep='depth', k=2, s=100, kind="PWPoly", forctype=forcingtype, pad=pad, extendstart=extendstart)
+            self.SST = CARIACOdata('Temperature', data='niskin', time=time, k=2, s=5, kind="spline", forctype=forcingtype, pad=pad, extendstart=extendstart)
+            self.PAR = CARIACOdata('PAR', data='SeaWiFS', time=time, k=5, s=None, kind="spline", forctype=forcingtype, pad=pad, extendstart=extendstart)
             self.verif = CARIACOVerifData(time=time, forctype=forcingtype, pad=pad)
             self.type = 'Box'
 
@@ -211,17 +272,25 @@ class CARIACOVerifData:
         self.HPLC = self.readHPLC('Tchla')
         self.FluorChla = self.readniskin('Chlorophyll', boxordep='box')
         self.NO2NO3 = self.readniskin('NO3_NO2_USF', boxordep='box')
+        self.SiOH = self.readniskin('SiO4_USF', boxordep='box')
         self.PN = self.readniskin('PON_ug_kg', boxordep='box')
         self.Zoo = self.readZoo('BIOMASS_200')
         # self.pad = pad
         self.padHPLC = self.readHPLC('Tchla')
         self.fullpadHPLC = self.fullinterp(self.padHPLC, 'Tchla')
+
         self.padFluorChla = self.readniskin('Chlorophyll', boxordep='box')
         self.fullpadFluorChla = self.fullinterp(self.padFluorChla, 'Chlorophyll', boxordep='box', data='niskin')
+
         self.padNO2NO3 = self.readniskin('NO3_NO2_USF', boxordep='box')
         self.fullpadNO2NO3 = self.fullinterp(self.padNO2NO3, 'NO3_NO2_USF', boxordep='box', data='niskin')
+
+        self.padSiOH = self.readniskin('SiO4_USF', boxordep='box')
+        self.fullpadSiOH = self.fullinterp(self.padSiOH, 'SiO4_USF', boxordep='box', data='niskin')
+
         self.padPN = self.readniskin('PON_ug_kg', boxordep='box')
         self.fullpadPN = self.fullinterp(self.padPN, 'PON_ug_kg', boxordep='box', data='niskin')
+
         self.padZoo = self.readZoo('BIOMASS_200')
         self.fullpadZoo = self.fullinterp(self.padZoo, 'BIOMASS_200')
 
@@ -303,7 +372,6 @@ class CARIACOVerifData:
         except:
             print(df_all.columns)
             raise Exception('Variable {} is not found in ZOO dataframe'.format(varname))
-
         df_series = df_val.set_index(df_val['date'])
 
         if self.pad:

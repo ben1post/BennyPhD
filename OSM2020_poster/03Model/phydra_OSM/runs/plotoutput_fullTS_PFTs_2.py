@@ -9,7 +9,7 @@ import matplotlib
 
 import matplotlib.pyplot as plt
 
-from runs.modelrun_aggTS_PFTs import timedays, outarray, ms
+from runs.modelrun_fullTS_PFTs_2 import timedays, outarray, ms
 
 # TODO:
 #  - import necessary functions & objects
@@ -33,23 +33,27 @@ print('outindex', outindex)
 
 def plotstuff(ms,outarray, zuplot, muplot, regime, plot):
     numcols = 1
-    f1, (ax1, ax2, ax3, ax4) = plt.subplots(4, numcols, sharex='col',gridspec_kw={'height_ratios':[1,3,1,1]})  # , sharey='row')
+    f1, (ax1, ax1s, ax2, ax3, ax4) = plt.subplots(5, numcols, sharex='col',gridspec_kw={'height_ratios':[1,1,3,1,1]})  # , sharey='row')
 
-    plt.setp((ax1, ax2, ax3, ax4), xticks=[1, 60, 120, 180, 240, 300, 365])
+    plt.setp((ax1, ax2, ax3, ax4),
+             xticks=[0, 365, 365 * 2, 365 * 3, 365 * 4, 365 * 5, 365 * 6, 365 * 7, 365 * 8, 365 * 9, 365 * 10, 365 * 11,
+                     365 * 12, 365 * 13, 365 * 14, 365 * 15, 365 * 16, 365 * 17, 365 * 18, 365 * 19, 365 * 20, 365 * 21, 365 * 22])
 
     from matplotlib.ticker import MaxNLocator
-    for axe in (ax1, ax2, ax3, ax4):
+    for axe in (ax1, ax1s, ax2, ax3, ax4):
         axe.get_yaxis().set_major_locator(MaxNLocator(nbins=4))
         axe.tick_params(top=True, right=True)
-
+        axe.set_xticklabels(
+            labels=['1996', '7', '8', '9', '2000', '1', '2', '3', '4', '5', '6', '7', '8', '9', '2010', '11', '12',
+                    '13','14','15','16','2017'])
         # for i in range(numcols):
         #   axe[i].get_yaxis().set_major_locator(MaxNLocator(nbins=4))
         #    axe[i].tick_params(top=True, right=True)
         #    axe[i].set_xticklabels(labels=['1996', '7', '8', '9', '2000', '1', '2', '3', '4', '5', '6', '7', '8', '9', '2010', '11', '12', '13'])
 
     # PLOTTING
-    timedays_ly = timedays[1:366]
-    outarray_ly = outarray[1460:1825]
+    timedays_ly = timedays  # [1:366]
+    outarray_ly = outarray  # [1460:1825]
 
     # color vectors
     #colors = ['#edc951', '#dddddd', '#00a0b0', '#343436', '#cc2a36']
@@ -58,27 +62,37 @@ def plotstuff(ms,outarray, zuplot, muplot, regime, plot):
     lws = [2, 2.5, 4, 5.5]
 
     if plot == 'model':
-        ax1.set_title(regime + 'model out')
+        ax1.set_title('Full Time Series - model out')
 
         dayspermonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
         dpm_cumsum = np.cumsum(dayspermonth) - np.array(dayspermonth)/2 #- 15
         #print(timedays_ly)
 
-
         # Figure 1
         N = ms.physics.forcing.verif.fullpadNO2NO3
-        #Nmean = ms.physics.forcing.verif.returnMeanVerifPerMonth(N,'NO3_NO2_USF_Box')
 
-        #print(N, np.arange(len(N)))
-        #print(N)
+        Si = ms.physics.forcing.verif.fullpadSiOH
+        # Nmean = ms.physics.forcing.verif.returnMeanVerifPerMonth(N,'NO3_NO2_USF_Box')
+
+        # print(N, np.arange(len(N)))
+        # print(N)
         # N
-        N_Max = 20  # np.max(ms.physics.forcing.NOX.return_interpvalattime(timedays)) + np.max(ms.physics.forcing.NOX.return_interpvalattime(timedays)) * 0.1
-        ax1.scatter(N['yday'], N['NO3_NO2_USF_Box'], label='data', alpha=0.5)
+        N_Max = 10  # np.max(ms.physics.forcing.NOX.return_interpvalattime(timedays)) + np.max(ms.physics.forcing.NOX.return_interpvalattime(timedays)) * 0.1
+        ax1.scatter(np.arange(len(N)), N['NO3_NO2_USF_Box'], label='data', alpha=0.5)
         #ax1[zuplot].plot(np.arange(len(N)), N['NO3_NO2_USF_Box'], label='mean data', alpha=1)
-        ax1.plot(timedays_ly, outarray_ly[:, nuts], c=colors[1], lw=lws[0], alpha=alphas[0], label='Model')
-        ax1.set_ylabel('Nutrients \n' '[µM N]', multialignment='center')
+        ax1.plot(timedays_ly, outarray_ly[:, nuts][:,0], c=colors[1], lw=lws[0], alpha=alphas[0], label='Model')
+        ax1.set_ylabel('Nitrate + Nitrite \n' '[µM N]', multialignment='center')
         ax1.set_ylim(0, N_Max)
         ax1.legend(fontsize='x-small')
+
+        Si_Max = 10  # np.max(ms.physics.forcing.NOX.return_interpvalattime(timedays)) + np.max(ms.physics.forcing.NOX.return_interpvalattime(timedays)) * 0.1
+        ax1s.scatter(np.arange(len(Si)), Si['SiO4_USF_Box'],c=colors[3], label='data', alpha=0.5)
+        # ax1[zuplot].plot(np.arange(len(N)), N['NO3_NO2_USF_Box'], label='mean data', alpha=1)
+        ax1s.plot(timedays_ly, outarray_ly[:, nuts][:,1], c=colors[1], lw=lws[0], alpha=alphas[0], label='Model')
+        ax1s.set_ylabel('Silicate \n' '[µM N]', multialignment='center')
+        ax1s.set_ylim(0, Si_Max)
+        ax1s.legend(fontsize='x-small')
+
 
 
         ChlConv = True
@@ -92,9 +106,9 @@ def plotstuff(ms,outarray, zuplot, muplot, regime, plot):
         chla = ms.physics.forcing.verif.fullpadFluorChla
 
         chla2 = ms.physics.forcing.verif.fullpadHPLC
-
-        ax2.scatter(chla['yday'], chla['Chlorophyll_Box'] * muMolartoChlaconvfactor, label='Fluor Chla', alpha=0.5)
-        ax2.scatter(chla2['yday'], chla2['Tchla'] * muMolartoChlaconvfactor / 100, label='HPLC Chla', alpha=0.5)
+        print(chla)
+        ax2.scatter(np.arange(len(chla)), chla['Chlorophyll_Box'] * muMolartoChlaconvfactor, label='Fluor Chla', alpha=0.5)
+        ax2.scatter(np.arange(len(chla2)), chla2['Tchla'] * muMolartoChlaconvfactor / 100, label='HPLC Chla', alpha=0.5)
 
 
         chlamean = ms.physics.forcing.verif.returnMeanVerifPerMonth(chla,'Chlorophyll_Box')
@@ -105,9 +119,29 @@ def plotstuff(ms,outarray, zuplot, muplot, regime, plot):
         #ax2[zuplot].plot(dpm_cumsum, np.array(chla2mean) * muMolartoChlaconvfactor / 100, label='mean HPLC', alpha=1)
         Pall = outarray_ly[:,phyto]
         P_Max = 2 # np.max(Pall) + 0.9 * np.max(Pall)
-
+        #print(Pall)
         for i in range(pn):
-            ax2.plot(timedays_ly, Pall[:,i], c=colors[i], lw=lws[1], label='PFT '+str(i+1))
+            ax2.plot(timedays_ly, Pall[:,i], c=colors[i+3], lw=lws[1], label='PFT '+str(i+1))
+
+        ax2.plot(timedays_ly, np.sum(Pall, axis=1), ':', c=colors[0], lw=1., label='sum(P)')
+
+        PFT_all = np.sum(Pall, axis=1)
+
+        PFT_1 = Pall[:,0]
+
+        PFT_2 = Pall[:,1]
+
+        print(np.mean(timedays_ly[100:2400]/365))
+        print('PFT1',np.mean(PFT_1[100:2400]), np.var(PFT_1[100:2400]))
+        print('PFT2',np.mean(PFT_2[100:2400]), np.var(PFT_2[100:2400]))
+        print('PFTsum',np.mean(PFT_all[100:2400]), np.var(PFT_all[100:2400]))
+
+        print(np.mean(timedays_ly[11*365:15*365]/365))
+        print('PFT1',np.mean(PFT_1[11*365:15*365]), np.var(PFT_1[11*365:15*365]))
+        print('PFT2',np.mean(PFT_2[11*365:15*365]), np.var(PFT_2[11*365:15*365]))
+        print('PFTsum',np.mean(PFT_all[11*365:15*365]), np.var(PFT_all[11*365:15*365]))
+
+
 
         ax2.legend(fontsize='x-small')
         ax2.set_ylabel('Phytoplankton \n' '[µM N]', multialignment='center')
@@ -128,8 +162,8 @@ def plotstuff(ms,outarray, zuplot, muplot, regime, plot):
         #ZBMmean = ms.physics.forcing.verif.returnMeanVerifPerMonth(ZBM, 'BIOMASS_200')
 
         #print(ZBMmean)
-        ax3.scatter(ZBM['yday'], ZBM['BIOMASS_200'] * muMolartoChlaconvfactor * mgDWtomuMolarZOO, label='200 µM', alpha=0.5)
-        ax3.scatter(ZBM['yday'], ZBM['BIOMASS_500'] * muMolartoChlaconvfactor * mgDWtomuMolarZOO,
+        ax3.scatter(np.arange(len(ZBM)), ZBM['BIOMASS_200'] * muMolartoChlaconvfactor * mgDWtomuMolarZOO, label='200 µM', alpha=0.5)
+        ax3.scatter(np.arange(len(ZBM)), ZBM['BIOMASS_500'] * muMolartoChlaconvfactor * mgDWtomuMolarZOO,
                             label='500 µM', alpha=0.5)
 
         #ax3[zuplot].plot(dpm_cumsum, np.array(ZBMmean) * muMolartoChlaconvfactor * mgDWtomuMolarZOO, label='mean data',
@@ -163,7 +197,7 @@ def plotstuff(ms,outarray, zuplot, muplot, regime, plot):
         D_Max = 1.5 #np.max(outarray_ly[:, 3]) + 0.2 * np.max(outarray_ly[:, 3])
         # D
         ax4.plot(timedays_ly, outarray_ly[:, det], c=colors[1], lw=lws[0], alpha=alphas[0], label='model')
-        ax4.scatter(PN['yday'], PN['PON_ug_kg_Box'] /14.0067, label='PON data', alpha=0.5)
+        ax4.scatter(np.arange(len(PN)), PN['PON_ug_kg_Box'] /14.0067, label='PON data', alpha=0.5)
         ax4.set_ylabel('Detritus \n' '[µM N]', multialignment='center')
         #ax4[zuplot].set_ylim(0, D_Max)
         ax4.set_xlabel('Day in year')
@@ -197,6 +231,20 @@ def plotstuff(ms,outarray, zuplot, muplot, regime, plot):
         ax1.set_ylim(0., N_Max)
         #ax1[muplot].invert_yaxis()
 
+        SiOX = ms.physics.forcing.SiOH.return_interpvalattime(timedays_ly)
+        SiOXdat = ms.physics.forcing.SiOH.forcingfile
+
+        SiX = ms.physics.forcing.SiOH.rawforcing
+
+        #ax1[muplot].scatter(NN['yday'], NN['NO3_NO2_USF_AtDepth'] , label='data', alpha=0.5)
+
+        #print(NOX)
+        #print(NOXdat)
+        ax1s.plot(timedays_ly, SiOX, c=colors[5], lw=lws[0], alpha=alphas[0])
+        #ax1[muplot].scatter(dpm_cumsum, NOXdat[0:12], c=colors[5])
+        ax1s.set_ylabel('$Si_0$ \n' '[µM]', multialignment='center')
+        ax1s.set_ylim(0., N_Max)
+        #ax1[muplot].invert_yaxis()
 
         MLDRAW = ms.physics.forcing.X258.rawforcing
 
@@ -249,7 +297,7 @@ def plotstuff(ms,outarray, zuplot, muplot, regime, plot):
 plotstuff(ms, outarray, 0, 1, 'Regime 1', plot='model')
 
 
-#plotstuff(ms, outarray, 0, 1, 'Regime 1', plot='physics')
+plotstuff(ms, outarray, 0, 1, 'Regime 1', plot='physics')
 
 # Defining custom 'xlim' and 'ylim' values.
 #xlim = (0, 365)

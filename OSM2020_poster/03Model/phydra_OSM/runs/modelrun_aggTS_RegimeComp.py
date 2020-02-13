@@ -31,7 +31,7 @@ parameters.add('moP', value=0.1, vary=False)    # Phytoplankton mortality (d^-1)
 #parameters.add('ratioSi', value=0, vary=False)  # Silicate ratio ## FALLBACK PARAM FOR OTHER PFTs
 parameters.add('U_N', value=1.5, vary=False)    # Nitrate Half Saturation Constant
 #parameters.add('U_P', value=0, vary=False)    # Phosphate Half Saturation Constant
-#parameters.add('U_Si', value=0, vary=False)   # Silicate Half Saturation Constant
+parameters.add('U_Si', value=0, vary=False)   # Silicate Half Saturation Constant
 parameters.add('muP', value=1.5, vary=False)    # Phytoplankton maximum growth rate (d^-1)
 parameters.add('v', value=0.5, vary=False)    # Phytoplankton sinking rate (m d^-1)
 
@@ -96,7 +96,7 @@ timedays = np.arange(0., 5 * 365., 1.0)
 # INTEGRATE:
 tos = time.time()
 print('starting integration')
-outarray1 = odeint(cariaco, initcond, timedays, args=(ms1, None))  # for some reason need to pass 2 args
+#outarray1 = odeint(cariaco, initcond, timedays, args=(ms1, None))  # for some reason need to pass 2 args
 tos1 = time.time()
 print('finished after %4.3f sec' % (tos1 - tos))
 
@@ -107,6 +107,6 @@ ms2 = ModelSetup(parameters, physics='Box', forcing='aggTS', time='regime2')
 # INTEGRATE:
 tos = time.time()
 print('starting integration')
-outarray2 = odeint(cariaco, initcond, timedays, args=(ms2, None))  # for some reason need to pass 2 args
+#outarray2 = odeint(cariaco, initcond, timedays, args=(ms2, None))  # for some reason need to pass 2 args
 tos1 = time.time()
 print('finished after %4.3f sec' % (tos1 - tos))

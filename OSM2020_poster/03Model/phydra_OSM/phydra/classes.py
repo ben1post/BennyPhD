@@ -22,9 +22,9 @@ class Nutrient:
         if self.nuttype == 0:
             return 'Nitrate'
         if self.nuttype == 1:
-            return 'Phosphate'
-        if self.nuttype == 2:
             return 'Silicate'
+        if self.nuttype == 2:
+            return 'Phosphate'
         if self.nuttype == 3:
             return 'Iron'
 
@@ -41,7 +41,7 @@ class Phytoplankton:
 
         self.U_N = checkreplaceparam(allpars, slicedpars, 'U_N')
         #self.U_P = checkreplaceparam(allpars, slicedpars, 'U_P')
-        #self.U_Si = checkreplaceparam(allpars, slicedpars, 'U_Si')
+        self.U_Si = checkreplaceparam(allpars, slicedpars, 'U_Si')
 
         self.v = checkreplaceparam(allpars, slicedpars, 'v')
 
@@ -72,6 +72,9 @@ class Phytoplankton:
         """Michealis-Menten uptake of Nutrients"""
         # TODO: add functionality of multiple Nutrients/formulations
         Uptake = N[0] / (N[0] + self.U_N)
+        if self.U_Si > 0:
+            UptakeSi = N[1] / (N[1] + self.U_Si)
+            Uptake = Uptake * UptakeSi
         return Uptake
 
     def lightharvesting(self, ModDep, PAR, P, type='Steele'):

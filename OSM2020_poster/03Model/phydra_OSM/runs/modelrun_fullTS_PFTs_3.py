@@ -11,14 +11,14 @@ from scipy.integrate import odeint
 
 # TODO:
 #  - import necessary functions & objects
-
 ######### PARAMETER SETUP #############
 
 parameters = Parameters()
 
 # NUTRIENT(s)
-parameters.add('nuts_num', value=1)
+parameters.add('nuts_num', value=2)
 parameters.add('nuts1_nuttype', value=0)  # Nitrate
+parameters.add('nuts2_nuttype', value=1)  # silicate
 
 # PHYTOPLANKTON(s)
 parameters.add('phyto_num', value=2)
@@ -33,21 +33,23 @@ parameters.add('moP', value=0.1, vary=False)    # Phytoplankton mortality (d^-1)
 #parameters.add('ratioSi', value=0, vary=False)  # Silicate ratio ## FALLBACK PARAM FOR OTHER PFTs
 parameters.add('U_N', value=1.5, vary=False)    # Nitrate Half Saturation Constant
 #parameters.add('U_P', value=0, vary=False)    # Phosphate Half Saturation Constant
-#parameters.add('U_Si', value=0, vary=False)   # Silicate Half Saturation Constant
+parameters.add('U_Si', value=0, vary=False)   # Silicate Half Saturation Constant
 parameters.add('muP', value=1.2, vary=False)    # Phytoplankton maximum growth rate (d^-1)
 parameters.add('v', value=1, vary=False)    # Phytoplankton sinking rate (m d^-1)
 
 # PFTs:
 # DIATOMS
-parameters.add('phyto1_muP', value=1.25, vary=False)
+parameters.add('phyto1_muP', value=1.7, vary=False)
 parameters.add('phyto1_U_N', value=1.5, vary=False)
-parameters.add('phyto1_OptI', value=120/3, vary=False)
-parameters.add('phyto1_v', value=1.5, vary=False)
+parameters.add('phyto1_OptI', value=30, vary=False)
+parameters.add('phyto1_v', value=1, vary=False)
+parameters.add('phyto1_U_Si', value=1., vary=False)   # Silicate Half Saturation Constant
 
 # HAPTO
 parameters.add('phyto2_muP', value=1., vary=False)
 parameters.add('phyto2_U_N', value=1., vary=False)
-parameters.add('phyto2_OptI', value=125/3, vary=False)
+parameters.add('phyto2_OptI', value=45, vary=False)
+parameters.add('phyto2_U_Si', value=0, vary=False)
 
 """
 # CYANO
@@ -75,15 +77,15 @@ parameters.add('pred', value=0.1, vary=False)  # quadratic higher order predatio
 parameters.add('muZ', value=1.0, vary=False)    # Zooplankton maximum grazing rate (d^-1)
 
 # ZOO Feed Prefs
-parameters.add('zoo1_P1', value=.34, vary=False)
-parameters.add('zoo1_P2', value=.33, vary=False)
+parameters.add('zoo1_P1', value=.35, vary=False)
+parameters.add('zoo1_P2', value=.55, vary=False)
 """
 parameters.add('zoo1_P3', value=.33, vary=False)
 parameters.add('zoo1_P4', value=.33, vary=False)
 parameters.add('zoo1_P5', value=.33, vary=False)
 """
 
-parameters.add('zoo1_D1', value=.33, vary=False)
+parameters.add('zoo1_D1', value=.1, vary=False)
 # CONVERT FEEDPREFS TO GRAZEPREF FOR CALCULATION OF GRAZING
 #parameters.add('zoo1_Zint_grazed1', value=parameters['zoo1_Zint_feed1'].value, vary=False)
 
@@ -113,16 +115,16 @@ parameters.add('beta_feed', value=0.69, vary=False)
 parameters.add('kN_feed', value=0.75, vary=False)
 parameters.add('vD', value=1., vary=False)
 
-
 ######### MODEL EVALUATION CODE #############
 
-ms = ModelSetup(parameters, physics='Box', forcing='aggTS', time='regime1')
+ms = ModelSetup(parameters, physics='Box', forcing='fullTS', time=None, pad=True, extendstart=True)
+# TODO: TO get Extend Start to work properly, create mean forcing to add to start, and make sure transition to real forcing is smooth!
 
 n, p, z, d = ms.classes
 
 physx = ms.physics
 
-N0 = 3.
+N0 = 0.1
 P0 = 0.1
 Z0 = 0.1
 D0 = 0.1
@@ -131,11 +133,11 @@ initnut = [N0 for i in range(n.num)]
 initphy = [P0 for i in range(p.num)]
 initzoo = [Z0 for i in range(z.num)]
 initdet = [D0 for i in range(d.num)]
-initout = [0. for i in range(23)]
+initout = [0 for i in range(23)]
 initcond = np.concatenate([initnut, initphy, initzoo, initdet,initout], axis=None)
 
-print(type(initcond))
-timedays = np.arange(0., 5 * 365., 1.0)
+#7737
+timedays = np.arange(0., 8767., 1.0)
 
 # INTEGRATE:
 tos = time.time()
@@ -145,3 +147,4 @@ tos1 = time.time()
 print('finished after %4.3f sec' % (tos1 - tos))
 
 #print(outarray)
+
