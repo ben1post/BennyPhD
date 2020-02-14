@@ -79,7 +79,7 @@ def cariaco(x,t,modelsetup, q):
     outputlist[2] = sum(PLightHarv)
     outputlist[3] = sum(PGains)
 
-    outputlist[4] = 0 #PLinMort
+    outputlist[4] = Mix #0 #PLinMort
     outputlist[5] = 0 #PQuadMort
     outputlist[6] = sum(PMortality)
     outputlist[7] = sum(PZooGrazed)
@@ -90,7 +90,7 @@ def cariaco(x,t,modelsetup, q):
 
     outputlist[10] = ZLinMort
     outputlist[11] = ZQuadMort
-    outputlist[12] = 0 # ZMixing
+    outputlist[12] = SiMixing[0] # 0 # ZMixing
     outputlist[13] = ZLosses
 
     outputlist[14] = ZUnassimFeedDetritus

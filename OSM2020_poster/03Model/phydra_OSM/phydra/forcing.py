@@ -5,8 +5,13 @@ import pandas
 import numpy as np
 import scipy.interpolate as intrp
 
-from scipy.io import netcdf
+# to allow for correct file paths to data, even in import situations outside of package
 import os
+from os.path import dirname as up
+dirname = os.path.dirname(up(__file__))
+
+from scipy.io import netcdf
+
 
 # TODO:
 #  - add missing nutrients
@@ -55,21 +60,26 @@ class CARIACOdata:
 
         print(forcvar + ' forcing created')
 
-    def returnModelOut_nospinup(self, outarray):
+    def returnFullDF_nospinup(self):
+        return self.interpolated_df#[8767-7737:8767]
+
+    def returnModelOut_nospinup(self, outarray, full):
         if self.forcingtype == 'fullTS':
-            if self.pad:
-                if self.extendstart:
-                    #8767 vs 7737
-                    return outarray[8767-7737:8767]
+            if not full:
+                if self.pad:
+                    if self.extendstart:
+                        #8767 vs 7737
+                        return outarray[8767-7737:8767]
         print('No need to remove spinup phase')
         return outarray
 
-    def returnTimeDays_nospinup(self, timedays):
+    def returnTimeDays_nospinup(self, timedays, full):
         if self.forcingtype == 'fullTS':
-            if self.pad:
-                if self.extendstart:
-                    #8767 vs 7737
-                    return timedays[:7737]
+            if not full:
+               if self.pad:
+                    if self.extendstart:
+                        #8767 vs 7737
+                        return timedays[:7737]
         print('No need to remove spinup phase')
         return timedays
 
@@ -78,34 +88,36 @@ class CARIACOdata:
             if regime == 1:
                 b4_reg1_df = self.interpolated_df.loc[:'1996-01-01']
                 reg1_df = self.interpolated_df.loc['1996-01-01':'2000-10-30']
+                #print(reg1_df)
                 a = len(b4_reg1_df)
                 b = len(reg1_df)
                 out = outarray[a:a+b]
-                time = timedays[:b]
-                return [out,time]
+                time = timedays[a:a+b]
+                return [out, time, reg1_df]
             elif regime == 2:
                 b4_reg2_df = self.interpolated_df.loc[:'2006-01-01']
                 reg2_df = self.interpolated_df.loc['2006-01-01':'2010-12-31']
                 a = len(b4_reg2_df)
                 b = len(reg2_df)
                 out = outarray[a:a+b]
-                time = timedays[:b]
-                return [out, time]
+                time = timedays[a:a+b]
+                return [out, time, reg2_df]
 
 
     def readCariaco(self, varname, data, time, boxordep, forctype, get=None):
         """read data and return either aggregated regimes or full time series"""
+
         if data == 'niskin':
-            df_all = pandas.read_csv('Data/NewestData/BoxVSatDepth_02.csv')
+            df_all = pandas.read_csv(os.path.join(dirname,'Data','NewestData','BoxVSatDepth_02.csv'))
             if boxordep == 'box':
                 varname = varname + '_Box'
             elif boxordep == 'depth':
                 varname = varname + '_AtDepth'
                 df_all[varname] = np.nanmean(df_all[varname])
         elif data == 'SeaWiFS':
-            df_all = pandas.read_csv('Data/NewestData/PARXSeaWiFS_03.csv')
+            df_all = pandas.read_csv(os.path.join(dirname,'Data','NewestData','PARXSeaWiFS_03.csv'))
         elif data == 'x25.8':
-            df_all = pandas.read_csv('Data/NewestData/x258_02.csv')
+            df_all = pandas.read_csv(os.path.join(dirname,'Data','NewestData','x258_02.csv'))
 
         df_all.date = pandas.to_datetime(df_all.date)
         df_val = df_all[['date', 'month', 'yday', varname]]
@@ -117,7 +129,7 @@ class CARIACOdata:
 
             df_X = pandas.concat([new_row, df_series])
 
-            df_X_M = df_X.resample('M').mean()
+            df_X_M = df_X.resample('M', label='left', loffset=pandas.Timedelta('15 days')).mean()
             df_series = df_X_M
 
 
@@ -304,7 +316,7 @@ class CARIACOVerifData:
         return verif_oneyear
 
     def readHPLC(self, varname):
-        df_all = pandas.read_csv('Data/NewestData/HPLCPinckneyTotAndSpec_03.csv')
+        df_all = pandas.read_csv(os.path.join(dirname,'Data','NewestData','HPLCPinckneyTotAndSpec_03.csv'))
         df_all.date = pandas.to_datetime(df_all.date)
         try:
             df_val = df_all[['date', 'month', 'yday', varname]]
@@ -333,7 +345,7 @@ class CARIACOVerifData:
 
 
     def readniskin(self, varname, boxordep):
-        df_all = pandas.read_csv('Data/NewestData/BoxVSatDepth_02.csv')
+        df_all = pandas.read_csv(os.path.join(dirname,'Data','NewestData','BoxVSatDepth_02.csv'))
         df_all.date = pandas.to_datetime(df_all.date)
 
         if boxordep == 'box':
@@ -365,7 +377,7 @@ class CARIACOVerifData:
         return df_val
 
     def readZoo(self, varname):
-        df_all = pandas.read_csv('Data/NewestData/ZooplanktonData_05.csv')
+        df_all = pandas.read_csv(os.path.join(dirname,'Data','NewestData','ZooplanktonData_05.csv'))
         df_all.date = pandas.to_datetime(df_all.date)
         try:
             df_val = df_all[['date', 'month', 'yday', 'BIOMASS_200', 'BIOMASS_500']]
