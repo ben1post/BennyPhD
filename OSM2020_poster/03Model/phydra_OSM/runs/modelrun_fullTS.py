@@ -31,7 +31,7 @@ parameters.add('moP', value=0.1, vary=False)    # Phytoplankton mortality (d^-1)
 #parameters.add('ratioSi', value=0, vary=False)  # Silicate ratio ## FALLBACK PARAM FOR OTHER PFTs
 parameters.add('U_N', value=1.5, vary=False)    # Nitrate Half Saturation Constant
 #parameters.add('U_P', value=0, vary=False)    # Phosphate Half Saturation Constant
-#parameters.add('U_Si', value=0, vary=False)   # Silicate Half Saturation Constant
+parameters.add('U_Si', value=0, vary=False)   # Silicate Half Saturation Constant
 parameters.add('muP', value=1.2, vary=False)    # Phytoplankton maximum growth rate (d^-1)
 parameters.add('v', value=1, vary=False)    # Phytoplankton sinking rate (m d^-1)
 
