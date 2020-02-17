@@ -63,7 +63,7 @@ class CARIACOdata:
     def returnFullDF_nospinup(self):
         return self.interpolated_df#[8767-7737:8767]
 
-    def returnModelOut_nospinup(self, outarray, full):
+    def returnModelOut_nospinup(self, outarray, full=False):
         if self.forcingtype == 'fullTS':
             if not full:
                 if self.pad:
@@ -73,7 +73,7 @@ class CARIACOdata:
         print('No need to remove spinup phase')
         return outarray
 
-    def returnTimeDays_nospinup(self, timedays, full):
+    def returnTimeDays_nospinup(self, timedays, full=False):
         if self.forcingtype == 'fullTS':
             if not full:
                if self.pad:

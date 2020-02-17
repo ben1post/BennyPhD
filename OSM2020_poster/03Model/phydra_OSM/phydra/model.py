@@ -29,6 +29,9 @@ def cariaco(x,t,modelsetup, q):
 
     Mix = physx.wMix(X258)  # i.e. there is constant mixing & increased mix when MLD shallowing
     #print('Mix',Mix)
+    if X258[0] < 100: Mix = Mix * 1.5
+
+    if X258[0] < 60: Mix = Mix * 2.5
 
     # Grazing
     Gj = z.zoofeeding(P, Z, D, func='hollingtypeIII')  # feeding probability for all food
@@ -50,6 +53,10 @@ def cariaco(x,t,modelsetup, q):
     ZGains = z.assimgrazing(ZooFeeding)
     ZLinMort = z.mortality(Z, type='linear')
     ZQuadMort = z.mortality(Z, type='quadratic')
+
+    #if t > 365*3 + 365*5:
+    #    ZQuadMort = ZQuadMort/2
+
     ZLosses = ZLinMort + ZQuadMort
 
     # Detritus Fluxes

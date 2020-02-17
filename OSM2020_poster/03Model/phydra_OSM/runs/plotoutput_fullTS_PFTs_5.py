@@ -153,8 +153,8 @@ def plotregimex(ax1, ax1s, ax2, ax3, ax4, ms1, timedays_reg1, outarray_reg1, reg
     # ZBMmean = ms.physics.forcing.verif.returnMeanVerifPerMonth(ZBM, 'BIOMASS_200')
 
     # print(ZBMmean)
-    ax3.scatter(ZBM['yday'], ZBM['BIOMASS_200'] * muMolartoChlaconvfactor * mgDWtomuMolarZOO, label='200 µM', alpha=0.5)
-    ax3.scatter(ZBM['yday'], ZBM['BIOMASS_500'] * muMolartoChlaconvfactor * mgDWtomuMolarZOO,
+    ax3.scatter(ZBM['yday'], ZBM['BIOMASS_200'] * mgDWtomuMolarZOO, label='200 µM', alpha=0.5)
+    ax3.scatter(ZBM['yday'], ZBM['BIOMASS_500'] * mgDWtomuMolarZOO,
                 label='500 µM', alpha=0.5)
 
     # ax3[zuplot].plot(dpm_cumsum, np.array(ZBMmean) * muMolartoChlaconvfactor * mgDWtomuMolarZOO, label='mean data',
@@ -352,7 +352,7 @@ def plotstuff(ms,outarray, zuplot, muplot, regime, plot):
 
 
 
-#plotstuff(ms, outarray, 0, 1, 'Regime 1', plot='model')
+plotstuff(ms, outarray, 0, 1, 'Regime 1', plot='model')
 
 
 plotstuff(ms, outarray, 0, 1, 'Regime 1', plot='physics')
