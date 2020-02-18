@@ -4,7 +4,7 @@
 import time
 import numpy as np
 from lmfit import Parameters
-from phydra.model import cariaco
+from phydra.model import cariacoNPZD
 from phydra.core import ModelSetup
 
 from scipy.integrate import odeint
@@ -96,7 +96,7 @@ timedays = np.arange(0., 7742., 1.0)
 # INTEGRATE:
 tos = time.time()
 print('starting integration')
-outarray = odeint(cariaco, initcond, timedays, args=(ms, None))  # for some reason need to pass 2 args
+outarray = odeint(cariacoNPZD, initcond, timedays, args=(ms, None))  # for some reason need to pass 2 args
 tos1 = time.time()
 print('finished after %4.3f sec' % (tos1 - tos))
 
