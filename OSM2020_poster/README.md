@@ -8,7 +8,9 @@
   <h3 align="center">OSM 2020 Poster repo </h3>
 
   <p align="center">
-    Data, preliminary results, current status of phydra model package code. All in the spirit of open science, openly accessible to all. 
+    Data, preliminary results, current status of phydra model package code.  
+  <br />
+  All in the spirit of open science, openly accessible to all. 
     <br />
   </p>
 </p>
