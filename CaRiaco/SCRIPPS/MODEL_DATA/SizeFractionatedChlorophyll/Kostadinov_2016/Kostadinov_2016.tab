@@ -1,0 +1,188 @@
+/* DATA DESCRIPTION:
+Citation:	Kostadinov, Tihomir S; Milutinovic, Svetlana; Marinov, Irina; Cabré, Anna (2016): Size-partitioned phytoplankton carbon concentrations retrieved from ocean color data, links to data in NetCDF format. PANGAEA, https://doi.org/10.1594/PANGAEA.859005, 
+	Supplement to: Kostadinov, TS et al. (2016): Carbon-based phytoplankton size classes retrieved via ocean color estimates of the particle size distribution. Ocean Science, 12(2), 561-575, https://doi.org/10.5194/os-12-561-2016
+Abstract:	Owing to their important roles in biogeochemical cycles, phytoplankton functional types (PFTs) have been the aim of an increasing number of ocean color algorithms. Yet, none of the existing methods are based on phytoplankton carbon (C) biomass, which is a fundamental biogeochemical and ecological variable and the "unit of accounting" in Earth system models. We present a novel bio-optical algorithm to retrieve size-partitioned phytoplankton carbon from ocean color satellite data. The algorithm is based on existing methods to estimate particle volume from a power-law particle size distribution (PSD). Volume is converted to carbon concentrations using a compilation of allometric relationships. We quantify absolute and fractional biomass in three PFTs based on size - picophytoplankton (0.5-2 µm in diameter), nanophytoplankton (2-20 µm) and microphytoplankton (20-50 µm). The mean spatial distributions of total phytoplankton C biomass and individual PFTs, derived from global SeaWiFS monthly ocean color data, are consistent with current understanding of oceanic ecosystems, i.e., oligotrophic regions are characterized by low biomass and dominance of picoplankton, whereas eutrophic regions have high biomass to which nanoplankton and microplankton contribute relatively larger fractions. Global climatological, spatially integrated phytoplankton carbon biomass standing stock estimates using our PSD-based approach yield - 0.25 Gt of C, consistent with analogous estimates from two other ocean color algorithms and several state-of-the-art Earth system models. Satisfactory in situ closure observed between PSD and POC measurements lends support to the theoretical basis of the PSD-based algorithm. Uncertainty budget analyses indicate that absolute carbon concentration uncertainties are driven by the PSD parameter No which determines particle number concentration to first order, while uncertainties in PFTs' fractional contributions to total C biomass are mostly due to the allometric coefficients. The C algorithm presented here, which is not empirically constrained a priori, partitions biomass in size classes and introduces improvement over the assumptions of the other approaches. However, the range of phytoplankton C biomass spatial variability globally is larger than estimated by any other models considered here, which suggests an empirical correction to the No parameter is needed, based on PSD validation statistics. These corrected absolute carbon biomass concentrations validate well against in situ POC observations.
+Further details:	Description of data formats (URI: hdl:10013/epic.47410.d001)
+Coverage:	DATE/TIME START: 1997-09-01T00:00:00 * DATE/TIME END: 2010-12-31T23:59:59
+Comment:	Fractional and absolute phytoplankton carbon concentrations in three size classes - picoplankton, nanoplankton and microplankton. These maps are derived from SeaWiFS ocean color satellite imagery using retrievals of the particle size distribution and allometric relationships. The parameters of the underlying particle size distribution (PSD) used in the retrieval are also provided - namely, the power-law slope and the differential number concentration at a reference diameter of 2 µm (No). Note that absolute carbon concentrations include an empirical correction to the No PSD parameter, but No itself is given here before this correction. Partial uncertainty estimates are also provided. For details see the cited reference or preferably, the corresponding finalized article expected in Ocean Science, when available (the revised article version contains details on the aforementioned empirical correction). 
+	Data files(s) are in NetCDF format and consist of 157 monthly mapped SeaWiFS-derived data, 12 monthly climatologies and one overall climatology (170 files total) at 9 km nominal resolution. Please see attached list of files for a detailed explanation of files and file names.
+	The input data set used for the creation of the data posted here consists of monthly SeaWiFS spectral remote-sensing reflectance (Rrs) data, reprocessing R2010.0. These input SeaWiFS data were downloaded from the NASA Ocean Biology Distributed Active Archive Center (OB.DAAC) maintained by the NASA Ocean Biology Processing Group (OBPG) at the NASA Goddard Space Flight Center (GSFC). We hereby acknowledge NASA and the OBPG specifically for maintaining and providing the SeaWiFS data set, the SeaBASS in-situ data set and validation search tool, and generally for their support for ocean color research. DigitalGlobe and predecessor companies GeoEye, Inc. and ORBIMAGE are also acknowledged for their role in SeaWiFS data acquisition. The citation for the input SeaWiFS data set is as follows: "NASA Goddard Space Flight Center, Ocean Biology Distributed Active Archive Center; (2010): Sea-viewing Wide Field-of-view Sensor (SeaWiFS) Ocean Color Data, NASA OB.DAAC, Greenbelt, MD, USA. Reprocessing R2010.0. Accessed 2012/01/30. Maintained by NASA Ocean Biology Distributed Active Archive Center (OB.DAAC), Goddard Space Flight Center, Greenbelt MD."
+Parameter(s):	DATE/TIME (Date/Time) * GEOCODE * PI: Kostadinov, Tihomir S (kostadinov.t@gmail.com) * COMMENT: Start
+	DATE/TIME (Date/Time) * GEOCODE * PI: Kostadinov, Tihomir S (kostadinov.t@gmail.com) * COMMENT: End
+	File name (File name) * PI: Kostadinov, Tihomir S (kostadinov.t@gmail.com)
+	Uniform resource locator/link to file (URL file) * PI: Kostadinov, Tihomir S (kostadinov.t@gmail.com) * COMMENT: NetCDF
+	File size [kByte] (File size) * PI: Kostadinov, Tihomir S (kostadinov.t@gmail.com)
+License:	Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported (CC-BY-NC-SA-3.0)
+Size:	510 data points
+*/
+Date/Time (Start)	Date/Time (End)	File name	URL file (NetCDF)	File size [kByte]
+1997-09-01	2010-12-31	PSD_PFT_C_mission_climatology_SeaWiFS.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/PSD_PFT_C_mission_climatology_SeaWiFS.nc	285865
+1998-01-01	2010-01-31	PSD_PFT_C_MO_climatology_SeaWiFS_01.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/PSD_PFT_C_MO_climatology_SeaWiFS_01.nc	262930
+1998-02-01	2010-02-28	PSD_PFT_C_MO_climatology_SeaWiFS_02.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/PSD_PFT_C_MO_climatology_SeaWiFS_02.nc	270709
+1998-03-01	2010-03-31	PSD_PFT_C_MO_climatology_SeaWiFS_03.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/PSD_PFT_C_MO_climatology_SeaWiFS_03.nc	274935
+1998-04-01	2010-04-30	PSD_PFT_C_MO_climatology_SeaWiFS_04.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/PSD_PFT_C_MO_climatology_SeaWiFS_04.nc	266664
+1998-05-01	2010-05-31	PSD_PFT_C_MO_climatology_SeaWiFS_05.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/PSD_PFT_C_MO_climatology_SeaWiFS_05.nc	247040
+1998-06-01	2010-06-30	PSD_PFT_C_MO_climatology_SeaWiFS_06.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/PSD_PFT_C_MO_climatology_SeaWiFS_06.nc	234398
+1998-07-01	2010-07-31	PSD_PFT_C_MO_climatology_SeaWiFS_07.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/PSD_PFT_C_MO_climatology_SeaWiFS_07.nc	242686
+1998-08-01	2010-08-31	PSD_PFT_C_MO_climatology_SeaWiFS_08.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/PSD_PFT_C_MO_climatology_SeaWiFS_08.nc	263253
+1997-09-01	2010-09-30	PSD_PFT_C_MO_climatology_SeaWiFS_09.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/PSD_PFT_C_MO_climatology_SeaWiFS_09.nc	267375
+1997-10-01	2010-10-31	PSD_PFT_C_MO_climatology_SeaWiFS_10.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/PSD_PFT_C_MO_climatology_SeaWiFS_10.nc	262213
+1997-11-01	2010-11-30	PSD_PFT_C_MO_climatology_SeaWiFS_11.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/PSD_PFT_C_MO_climatology_SeaWiFS_11.nc	259076
+1997-12-01	2010-12-31	PSD_PFT_C_MO_climatology_SeaWiFS_12.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/PSD_PFT_C_MO_climatology_SeaWiFS_12.nc	256516
+1997-09-01	1997-09-30	S19972441997273.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S19972441997273.L3m_MO_PSD_PFT_C.nc	189497
+1997-10-01	1997-10-31	S19972741997304.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S19972741997304.L3m_MO_PSD_PFT_C.nc	209252
+1997-11-01	1997-11-30	S19973051997334.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S19973051997334.L3m_MO_PSD_PFT_C.nc	217560
+1997-12-01	1997-12-31	S19973351997365.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S19973351997365.L3m_MO_PSD_PFT_C.nc	211661
+1998-01-01	1998-01-31	S19980011998031.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S19980011998031.L3m_MO_PSD_PFT_C.nc	208062
+1998-02-01	1998-02-28	S19980321998059.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S19980321998059.L3m_MO_PSD_PFT_C.nc	217673
+1998-03-01	1998-03-31	S19980601998090.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S19980601998090.L3m_MO_PSD_PFT_C.nc	218538
+1998-04-01	1998-04-30	S19980911998120.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S19980911998120.L3m_MO_PSD_PFT_C.nc	216335
+1998-05-01	1998-05-31	S19981211998151.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S19981211998151.L3m_MO_PSD_PFT_C.nc	205257
+1998-06-01	1998-06-30	S19981521998181.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S19981521998181.L3m_MO_PSD_PFT_C.nc	191478
+1998-07-01	1998-07-31	S19981821998212.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S19981821998212.L3m_MO_PSD_PFT_C.nc	193392
+1998-08-01	1998-08-31	S19982131998243.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S19982131998243.L3m_MO_PSD_PFT_C.nc	210144
+1998-09-01	1998-09-30	S19982441998273.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S19982441998273.L3m_MO_PSD_PFT_C.nc	218281
+1998-10-01	1998-10-31	S19982741998304.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S19982741998304.L3m_MO_PSD_PFT_C.nc	216446
+1998-11-01	1998-11-30	S19983051998334.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S19983051998334.L3m_MO_PSD_PFT_C.nc	198035
+1998-12-01	1998-12-31	S19983351998365.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S19983351998365.L3m_MO_PSD_PFT_C.nc	205429
+1999-01-01	1999-01-31	S19990011999031.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S19990011999031.L3m_MO_PSD_PFT_C.nc	213520
+1999-02-01	1999-02-28	S19990321999059.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S19990321999059.L3m_MO_PSD_PFT_C.nc	215960
+1999-03-01	1999-03-31	S19990601999090.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S19990601999090.L3m_MO_PSD_PFT_C.nc	220977
+1999-04-01	1999-04-30	S19990911999120.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S19990911999120.L3m_MO_PSD_PFT_C.nc	210223
+1999-05-01	1999-05-31	S19991211999151.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S19991211999151.L3m_MO_PSD_PFT_C.nc	202886
+1999-06-01	1999-06-30	S19991521999181.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S19991521999181.L3m_MO_PSD_PFT_C.nc	193945
+1999-07-01	1999-07-31	S19991821999212.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S19991821999212.L3m_MO_PSD_PFT_C.nc	200435
+1999-08-01	1999-08-31	S19992131999243.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S19992131999243.L3m_MO_PSD_PFT_C.nc	216684
+1999-09-01	1999-09-30	S19992441999273.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S19992441999273.L3m_MO_PSD_PFT_C.nc	227245
+1999-10-01	1999-10-31	S19992741999304.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S19992741999304.L3m_MO_PSD_PFT_C.nc	227647
+1999-11-01	1999-11-30	S19993051999334.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S19993051999334.L3m_MO_PSD_PFT_C.nc	213114
+1999-12-01	1999-12-31	S19993351999365.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S19993351999365.L3m_MO_PSD_PFT_C.nc	213835
+2000-01-01	2000-01-31	S20000012000031.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20000012000031.L3m_MO_PSD_PFT_C.nc	220003
+2000-02-01	2000-02-29	S20000322000060.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20000322000060.L3m_MO_PSD_PFT_C.nc	223167
+2000-03-01	2000-03-31	S20000612000091.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20000612000091.L3m_MO_PSD_PFT_C.nc	228220
+2000-04-01	2000-04-30	S20000922000121.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20000922000121.L3m_MO_PSD_PFT_C.nc	219058
+2000-05-01	2000-05-31	S20001222000152.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20001222000152.L3m_MO_PSD_PFT_C.nc	206892
+2000-06-01	2000-06-30	S20001532000182.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20001532000182.L3m_MO_PSD_PFT_C.nc	197230
+2000-07-01	2000-07-31	S20001832000213.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20001832000213.L3m_MO_PSD_PFT_C.nc	201019
+2000-08-01	2000-08-31	S20002142000244.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20002142000244.L3m_MO_PSD_PFT_C.nc	218840
+2000-09-01	2000-09-30	S20002452000274.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20002452000274.L3m_MO_PSD_PFT_C.nc	227265
+2000-10-01	2000-10-31	S20002752000305.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20002752000305.L3m_MO_PSD_PFT_C.nc	223164
+2000-11-01	2000-11-30	S20003062000335.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20003062000335.L3m_MO_PSD_PFT_C.nc	209985
+2000-12-01	2000-12-31	S20003362000366.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20003362000366.L3m_MO_PSD_PFT_C.nc	209710
+2001-01-01	2001-01-31	S20010012001031.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20010012001031.L3m_MO_PSD_PFT_C.nc	213419
+2001-02-01	2001-02-28	S20010322001059.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20010322001059.L3m_MO_PSD_PFT_C.nc	216938
+2001-03-01	2001-03-31	S20010602001090.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20010602001090.L3m_MO_PSD_PFT_C.nc	231290
+2001-04-01	2001-04-30	S20010912001120.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20010912001120.L3m_MO_PSD_PFT_C.nc	215278
+2001-05-01	2001-05-31	S20011212001151.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20011212001151.L3m_MO_PSD_PFT_C.nc	209582
+2001-06-01	2001-06-30	S20011522001181.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20011522001181.L3m_MO_PSD_PFT_C.nc	197149
+2001-07-01	2001-07-31	S20011822001212.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20011822001212.L3m_MO_PSD_PFT_C.nc	200154
+2001-08-01	2001-08-31	S20012132001243.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20012132001243.L3m_MO_PSD_PFT_C.nc	213857
+2001-09-01	2001-09-30	S20012442001273.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20012442001273.L3m_MO_PSD_PFT_C.nc	228215
+2001-10-01	2001-10-31	S20012742001304.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20012742001304.L3m_MO_PSD_PFT_C.nc	224517
+2001-11-01	2001-11-30	S20013052001334.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20013052001334.L3m_MO_PSD_PFT_C.nc	213773
+2001-12-01	2001-12-31	S20013352001365.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20013352001365.L3m_MO_PSD_PFT_C.nc	212137
+2002-01-01	2002-01-31	S20020012002031.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20020012002031.L3m_MO_PSD_PFT_C.nc	220304
+2002-02-01	2002-02-28	S20020322002059.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20020322002059.L3m_MO_PSD_PFT_C.nc	223856
+2002-03-01	2002-03-31	S20020602002090.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20020602002090.L3m_MO_PSD_PFT_C.nc	225842
+2002-04-01	2002-04-30	S20020912002120.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20020912002120.L3m_MO_PSD_PFT_C.nc	218106
+2002-05-01	2002-05-31	S20021212002151.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20021212002151.L3m_MO_PSD_PFT_C.nc	208598
+2002-06-01	2002-06-30	S20021522002181.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20021522002181.L3m_MO_PSD_PFT_C.nc	197615
+2002-07-01	2002-07-31	S20021822002212.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20021822002212.L3m_MO_PSD_PFT_C.nc	198123
+2002-08-01	2002-08-31	S20022132002243.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20022132002243.L3m_MO_PSD_PFT_C.nc	212881
+2002-09-01	2002-09-30	S20022442002273.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20022442002273.L3m_MO_PSD_PFT_C.nc	229976
+2002-10-01	2002-10-31	S20022742002304.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20022742002304.L3m_MO_PSD_PFT_C.nc	225528
+2002-11-01	2002-11-30	S20023052002334.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20023052002334.L3m_MO_PSD_PFT_C.nc	212303
+2002-12-01	2002-12-31	S20023352002365.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20023352002365.L3m_MO_PSD_PFT_C.nc	214117
+2003-01-01	2003-01-31	S20030012003031.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20030012003031.L3m_MO_PSD_PFT_C.nc	217506
+2003-02-01	2003-02-28	S20030322003059.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20030322003059.L3m_MO_PSD_PFT_C.nc	225203
+2003-03-01	2003-03-31	S20030602003090.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20030602003090.L3m_MO_PSD_PFT_C.nc	232445
+2003-04-01	2003-04-30	S20030912003120.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20030912003120.L3m_MO_PSD_PFT_C.nc	220637
+2003-05-01	2003-05-31	S20031212003151.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20031212003151.L3m_MO_PSD_PFT_C.nc	203713
+2003-06-01	2003-06-30	S20031522003181.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20031522003181.L3m_MO_PSD_PFT_C.nc	197648
+2003-07-01	2003-07-31	S20031822003212.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20031822003212.L3m_MO_PSD_PFT_C.nc	202114
+2003-08-01	2003-08-31	S20032132003243.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20032132003243.L3m_MO_PSD_PFT_C.nc	216070
+2003-09-01	2003-09-30	S20032442003273.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20032442003273.L3m_MO_PSD_PFT_C.nc	224301
+2003-10-01	2003-10-31	S20032742003304.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20032742003304.L3m_MO_PSD_PFT_C.nc	227230
+2003-11-01	2003-11-30	S20033052003334.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20033052003334.L3m_MO_PSD_PFT_C.nc	216725
+2003-12-01	2003-12-31	S20033352003365.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20033352003365.L3m_MO_PSD_PFT_C.nc	206430
+2004-01-01	2004-01-31	S20040012004031.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20040012004031.L3m_MO_PSD_PFT_C.nc	219772
+2004-02-01	2004-02-29	S20040322004060.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20040322004060.L3m_MO_PSD_PFT_C.nc	227917
+2004-03-01	2004-03-31	S20040612004091.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20040612004091.L3m_MO_PSD_PFT_C.nc	230858
+2004-04-01	2004-04-30	S20040922004121.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20040922004121.L3m_MO_PSD_PFT_C.nc	227992
+2004-05-01	2004-05-31	S20041222004152.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20041222004152.L3m_MO_PSD_PFT_C.nc	210415
+2004-06-01	2004-06-30	S20041532004182.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20041532004182.L3m_MO_PSD_PFT_C.nc	194220
+2004-07-01	2004-07-31	S20041832004213.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20041832004213.L3m_MO_PSD_PFT_C.nc	202639
+2004-08-01	2004-08-31	S20042142004244.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20042142004244.L3m_MO_PSD_PFT_C.nc	215116
+2004-09-01	2004-09-30	S20042452004274.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20042452004274.L3m_MO_PSD_PFT_C.nc	227164
+2004-10-01	2004-10-31	S20042752004305.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20042752004305.L3m_MO_PSD_PFT_C.nc	226299
+2004-11-01	2004-11-30	S20043062004335.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20043062004335.L3m_MO_PSD_PFT_C.nc	214321
+2004-12-01	2004-12-31	S20043362004366.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20043362004366.L3m_MO_PSD_PFT_C.nc	211317
+2005-01-01	2005-01-31	S20050012005031.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20050012005031.L3m_MO_PSD_PFT_C.nc	213233
+2005-02-01	2005-02-28	S20050322005059.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20050322005059.L3m_MO_PSD_PFT_C.nc	222720
+2005-03-01	2005-03-31	S20050602005090.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20050602005090.L3m_MO_PSD_PFT_C.nc	236609
+2005-04-01	2005-04-30	S20050912005120.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20050912005120.L3m_MO_PSD_PFT_C.nc	220944
+2005-05-01	2005-05-31	S20051212005151.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20051212005151.L3m_MO_PSD_PFT_C.nc	211764
+2005-06-01	2005-06-30	S20051522005181.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20051522005181.L3m_MO_PSD_PFT_C.nc	199666
+2005-07-01	2005-07-31	S20051822005212.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20051822005212.L3m_MO_PSD_PFT_C.nc	202651
+2005-08-01	2005-08-31	S20052132005243.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20052132005243.L3m_MO_PSD_PFT_C.nc	216257
+2005-09-01	2005-09-30	S20052442005273.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20052442005273.L3m_MO_PSD_PFT_C.nc	226175
+2005-10-01	2005-10-31	S20052742005304.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20052742005304.L3m_MO_PSD_PFT_C.nc	223331
+2005-11-01	2005-11-30	S20053052005334.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20053052005334.L3m_MO_PSD_PFT_C.nc	210799
+2005-12-01	2005-12-31	S20053352005365.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20053352005365.L3m_MO_PSD_PFT_C.nc	208213
+2006-01-01	2006-01-31	S20060012006031.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20060012006031.L3m_MO_PSD_PFT_C.nc	211685
+2006-02-01	2006-02-28	S20060322006059.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20060322006059.L3m_MO_PSD_PFT_C.nc	219974
+2006-03-01	2006-03-31	S20060602006090.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20060602006090.L3m_MO_PSD_PFT_C.nc	227316
+2006-04-01	2006-04-30	S20060912006120.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20060912006120.L3m_MO_PSD_PFT_C.nc	214900
+2006-05-01	2006-05-31	S20061212006151.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20061212006151.L3m_MO_PSD_PFT_C.nc	208531
+2006-06-01	2006-06-30	S20061522006181.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20061522006181.L3m_MO_PSD_PFT_C.nc	198440
+2006-07-01	2006-07-31	S20061822006212.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20061822006212.L3m_MO_PSD_PFT_C.nc	200634
+2006-08-01	2006-08-31	S20062132006243.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20062132006243.L3m_MO_PSD_PFT_C.nc	215582
+2006-09-01	2006-09-30	S20062442006273.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20062442006273.L3m_MO_PSD_PFT_C.nc	223899
+2006-10-01	2006-10-31	S20062742006304.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20062742006304.L3m_MO_PSD_PFT_C.nc	215796
+2006-11-01	2006-11-30	S20063052006334.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20063052006334.L3m_MO_PSD_PFT_C.nc	212174
+2006-12-01	2006-12-31	S20063352006365.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20063352006365.L3m_MO_PSD_PFT_C.nc	203197
+2007-01-01	2007-01-31	S20070012007031.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20070012007031.L3m_MO_PSD_PFT_C.nc	212934
+2007-02-01	2007-02-28	S20070322007059.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20070322007059.L3m_MO_PSD_PFT_C.nc	218773
+2007-03-01	2007-03-31	S20070602007090.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20070602007090.L3m_MO_PSD_PFT_C.nc	226653
+2007-04-01	2007-04-30	S20070912007120.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20070912007120.L3m_MO_PSD_PFT_C.nc	222094
+2007-05-01	2007-05-31	S20071212007151.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20071212007151.L3m_MO_PSD_PFT_C.nc	202789
+2007-06-01	2007-06-30	S20071522007181.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20071522007181.L3m_MO_PSD_PFT_C.nc	197149
+2007-07-01	2007-07-31	S20071822007212.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20071822007212.L3m_MO_PSD_PFT_C.nc	202806
+2007-08-01	2007-08-31	S20072132007243.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20072132007243.L3m_MO_PSD_PFT_C.nc	212067
+2007-09-01	2007-09-30	S20072442007273.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20072442007273.L3m_MO_PSD_PFT_C.nc	218551
+2007-10-01	2007-10-31	S20072742007304.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20072742007304.L3m_MO_PSD_PFT_C.nc	217623
+2007-11-01	2007-11-30	S20073052007334.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20073052007334.L3m_MO_PSD_PFT_C.nc	204114
+2007-12-01	2007-12-31	S20073352007365.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20073352007365.L3m_MO_PSD_PFT_C.nc	204457
+2008-01-01	2008-01-31	S20080012008031.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20080012008031.L3m_MO_PSD_PFT_C.nc	1163
+2008-04-01	2008-04-30	S20080922008121.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20080922008121.L3m_MO_PSD_PFT_C.nc	197874
+2008-05-01	2008-05-31	S20081222008152.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20081222008152.L3m_MO_PSD_PFT_C.nc	193147
+2008-06-01	2008-06-30	S20081532008182.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20081532008182.L3m_MO_PSD_PFT_C.nc	177245
+2008-07-01	2008-07-31	S20081832008213.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20081832008213.L3m_MO_PSD_PFT_C.nc	1333
+2008-08-01	2008-08-31	S20082142008244.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20082142008244.L3m_MO_PSD_PFT_C.nc	164733
+2008-09-01	2008-09-30	S20082452008274.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20082452008274.L3m_MO_PSD_PFT_C.nc	218531
+2008-10-01	2008-10-31	S20082752008305.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20082752008305.L3m_MO_PSD_PFT_C.nc	211131
+2008-11-01	2008-11-30	S20083062008335.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20083062008335.L3m_MO_PSD_PFT_C.nc	205142
+2008-12-01	2008-12-31	S20083362008366.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20083362008366.L3m_MO_PSD_PFT_C.nc	204000
+2009-01-01	2009-01-31	S20090012009031.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20090012009031.L3m_MO_PSD_PFT_C.nc	203344
+2009-02-01	2009-02-28	S20090322009059.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20090322009059.L3m_MO_PSD_PFT_C.nc	214801
+2009-03-01	2009-03-31	S20090602009090.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20090602009090.L3m_MO_PSD_PFT_C.nc	221185
+2009-04-01	2009-04-30	S20090912009120.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20090912009120.L3m_MO_PSD_PFT_C.nc	203788
+2009-06-01	2009-06-30	S20091522009181.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20091522009181.L3m_MO_PSD_PFT_C.nc	145120
+2009-07-01	2009-07-31	S20091822009212.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20091822009212.L3m_MO_PSD_PFT_C.nc	146838
+2009-08-01	2009-08-31	S20092132009243.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20092132009243.L3m_MO_PSD_PFT_C.nc	200307
+2009-09-01	2009-09-30	S20092442009273.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20092442009273.L3m_MO_PSD_PFT_C.nc	10029
+2009-10-01	2009-10-31	S20092742009304.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20092742009304.L3m_MO_PSD_PFT_C.nc	12281
+2009-11-01	2009-11-30	S20093052009334.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20093052009334.L3m_MO_PSD_PFT_C.nc	156737
+2009-12-01	2009-12-31	S20093352009365.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20093352009365.L3m_MO_PSD_PFT_C.nc	202676
+2010-01-01	2010-01-31	S20100012010031.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20100012010031.L3m_MO_PSD_PFT_C.nc	200296
+2010-02-01	2010-02-28	S20100322010059.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20100322010059.L3m_MO_PSD_PFT_C.nc	216711
+2010-03-01	2010-03-31	S20100602010090.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20100602010090.L3m_MO_PSD_PFT_C.nc	221579
+2010-04-01	2010-04-30	S20100912010120.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20100912010120.L3m_MO_PSD_PFT_C.nc	209265
+2010-05-01	2010-05-31	S20101212010151.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20101212010151.L3m_MO_PSD_PFT_C.nc	196924
+2010-06-01	2010-06-30	S20101522010181.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20101522010181.L3m_MO_PSD_PFT_C.nc	177234
+2010-07-01	2010-07-31	S20101822010212.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20101822010212.L3m_MO_PSD_PFT_C.nc	166551
+2010-08-01	2010-08-31	S20102132010243.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20102132010243.L3m_MO_PSD_PFT_C.nc	194656
+2010-09-01	2010-09-30	S20102442010273.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20102442010273.L3m_MO_PSD_PFT_C.nc	207652
+2010-10-01	2010-10-31	S20102742010304.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20102742010304.L3m_MO_PSD_PFT_C.nc	206952
+2010-11-01	2010-11-30	S20103052010334.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20103052010334.L3m_MO_PSD_PFT_C.nc	192836
+2010-12-01	2010-12-31	S20103352010365.L3m_MO_PSD_PFT_C.nc	http://hs.pangaea.de/sat/Kostadinov_etal_2015/S20103352010365.L3m_MO_PSD_PFT_C.nc	127490

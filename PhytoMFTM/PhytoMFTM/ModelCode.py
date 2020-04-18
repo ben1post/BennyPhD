@@ -32,15 +32,15 @@ def phytomftm_extendedoutput_forcing(x, t, paras, pClass, zClass, forcing):
     # Derivatives of Forcings
     deriv_MLD = forcing.MLD.return_derivattime(t)
 
-    int_X21 = forcing.X21.return_interpvalattime(t)
-    deriv_X21 = -forcing.X21.return_derivattime(t)
+    #int_X21 = forcing.X21.return_interpvalattime(t)
+    #deriv_X21 = -forcing.X21.return_derivattime(t)
 
     # Non-Phytoplankton related processes
     # Mixing Processes
     if forcing.type == 'MLD':
-        #K = (paras['kappa'].value + max(deriv_MLD, 0)) / int_MLD  # i.e. there is constant mixing & increased loss with MLD shallowing
-        K = paras['kappa'].value / int_X21 * 10
-        K_Z = 0 #deriv_MLD / int_MLD  # i.e. concentration varies with the MLD depth
+        K = (paras['kappa'].value + max(deriv_MLD, 0)) / int_MLD  # i.e. there is constant mixing & increased loss with MLD shallowing
+        #K = paras['kappa'].value / int_X21 * 10
+        K_Z = deriv_MLD / int_MLD  # i.e. concentration varies with the MLD depth
         U = 0 #i.e. there is no mixing via U, the upwelling parameter for box models
         Sink = 0
 
@@ -148,8 +148,8 @@ def phytomftm_extendedoutput_forcing(x, t, paras, pClass, zClass, forcing):
     outputlist[16] = sum(HigherOrderPredation)   - outputlist[16]
 
     outputlist[17] = sum(PhytoMortality)    - outputlist[17]
-    outputlist[18] = deriv_X21 - outputlist[18]
-    outputlist[19] = int_X21 - outputlist[19]
+    outputlist[18] = 0  # deriv_X21 - outputlist[18]
+    outputlist[19] = 0  # int_X21 - outputlist[19]
 
     out = [y0, y1, y2] + zoo + phy + outputlist
     return np.array(out)

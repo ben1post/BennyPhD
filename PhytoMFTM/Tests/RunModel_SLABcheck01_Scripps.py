@@ -321,3 +321,5 @@ for axe in (ax1, ax2, ax3, ax4):
 plotoutput(out1P1Z,1,1,0, '1P1Z')
 
 plt.tight_layout()
+
+plt.show()

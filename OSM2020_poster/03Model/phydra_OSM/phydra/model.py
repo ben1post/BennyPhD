@@ -3,7 +3,6 @@
 
 import numpy as np
 
-
 def cariaco(x,t,modelsetup, q):
     """System of ODEs - model structure adapted to CARIACO time series setting"""
     N, P, Z, D, outputlist = modelsetup.timestep_init(x)
