@@ -9,6 +9,9 @@ library(reshape2)
 
 library(lubridate)
 
+library(tidyverse)
+library(worrms)
+
 setwd("~/Documents/GitHub/BennyPhD/CaRiaco/SCRIPPS/CARIACO_data/PrelimDataExploration")
 ds <- read.csv("../VeryNEWESTCariacoData/phytoplankton.csv")
 
@@ -98,7 +101,7 @@ getattrs <- function(x){
   
     wm_attr="NA"
     
-    result <- try(wm_attr_data(x))#, silent=TRUE)
+    result <- try(wm_attr_data(x), include_inherited = TRUE)#, silent=TRUE)
     #print(class(result))
     
     # Process any error messages
@@ -111,11 +114,12 @@ getattrs <- function(x){
 
 worms_dat <- ds %>%
   group_by(AphiaID) %>%
-  summarise(wm_attrs=getattrs(AphiaID[1]), wm_classes=getclassification(AphiaID[1]))
+  summarise(aphiaid = AphiaID[1], speciesorig = SpeciesNameOriginal[1], speciesclean = SpeciesNameCleaned[1],scientificname = ScientificName_accepted[1],wm_attrs=getattrs(AphiaID[1]), wm_classes=getclassification(AphiaID[1]))
 
 worms_dat
 
 
+write.csv(worms_dat, "worms_dat_01.csv")
 
 
 
