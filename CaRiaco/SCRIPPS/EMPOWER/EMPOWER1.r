@@ -492,7 +492,7 @@ kw          <<- init[5,1]     # light attenuation coeff.: water,  m-1
 kc          <<- init[6,1]     # light attenuation coeff.: phytoplankton, m2 (mmol N)-1
 delta_t     <<- init[7,1]     # time step, d (choose at time step that divides exactly into 1 as an integer)
 nyears      <<- init[8,1]     # run duration, years
-flag_stn    <<- init[9,1]     # choice of station; 1=India (60N 20W), 2=Biotrans (47N 20W), 3=Kerfix (50 40’S 68 25’E), 4=Papa (50N, 145W)
+flag_stn    <<- init[9,1]     # choice of station; 1=India (60N 20W), 2=Biotrans (47N 20W), 3=Kerfix (50 40ï¿½S 68 25ï¿½E), 4=Papa (50N, 145W)
 flag_LI     <<- init[10,1]    # 1=numeric; 2=Evans & Parslow (1985); 3=Anderson (1993)
 flag_atten  <<- init[11,1]    # 1: kw+kcP (one layer for ML); 2: Anderson (1993) (spectral, layers 0-5,5-23,>23 m
 flag_irrad  <<- init[12,1]    # 1=triangular over day; 2=sinusoidal over day
@@ -539,7 +539,7 @@ if (flag_stn==1) {                  # Station India (60N 20W)
   aN <<- 0.0174
   bN <<- 4.0
   
-} else if (flag_stn==3) {          # Kerfix (50 40’S 68 25’E)
+} else if (flag_stn==3) {          # Kerfix (50 40ï¿½S 68 25ï¿½E)
   for (i in seq(1,13)) {
   MLDi[i] <- forcing[i,7]
   SSTi[i] <- forcing[i,8]
