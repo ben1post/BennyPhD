@@ -1,0 +1,97 @@
+Parameter	Description	Units
+Cruise_number	number of cruise	integer (nnn)
+Cruise_ID_1	cruise ID for OCB	alphanumeric
+Cruise_ID_2	cruise ID for the CARIACO project	alphanumeric
+Leg	number of cruise in the same month	integer (n)
+Day	day of sampling in dd format	unitless
+Month	month of sampling in mm format	unitless
+Year	year of sampling in yyyy format	unitless
+Hydro_cast_no	hydrographic CTD cast number	integer (n)
+ISO_DateTime_start_hc_local	start date and time of hydrocast in Venezuelan Standard Time (VET) in ISO 8601 format	unitless
+ISO_DateTime_end_hc_local	end date and time of hydrocast in Venezuelan Standard Time (VET) in ISO 8601 format	unitless
+Depth_target	depth target (nominal)	meters (m)
+Depth_real	depth of sample	meters (m)
+O2_ml_L	dissolved oxygen (average in ml/L)	milliliters/liter (ml/L)
+q_O2_ml_L	quality flag for O2_(ml/L)	dimensionless
+O2_umol_kg	dissolved oxygen (average in μmol/kg)	micromoles/kilogram (μmol/kg)
+q_O2_umol_kg	quality flag for O2_(μmol/kg)	dimensionless
+NO3_UDO	nitrate UDO (average)	micromolar (μM)
+q_NO3_UDO	quality flag for nitrate UDO	dimensionless
+PO4_UDO	phosphate UDO (average)	micromolar (μM)
+q_PO4_UDO	quality flag for phosphate UDO	dimensionless
+SiO4_UDO	silica UDO	micromolar (μM)
+q_SiO4_UDO	quality flag for silica UDO	dimensionless
+NH4_USF	ammonia USF	micromolar (μM)
+q_NH4_USF	quality flag for ammonia USF	dimensionless
+NO2_USF	nitrite USF	micromolar (μM)
+q_NO2_USF	quality flag for nitrite USF	dimensionless
+NO3_NO2_USF	nitrate plus nitrite USF	micromolar (μM)
+q_NO3_NO3_USF	quality flag for nitrate plus nitrite USF	dimensionless
+PO4_USF	phosphate USF	micromolar (μM)
+q_PO4_USF	quality flag for phosphate USF	dimensionless
+SiO4_USF	silica USF	micromolar (μM)
+q_SiO4_USF	quality flag for silica USF	dimensionless
+pH	pH average total hydrogen (at 25 deg. C) no corrected for dye impurities	ion scale (pH)
+q_pH	quality flag for pH	dimensionless
+Alkalinity_mol_kg	total alkalinity	moles/kilogram (mol/kg)
+q_Alkalinity_mol_kg	quality flag for total alkalinity (mol/kg)	dimensionless
+Alkalinity_umol_kg	total alkalinity	micromoles/kilogram (μmol/kg)
+q_Alkalinity_umol_kg	quality flag for total alkalinity (μmol/kg)	dimensionless
+TCO2	total carbon dioxide in seawater (no corrected)	micromoles/kilogram (μmol/kg)
+q_TCO2	quality flag for total carbon dioxide in seawater (no corrected)	dimensionless
+fCO2	fugacity of CO2 in sea water (no corrected)	microatmospheres (μatm)
+q_fCO2	quality flag for fugacity of CO2 in sea water (no corrected)	dimensionless
+pH_corrected	pH average total hydrogen (at 25 deg. C) corrected for dye impurities	ion scale (pH)
+q_pH_corrected	quality flag for pH_corrected	dimensionless
+TCO2_corrected	total carbon dioxide in seawater (recalculated with corrected pH)	micromoles/kilogram (μmol/kg)
+q_TCO2_corrected	quality flag for total carbon dioxide in seawate recalculated	dimensionless
+fCO2_corrected	fugacity of total carbon dioxide in seawate recalculated	microatmospheres (μatm)
+q_fCO2_corrected	quality flag for ffugacity of total carbon dioxide recalculated	dimensionless
+Salinity_bottles	salinity from salinometer	PSU (PSU)
+q_Salinity_bottles	quality flag for salinity from salinometer	dimensionless
+Salinity_CTD	salinity from CTD	PSU (PSU)
+q_Salinity_CTD	quality flag for salinity from CTD	dimensionless
+Temperature	temperature from CTD ITS-90 scale	degrees Celsius (degC (°C))
+q_Temperature	quality flag for temperature from CTD	dimensionless
+Sigma_t	density	kilograms/meter^3 (Kg/m^3)
+q_Sigma_t	quality flag for density	dimensionless
+TPP	total particulate phosphorus	nanomolar (nM)
+q_TPP	quality flag for total particulate phosphorus	dimensionless
+PIP	particulate inorganic phosphorus	nanomolar (nM)
+q_PIP	quality flag for particulate inorganic phosphorus	dimensionless
+POC_ug_kg	particulate organic carbon	micrograms/liter (μg/kg)
+q_POC_ug_kg	quality flag for particulate organic carbon (μg/kg)	dimensionless
+PON_ug_kg	particulate organic nitrogen	micrograms/liter (μg/kg)
+q_PON_ug_kg	quality flag for particulate organic nitrogen (μg/kg)	dimensionless
+POC_ug_L	particulate organic carbon	micrograms/liter (μg/L)
+q_POC_ug_L	quality flag for particulate organic carbon (μg/L)	dimensionless
+PN_ug_L	particulate organic nitrogen	micrograms/liter (μg/L)
+q_PN_ug_L	quality flag for particulate organic nitrogen (μg/L)	dimensionless
+C_N_particulate	carbon to nitrogen ratio of particulate C to N	mole/mole (mol/mol)
+q_C_N_particulate	quality flag for C to N particulate	dimensionless
+DON	dissolved organic nitrogen USF	micromolar (μM)
+q_DON	quality flag for dissolved organic nitrogen USF	dimensionless
+DOP	dissolved organic phosporus USF	micromolar (μM)
+q_DOP	quality flag for dissolved organic phosporus USF	dimensionless
+DOC	dissolved organic carbon	micromolar (μM)
+q_DOC	quality flag for dissolved organic carbon	dimensionless
+TOC	total organic carbon	micromolar (μM)
+q_TOC	quality flag for total organic carbon	dimensionless
+PrimaryProductivity	primary production	milligrams Carbon/meter^3/hour (mgC/m^3/hr)
+q_PrimaryProductivity	quality flag for primary production	dimensionless
+Chlorophyll	chlorophyll a	milligrams/meter^3 (mg/m^3)
+q_Chlorophyll	quality flag for chlorophyll a	dimensionless
+Phaeopigments	phaeopigment	milligrams/meter^3 (mg/m^3)
+q_Phaeopigments	quality flag for phaeopigment	dimensionless
+Total_Prokaryotes	number of prokaryotes cells	(cells/L )10^8 ((cells_x_10^8/L))
+Bact_Biomass_mgC_m3	bacterial biomass (mgC/m^3)	milligrams Carbon/meter^3 (mgC/m^3)
+Bact_Biomass_uMC	bacterial biomass (μMC)	microMolar Carbon (μMC)
+Bio_cast_no	biological CTD cast number (primary production chlorophyll and phaeopigments)	integer (n)
+ISO_DateTime_start_bc_local	start date and time of biocast in Venezuelan Standard Time (VET) in ISO 8601 format	unitless
+ISO_DateTime_end_bc_local	end date and time of biocast in Venezuelan Standard Time (VET) in ISO 8601 format	unitless
+ISO_DateTime_start_hc_UTC	start date and time of hydrocast in UTC in ISO 8601 format	yyyy-MM-dd'T'HH:mm:ss
+ISO_DateTime_end_hc_UTC	end date and time of hydrocast in UTC in ISO 8601 format	unitless
+ISO_DateTime_start_bc_UTC	start time of biocast in UTC in ISO 8601 format	unitless
+ISO_DateTime_end_bc_UTC	end time of biocast in UTC in ISO 8601 format	unitless
+Latitude	Latitude of observations with positive values indicating North	decimal degrees
+Longitude	Longitude of observations with negative values indicating West	decimal dgrees

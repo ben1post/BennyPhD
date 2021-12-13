@@ -1,0 +1,27 @@
+Parameter	Description	Units
+Cruise	number of cruise	unitless
+Cruise_ID_2	cruise ID for the CARIACO project	unitless
+Leg	cruise leg number	unitless
+Cast	CTD cast number	unitless
+Latitude	Latitude of observations with positive values indicating North	decimal degrees
+Longitude	Longitude of observations with negative values indicating West	decimal degrees
+Year_local	year of sampling in yyyy format	unitless
+Month_local	month of sampling in mm format	unitless
+Day_local	day of sampling in dd format	unitless
+Time_start_local	start time of hydrocast in Venezuelan Standard Time (VET)	unitless
+Time_end_local	end time of hydrocast in Venezuelan Standard Time (VET)	unitless
+Datetime_local	date and time in Venezuelan Standard Time (VET)	unitless
+Datetime_UTC	date and time in UTC	unitless
+SpeciesNameOriginal	species name as the person who did the taxonomy recorded it	unitless
+SpeciesNameCleaned	cleaned species name	unitless
+ScientificName_accepted	Accepted scientific name of the species.	unitless
+AphiaID	Aphia ID	unitless
+d_1m	species count in 1 meter depth bottle sample	cells per milliliter (cells/mL)
+d_7m	species count in 7 meter depth bottle sample	cells per milliliter (cells/mL)
+d_15m	species count in 15 meter depth bottle sample	cells per milliliter (cells/mL)
+d_25m	species count in 25 meter depth bottle sample	cells per milliliter (cells/mL)
+d_35m	species count in 35 meter depth bottle sample	cells per milliliter (cells/mL)
+d_55m	species count in 55 meter depth bottle sample	cells per milliliter (cells/mL)
+d_75m	species count in 75 meter depth bottle sample	cells per milliliter (cells/mL)
+d_100m	species count in 100 meter depth bottle sample	cells per milliliter (cells/mL)
+Total_sum	species count for profile	count
