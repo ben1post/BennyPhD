@@ -1,0 +1,8 @@
+bounding box from BCO DMO:
+ North: 10.683
+ South: 10.492
+ West: -64.735
+ East: -64.367
+ 
+ 
+ 
