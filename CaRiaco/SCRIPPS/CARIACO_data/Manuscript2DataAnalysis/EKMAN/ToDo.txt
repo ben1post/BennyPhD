@@ -1,0 +1,5 @@
+To get the proper dataset:
+
+- download quickscat data
+- download larger area of ERA5 data (250 km off the coast around Cariaco location)
+- 
