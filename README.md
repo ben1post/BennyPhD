@@ -8,4 +8,3 @@ This is the repository where I will keep all code related to my PhD thesis openl
 As I am still within the preliminary phase of the first manuscript, it might still take some time until the file structure and content will make sense to an outsider. 
 Please contact me if you have any questions.  
 
-benjamin.post@leibniz-zmt.de
